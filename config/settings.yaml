@@ -1,0 +1,90 @@
+# PFE DRAI settings. Every value here can be changed without touching the code.
+# Override the file path with the PFE_DRAI_CONFIG environment variable.
+
+data:
+  # Which data source to use: synthetic | csv | fred | yahoo
+  # "synthetic" generates realistic simulated data (no API key needed).
+  provider: synthetic
+  start: "2000-01-03"
+  end: null                 # null = today
+  seed: 42                  # synthetic data only
+  csv_dir: data_cache/csv   # csv provider: one <series>.csv per series (date,value)
+  fred_api_key_env: FRED_API_KEY
+  # Days between the end of a month and the release of monthly data (point-in-time).
+  publication_lag_days:
+    indpro: 17
+    cpi: 14
+  cache_dir: data_cache
+
+features:
+  zscore_min_periods: 252   # expanding z-scores: no look-ahead
+  zscore_clip: 4.0
+
+regimes:
+  # Order matters: it fixes colors and chart order.
+  order: [expansion, overheating, slowdown, stress]
+  colors:
+    expansion: "#1baf7a"
+    overheating: "#eda100"
+    slowdown: "#2a78d6"
+    stress: "#4a3aa7"
+  # Prototype position of each regime on (stress, growth, inflation).
+  # Unsupervised model states are matched to the closest prototype.
+  prototypes:
+    expansion:   [-0.5,  0.5,  0.0]
+    overheating: [ 0.0, -0.2,  1.2]
+    slowdown:    [ 0.4, -0.5, -0.2]
+    stress:      [ 1.8, -0.5, -0.3]
+  # Transparent rule used to label history (target of the supervised model).
+  rule:
+    stress_threshold: 1.0
+    growth_threshold: -0.25
+    inflation_threshold: 0.8
+
+models:
+  default: jump
+  kmeans:
+    n_init: 10
+  jump:
+    penalty: 12.0           # cost of switching regime (higher = fewer switches)
+    n_iter: 15
+    temperature: 3.0        # softness of the probabilities
+  gbm:
+    horizon_days: 5         # predicts the regime one week ahead
+    max_iter: 100
+    refit_every_days: 252     # slower to fit: refit once a year in walk-forward
+    learning_rate: 0.06
+
+validation:
+  min_train_days: 1260      # 5 years before the first out-of-sample prediction
+  refit_every_days: 126
+  # Rule that dates the start of each stress episode. Fixed BEFORE any backtest.
+  episodes:
+    drawdown_threshold: -0.10     # drawdown from 252-day high
+    vol_window: 21
+    vol_quantile: 0.95            # realised vol above its expanding 95th percentile
+    min_gap_days: 126             # two starts closer than this are one episode
+    recovery_drawdown: -0.05      # episode ends when the drawdown recovers above this
+    max_duration_days: 126        # ...or after this many business days
+    detection_window_days: 60     # a detection later than this counts as missed
+    lookback_days: 20             # a detection up to 20 days early counts
+  stress_probability_threshold: 0.5
+  confirm_days: 3                 # a signal must hold this many days to count
+  targets:
+    max_median_latency_days: 5
+    max_false_positives_per_year: 1.5
+
+alerts:
+  stress_probability: 0.5
+  early_warning_probability: 0.4  # gbm probability of stress in one week
+  score_jump: 1.0                 # 5-day move of a dimension score
+  channels: []                    # email / webhook: not wired yet
+
+scenarios:
+  library: config/scenarios.yaml
+  funds: config/funds.yaml
+  top_k: 3
+
+publish:
+  dir: track_record
+  opentimestamps: true            # uses the `ots` CLI if installed

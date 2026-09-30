@@ -1,0 +1,71 @@
+# Historical stress scenarios.
+# Shocks are INDICATIVE total returns per asset class over the stress window, to be
+# checked against source data before any commercial use.
+# profile = typical position on (stress, growth, inflation), same scale as the model scores.
+
+asset_classes: [equity_world, equity_europe, gov_bonds, ig_credit, hy_credit, gold, commodities, cash]
+
+scenarios:
+  - id: dotcom_2000
+    name: {fr: "Éclatement de la bulle Internet (2000-2002)", en: "Dot-com bust (2000-2002)"}
+    start: "2000-03-24"
+    end: "2002-10-09"
+    regime: slowdown
+    profile: [1.2, -1.2, -0.2]
+    shocks: {equity_world: -0.45, equity_europe: -0.55, gov_bonds: 0.20, ig_credit: 0.15, hy_credit: -0.05, gold: 0.15, commodities: -0.10, cash: 0.08}
+  - id: gfc_2008
+    name: {fr: "Crise financière mondiale (2008)", en: "Global financial crisis (2008)"}
+    start: "2008-09-01"
+    end: "2009-03-09"
+    regime: stress
+    profile: [3.0, -2.0, -0.8]
+    shocks: {equity_world: -0.45, equity_europe: -0.48, gov_bonds: 0.08, ig_credit: -0.08, hy_credit: -0.30, gold: 0.05, commodities: -0.50, cash: 0.01}
+  - id: euro_2011
+    name: {fr: "Crise de la dette de la zone euro (2011)", en: "Euro area debt crisis (2011)"}
+    start: "2011-07-01"
+    end: "2011-10-04"
+    regime: stress
+    profile: [2.2, -0.8, 0.3]
+    shocks: {equity_world: -0.18, equity_europe: -0.27, gov_bonds: 0.05, ig_credit: -0.02, hy_credit: -0.09, gold: 0.12, commodities: -0.12, cash: 0.0}
+  - id: taper_2013
+    name: {fr: "Taper tantrum (2013)", en: "Taper tantrum (2013)"}
+    start: "2013-05-21"
+    end: "2013-06-24"
+    regime: overheating
+    profile: [0.6, 0.3, 0.9]
+    shocks: {equity_world: -0.07, equity_europe: -0.10, gov_bonds: -0.04, ig_credit: -0.04, hy_credit: -0.05, gold: -0.15, commodities: -0.05, cash: 0.0}
+  - id: china_2015
+    name: {fr: "Chine et pétrole (2015-2016)", en: "China and oil (2015-2016)"}
+    start: "2015-08-10"
+    end: "2016-02-11"
+    regime: slowdown
+    profile: [1.5, -0.9, -0.9]
+    shocks: {equity_world: -0.15, equity_europe: -0.20, gov_bonds: 0.03, ig_credit: -0.01, hy_credit: -0.09, gold: 0.10, commodities: -0.30, cash: 0.0}
+  - id: q4_2018
+    name: {fr: "Resserrement monétaire (T4 2018)", en: "Monetary tightening (Q4 2018)"}
+    start: "2018-10-03"
+    end: "2018-12-24"
+    regime: slowdown
+    profile: [1.4, -0.4, 0.3]
+    shocks: {equity_world: -0.17, equity_europe: -0.13, gov_bonds: 0.02, ig_credit: -0.02, hy_credit: -0.07, gold: 0.06, commodities: -0.25, cash: 0.005}
+  - id: covid_2020
+    name: {fr: "Choc Covid-19 (2020)", en: "Covid-19 shock (2020)"}
+    start: "2020-02-19"
+    end: "2020-03-23"
+    regime: stress
+    profile: [3.5, -2.5, -1.0]
+    shocks: {equity_world: -0.34, equity_europe: -0.38, gov_bonds: 0.03, ig_credit: -0.12, hy_credit: -0.20, gold: -0.03, commodities: -0.30, cash: 0.0}
+  - id: inflation_2022
+    name: {fr: "Choc d'inflation et de taux (2022)", en: "Inflation and rates shock (2022)"}
+    start: "2022-01-03"
+    end: "2022-10-12"
+    regime: overheating
+    profile: [1.3, -0.3, 2.2]
+    shocks: {equity_world: -0.25, equity_europe: -0.22, gov_bonds: -0.15, ig_credit: -0.20, hy_credit: -0.15, gold: -0.08, commodities: 0.20, cash: 0.01}
+  - id: tariffs_2025
+    name: {fr: "Choc des droits de douane (avril 2025)", en: "Tariff shock (April 2025)"}
+    start: "2025-04-02"
+    end: "2025-04-08"
+    regime: stress
+    profile: [2.5, -1.0, 0.8]
+    shocks: {equity_world: -0.12, equity_europe: -0.14, gov_bonds: -0.01, ig_credit: -0.02, hy_credit: -0.05, gold: 0.02, commodities: -0.12, cash: 0.0}
