@@ -1,1 +1,1 @@
-"""Features for the two regime axes and free credit proxies (HYG/LQD/IEF)."""
+"""Features for the stress, growth and inflation dimensions, and credit proxies (HYG/LQD/IEF)."""

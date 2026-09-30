@@ -3,15 +3,23 @@
 Explainable market regime detection for small asset managers and family offices.
 The product is bilingual (FR/EN): all user-facing text lives in `locales/`.
 
+## Regimes
+
+Regimes are defined on three dimensions: **stress**, **growth** and **inflation**.
+The mapping from model states to named regimes, and the rule that dates the start of each
+stress episode, are written down before any backtest.
+
 ## Structure
 
 ```
 pfe_drai/
   data/        # ingestion (FRED/ALFRED, ETF prices), point-in-time aware
-  features/    # the two regime axes, free credit proxies (HYG/LQD/IEF)
+  features/    # stress, growth and inflation dimensions; credit proxies (HYG/LQD/IEF)
   models/      # k-means baseline, Statistical Jump Model, gradient boosting
   validation/  # walk-forward, purged CV, detection latency, calibration
-  publish/     # daily timestamped snapshot -> track_record/
+  scenarios/   # historical stress scenarios, regime-conditioned selection, fund impact
+  reporting/   # risk committee note (FR/EN), PDF export
+  publish/     # daily snapshot -> track_record/, externally timestamped (OpenTimestamps)
   i18n/        # t(key, lang) loader for locales/{fr,en}.json
 locales/       # fr.json, en.json
 app/           # Streamlit dashboard (later)
