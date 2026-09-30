@@ -1,0 +1,12 @@
+# Model funds used to measure scenario impact. Weights are per asset class and sum to 1.
+# Add your own fund here, or edit the weights directly in the app.
+funds:
+  - id: prudent
+    name: {fr: "Fonds prudent", en: "Conservative fund"}
+    weights: {equity_world: 0.15, equity_europe: 0.05, gov_bonds: 0.40, ig_credit: 0.25, hy_credit: 0.05, gold: 0.05, commodities: 0.0, cash: 0.05}
+  - id: balanced
+    name: {fr: "Fonds équilibré", en: "Balanced fund"}
+    weights: {equity_world: 0.35, equity_europe: 0.15, gov_bonds: 0.20, ig_credit: 0.15, hy_credit: 0.05, gold: 0.05, commodities: 0.0, cash: 0.05}
+  - id: dynamic
+    name: {fr: "Fonds dynamique", en: "Growth fund"}
+    weights: {equity_world: 0.50, equity_europe: 0.25, gov_bonds: 0.05, ig_credit: 0.05, hy_credit: 0.05, gold: 0.05, commodities: 0.05, cash: 0.0}

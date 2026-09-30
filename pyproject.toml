@@ -1,0 +1,41 @@
+[project]
+name = "pfe-drai"
+version = "0.1.0"
+description = "Market regime detection with AI (PFE DRAI)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "scipy>=1.11",
+    "pyyaml>=6",
+    "httpx>=0.27",
+    "fpdf2>=2.7",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.40", "plotly>=5.20", "fastapi>=0.110", "uvicorn>=0.29"]
+yahoo = ["yfinance"]
+dev = ["pytest", "ruff", "httpx"]
+
+[project.scripts]
+pfe-drai = "pfe_drai.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["pfe_drai*"]
+
+[tool.ruff]
+line-length = 130
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
