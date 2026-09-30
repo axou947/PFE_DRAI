@@ -1,0 +1,30 @@
+[project]
+name = "pfe-drai"
+version = "0.1.0"
+description = "Market regime detection with AI (PFE DRAI)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "duckdb",
+    "pyarrow",
+]
+
+[project.optional-dependencies]
+app = ["streamlit", "fastapi", "uvicorn"]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["pfe_drai*"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
