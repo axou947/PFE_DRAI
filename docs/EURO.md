@@ -54,6 +54,19 @@ the European Commission sentiment indicator (not needed: the growth score keeps 
    network access (the build environment cannot reach either server). Phase A (`data`, below) is the check: a wrong key stops the run
    with the server's message, it never produces silent numbers.
 
+### Phase A: coverage, run by Henry on 2026-10-01 (no model, before any real run)
+
+| Series | First | Last | Filters that matched |
+|---|---|---|---|
+| equity (EZU) | 2001-01-02 | 2026-10-01 | n/a |
+| vix (realised) | 2001-02-01 | 2026-10-01 | computed |
+| us10y, us2y, credit_spread | 2004-09-07 | 2026-10-01 | ECB `YC` keys of the overlay |
+| cpi | 2000-08-18 | 2026-09-18 | ECB `HICP` `M.U2.N.000000.4D0.INX` |
+| indpro | 2000-09-19 | 2026-09-19 | `sts_inpr_m`, `EA20`, I21 |
+| claims (unemployment) | 2000-09-04 | 2026-10-05 | `une_rt_m`, `EA21` |
+
+Features start on 2006-03-07; the euro out-of-sample period starts on 2011-03-08 (`validation.min_train_days: 1260`).
+
 ## The episode rule for the euro area (frozen)
 
 The US rule's **parameters, unchanged**, applied to the EZU price: a start is a fresh crossing of a −10% drawdown from the
