@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -16,6 +17,7 @@ from pfe_drai.features import FEATURES  # noqa: E402
 from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
 from pfe_drai.pipeline import Pipeline  # noqa: E402
+from pfe_drai.publish.page import page_html  # noqa: E402
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf  # noqa: E402
 from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, rank_scenarios  # noqa: E402
 from pfe_drai.validation import evaluate  # noqa: E402
@@ -65,6 +67,17 @@ def get_world(provider: str):
     settings = load_settings()
     prices, errors = fetch_prices(settings, provider)
     return prices, indicators(prices, settings), errors
+
+
+@st.cache_data(show_spinner=False)
+def get_track_record_page(provider: str, lang: str, files: tuple) -> str:
+    """The public track-record page (docs/TRACK_RECORD.md), rebuilt when a file of track_record/ changes.
+
+    Built on the configured settings, not on the sidebar threshold: the record is frozen.
+    """
+    frozen = Pipeline(load_settings(overrides={"data": {"provider": provider}}))
+    frozen.__dict__["raw"] = get_pipeline(provider).raw  # same data, fetched once
+    return page_html(frozen, resolve(settings["publish"]["dir"]), lang)
 
 
 def base_layout(fig: go.Figure, height: int = 320, **kw) -> go.Figure:
@@ -131,8 +144,15 @@ state = pipeline.state(model, as_of)
 st.title(t("app.title", lang))
 st.caption(f"{t('app.subtitle', lang)} · {fmt_date(state.date, lang)}")
 
-tab_dash, tab_world, tab_hist, tab_alerts, tab_scen = st.tabs(
-    [t("tab.dashboard", lang), t("tab.world", lang), t("tab.history", lang), t("tab.alerts", lang), t("tab.scenarios", lang)]
+tab_dash, tab_world, tab_hist, tab_track, tab_alerts, tab_scen = st.tabs(
+    [
+        t("tab.dashboard", lang),
+        t("tab.world", lang),
+        t("tab.history", lang),
+        t("tab.track_record", lang),
+        t("tab.alerts", lang),
+        t("tab.scenarios", lang),
+    ]
 )
 
 # ================================================================ DASHBOARD
@@ -795,6 +815,16 @@ with tab_hist:
         st.dataframe(pd.read_csv(index_path).iloc[::-1], hide_index=True, width="stretch")
     else:
         st.info(t("hist.no_track_record", lang))
+
+# ================================================================ TRACK RECORD
+with tab_track:
+    records = resolve(settings["publish"]["dir"])
+    files = tuple(sorted((p.name, p.stat().st_mtime_ns) for p in records.rglob("*.json*")))
+    with st.spinner(t("app.loading", lang)):
+        page = get_track_record_page(provider, lang, files)
+    st.caption(t("tr.app_help", lang, url=settings["publish"].get("pages_url", "")))
+    st.download_button(f"{t('app.download', lang)} HTML", page, f"track-record-{lang}.html", "text/html")
+    components.html(page, height=2600, scrolling=True)
 
 # ================================================================ ALERTS
 with tab_alerts:
