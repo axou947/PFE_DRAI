@@ -417,8 +417,9 @@ with tab_world:
 
     if w_prices is not None:
         first_day, last_day = w_prices.index[0].date(), w_prices.index[-1].date()
-        if "world_date" not in st.session_state:
-            st.session_state["world_date"] = min(max(as_of.date(), first_day), last_day)
+        # The data range moves (new close, another source): keep a stored date inside it, or the widget raises.
+        stored = st.session_state.get("world_date", as_of.date())
+        st.session_state["world_date"] = min(max(stored, first_day), last_day)
         replay = {r["date"].date(): r["name"][lang] for r in load_replay(settings) if first_day <= r["date"].date() <= last_day}
 
         def _replay():
