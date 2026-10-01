@@ -55,13 +55,37 @@ Both audit targets hold on simulated data: median latency ≤ 5 days and ≤ 1.5
 The cost is more regime switches than the jump model alone (3.5 against 2.0 a year), because gbm
 can push P(stress) above the other regimes for a few days.
 
-## Real data
+## Real data (run once, 2026-10-01)
 
-Run once, then publish every latency, whatever they are:
+`python -m pfe_drai --provider fred backtest`, run by Henry on 2026-10-01 after the choice above was
+pushed. Out-of-sample from 2009-04, so 11 of the 12 frozen episodes are scored (2008 is in training).
 
-```
-python -m pfe_drai --provider fred backtest
-```
+| model                | detected | median latency | FP / yr | Brier |
+|----------------------|---------:|---------------:|--------:|------:|
+| **combined** (new)   |   5/11   |  11.0          |  0.17   | 0.097 |
+| gbm                  |   5/11   |  11.0          |  0.17   | 0.099 |
+| jump (penalty 6)     |   1/11   |  10.0          |  0.00   | 0.106 |
+| kmeans               |   1/11   |   9.0          |  0.00   | 0.107 |
 
-If the real results miss the targets, the answer is a new version of this page with a new
-reason, not a retune of the settings against the 12 real episodes.
+Latency of every episode (combined, business days):
+
+| start      | max drawdown | latency |
+|------------|-------------:|--------:|
+| 2010-05-20 | −15.7%       | missed  |
+| 2011-08-04 | −18.6%       | +11     |
+| 2011-12-19 | −10.4%       | missed  |
+| 2015-08-24 | −11.9%       | missed  |
+| 2016-01-13 | −13.0%       | +18     |
+| 2018-02-08 | −10.1%       | missed  |
+| 2018-12-14 | −19.3%       | +6      |
+| 2020-02-27 | −33.7%      | +5      |
+| 2022-02-22 | −12.9%       | missed  |
+| 2022-05-05 | −24.5%       | missed  |
+| 2025-03-13 | −18.8%       | +18     |
+
+- The false-positive target is met (0.17 / yr ≤ 1.5); the latency target is **not** (11 days > 5).
+- On real data the stress signal comes from gbm alone: the jump model flags only 1 episode.
+  Simulated data overstated the jump model, so the simulator is too easy on it.
+- These numbers are published as they are. They were not used to choose anything on this page.
+  Any later change is a new version of this page, chosen on data that excludes these 11 episodes
+  or with a reason fixed before looking at them.
