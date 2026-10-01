@@ -1,6 +1,6 @@
 # Euro-area macro regimes: data decisions and pre-registration
 
-**Status: PRE-REGISTERED, nothing run on real data yet.** The euro-area model (`--region euro`, `models.version: euro-v1`)
+**Status: RUN on 2026-10-01 and NOT PASSED (condition 6, see Results): the euro view stays experimental and is not published daily.** Pre-registered the same day, before any real euro run. The euro-area model (`--region euro`, `models.version: euro-v1`)
 is an addition: the US model (v2.2), its frozen episode rule, its daily publication and its track record are not
 touched. This page fixes the data, the episode rule, the regime thresholds, the selection procedure and the numeric
 decision rule **before any real euro-area run**. The results are added under "Results" as they come out and nothing
@@ -134,4 +134,38 @@ Selected by the pre-registered rule: **gbm / market**, which the US model alread
 
 ### Step 2: the real backtest (run once by Henry)
 
-*(not run yet)*
+Run once by Henry on 2026-10-01 (`--region euro --provider euro backtest`, then `calibration` and `states` on the same fits), out-of-sample 2011-03-08 to 2026-10-01, 3,911 days, 12 episodes dated by the frozen rule.
+
+| model | episodes | detected | median latency | all episodes | FP/yr | calm days in alarm | Brier | ECE |
+|---|---|---|---|---|---|---|---|---|
+| combined (the model) | 12 | 11 | 2.0 | 2.0 | 0.77 | 8.4% | 0.173 | 0.051 |
+| v2 (same alarm, uncalibrated P) | 12 | 11 | 2.0 | 2.0 | 0.77 | 8.4% | 0.202 | 0.174 |
+| onset alone | 12 | 10 | 0.0 | 2.0 | 0.64 | 2.2% | 0.188 | 0.173 |
+| v1 (jump + gbm) | 12 | 3 | 13.0 | 60.0 | 0.19 | 6.4% | 0.220 | 0.206 |
+| gbm, jump, kmeans alone | 12 | 3, 2, 2 | 13, 29, 25.5 | 60 | 0.13 to 0.51 | 4.5 to 5.8% | 0.20 to 0.23 | 0.19 to 0.23 |
+
+Latency per episode, `combined` (business days, negative = signal already on): 2011-06-15 -15; 2014-08-06 +55; 2015-08-21 +9; 2018-05-29 +12; 2019-08-14 +2; 2020-02-27 +9; 2020-10-27 -20; 2022-02-22 -4; 2023-09-25 **missed**; 2024-11-12 -2; 2025-04-04 +2; 2026-03-13 -3. All 12 episodes were opened by the drawdown line.
+
+Calibration: Brier 0.173 against 0.202 uncalibrated, ECE 0.051 against 0.174, but **Brier skill -0.02**: the calibrated probability is no better than always saying the observed frequency (21.7%). The calibrator's weight on the alarm score stayed between 0.00 and 0.13 at every refit, so the calibrated P(stress) only moves between about 17% and 34%. The uncalibrated detector score is badly over-confident: days above 90% were in the stress event 40.8% of the time.
+
+States: the Slowdown state is named in 22 of 32 refits (not in 2012-2017 refits 10 times); agreement with the rule is a median 69% (lowest 32%).
+
+### Decision rule applied (the conditions are those fixed above, not edited)
+
+| # | Condition | Result | Met |
+|---|---|---|---|
+| 1 | at least 6 episodes | 12 | yes |
+| 2 | at least 80% detected | 11 of 12 (92%) | yes |
+| 3 | median latency at most 5 days | 2.0 | yes |
+| 4 | at most 1.5 false alarms a year | 0.77 | yes |
+| 5 | at most 10% of calm days in alarm | 8.4% | yes |
+| 6 | ECE at most 0.08 and Brier skill above 0 | ECE 0.051, **skill -0.02** | **no** |
+| 7 | Slowdown named in at least half of the refits | 22 of 32 (69%) | yes |
+
+**Verdict: euro v1 does not pass** (6 of 7 conditions; condition 6 fails on skill). Consequences, as pre-registered: the results stay published here, the euro view stays labelled experimental, `publish.enabled` stays false and no euro daily record or workflow step is added. The euro alarm detects crises quickly (the detection conditions all hold), but the euro probability should not be read as a probability.
+
+### What this does and does not show
+
+- It does not show the euro area is harder than the US in general: the euro data are shorter, partly revised, and the ETF is priced in dollars, so some episodes may be currency moves (the 2020-10 and 2024-11 starts are candidates; not checked).
+- The alarm stays on after an episode ends by the rule's recovery line, which explains the over-confidence of the raw score: this is a hypothesis, not tested.
+- The real euro episodes are now seen. Any retuning (a euro-denominated series, a different calibration) needs its own pre-registration with a stated reason written beforehand.
