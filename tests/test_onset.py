@@ -116,12 +116,12 @@ def test_combined_v2_matches_its_parts(settings):
     s = _onset_settings(settings)
     s = _deep_merge(s, {"models": {"combined": {"stress_sources": ["gbm", "onset"]}}})
     p = Pipeline(s, use_cache=False)
-    probs = p.probabilities("combined")
+    score = p.alarm_score("combined")
     parts = [p.probabilities(m)["stress"] for m in ("jump", "gbm", "onset")]
-    assert np.allclose(probs["stress"], np.maximum.reduce([x.loc[probs.index] for x in parts]))
-    # v2 can only raise P(stress): it detects every episode v1 detects, no later.
+    assert np.allclose(score, np.maximum.reduce([x.loc[score.index] for x in parts]))
+    # v2 can only raise the detector score: it detects every episode v1 detects, no later.
     v1 = combine(p.probabilities("jump"), p.probabilities("gbm"))
-    assert (probs["stress"] >= v1["stress"].loc[probs.index] - 1e-12).all()
+    assert (score >= v1["stress"].loc[score.index] - 1e-12).all()
 
 
 def test_median_latency_counts_misses_as_window_end(settings):

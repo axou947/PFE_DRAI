@@ -7,6 +7,7 @@ publish    write today's track record entry (real data only)
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
+calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
 data       history covered by each series and where the backtest starts
 world      country equity markets: return and market stress state on a date (docs/WORLD.md)
 app        start the Streamlit dashboard
@@ -46,32 +47,46 @@ def cmd_backtest(args):
     import pandas as pd
 
     from .models import available_models
-    from .models.combined import combine
+    from .models.combined import combination, combine
     from .validation import evaluate
 
     p = _pipeline(args)
     models = [args.model] if args.model else available_models()
     results = {m: p.evaluate(m) for m in models}
     sources = p.settings["models"].get("combined", {}).get("stress_sources", ["gbm"])
-    if "combined" in models and list(sources) != ["gbm"]:
-        # v1 (jump + gbm, docs/DETECTION.md) in the same run, to compare with the configured version.
-        v1 = combine(p.probabilities("jump"), p.probabilities("gbm"))
-        results["v1"] = evaluate(v1, p.prices["equity"], p.episodes, p.settings, truth=p.truth, rule=p.labels)
+    calibrated = combination(p.settings) == "calibrated"
+    if "combined" in models:
+        parts = [p.probabilities(name) for name in ("jump", *sources)]
+        if calibrated:
+            # v2 as published (P(stress) = detector score) in the same run: same alarm, raw probability.
+            results["v2"] = evaluate(combine(*parts), p.prices["equity"], p.episodes, p.settings, truth=p.truth, rule=p.labels)
+        if list(sources) != ["gbm"]:
+            # v1 (jump + gbm, docs/DETECTION.md) in the same run, to compare with the configured version.
+            v1 = combine(p.probabilities("jump"), p.probabilities("gbm"))
+            results["v1"] = evaluate(v1, p.prices["equity"], p.episodes, p.settings, truth=p.truth, rule=p.labels)
     print(
         f"{'model':<8} {'episodes':>9} {'detected':>9} {'median lat.':>12} {'all eps.':>9} "
-        f"{'FP/yr':>7} {'alarm':>6} {'switch/yr':>10} {'Brier':>7} {'acc.':>6}"
+        f"{'FP/yr':>7} {'alarm':>6} {'switch/yr':>10} {'Brier':>7} {'ECE':>6} {'logloss':>8} {'acc.':>6}"
     )
     for m, r in results.items():
         acc = r.get("accuracy_truth", float("nan"))
         print(
             f"{m:<8} {r['n_episodes']:>9} {r['detected']:>9} {r['median_latency']:>12.1f} {r['median_latency_all']:>9.1f} "
             f"{r['false_positives_per_year']:>7.2f} {r['false_alarm_share']:>6.1%} {r['switches_per_year']:>10.1f} "
-            f"{r['brier_stress']:>7.3f} {acc:>6.2f}"
+            f"{r['brier']:>7.3f} {r['ece']:>6.3f} {r['log_loss']:>8.3f} {acc:>6.2f}"
         )
     window = p.settings["validation"]["episodes"]["detection_window_days"]
+    horizon = p.settings["validation"]["calibration"]["target_horizon_days"]
     print(f"all eps. = median latency over every episode, a missed one counting as {window} days")
     print("alarm = share of calm days (outside episodes) with the stress signal on")
-    print(f"combined = jump + stress sources {list(sources)} (models.combined.stress_sources); v1 = jump + gbm")
+    print(
+        f"Brier, ECE, logloss = P(stress) against the stress event (inside an episode or one starts within {horizon} days), "
+        "lower is better (docs/CALIBRATION.md)"
+    )
+    shown_combination = "calibrated P(stress)" if calibrated else "P(stress) = detector score"
+    print(f"combined = jump + stress sources {list(sources)}, {shown_combination}; v1 = jump + gbm")
+    if calibrated:
+        print("v2 = same models and same alarm, P(stress) = detector score (highest source, not calibrated)")
     # Every latency of the default (or chosen) model, missed episodes included.
     shown = args.model or p.settings["models"]["default"]
     columns = [shown] + (["v1"] if "v1" in results else [])
@@ -86,6 +101,47 @@ def cmd_backtest(args):
             f"  {row['start'].date()!s:<12} {row['trigger']:<11} {row['max_drawdown']:>7.1%} "
             + " ".join(f"{c:>7}" for c in cells)
         )
+
+
+def cmd_calibration(args):
+    from .models.combined import combine
+    from .validation.calibration import calibration_report
+
+    p = _pipeline(args)
+    sources = p.settings["models"]["combined"]["stress_sources"]
+    raw = combine(*(p.probabilities(name) for name in ("jump", *sources)))["stress"]
+    cal = p.calibrated()
+    horizon = p.settings["validation"]["calibration"]["target_horizon_days"]
+    data = "real" if p.provider.is_live else "SIMULATED"
+    print(
+        f"Calibration of P(stress) ({data} data, provider {p.provider.name}), out-of-sample from {cal.stress.index[0].date()} "
+        f"to {cal.stress.index[-1].date()}. Event: inside an episode of the frozen rule, or one starts within {horizon} "
+        "business days. See docs/CALIBRATION.md."
+    )
+    reports = {"v2 (detector score)": calibration_report(raw, p.episodes, p.settings)}
+    reports["calibrated"] = calibration_report(cal.stress, p.episodes, p.settings)
+    print(f"\n{'P(stress)':<22} {'days':>6} {'Brier':>7} {'ECE':>6} {'logloss':>8} {'skill':>6} {'mean P':>7} {'observed':>9}")
+    for name, r in reports.items():
+        print(
+            f"{name:<22} {r['n_days']:>6} {r['brier']:>7.3f} {r['ece']:>6.3f} {r['log_loss']:>8.3f} {r['brier_skill']:>6.2f} "
+            f"{r['mean_p']:>7.1%} {r['base_rate']:>9.1%}"
+        )
+    print("(lower is better for Brier, ECE and logloss; skill = 1 - Brier / Brier of always saying the observed frequency)")
+    for name, r in reports.items():
+        print(f"\nReliability, {name}: days grouped by predicted P(stress)")
+        print(f"  {'bin':<11} {'days':>6} {'predicted':>10} {'observed':>9}")
+        for row in r["reliability"].itertuples():
+            print(f"  {row.low:>4.0%}-{row.high:<5.0%} {row.count:>6} {row.predicted:>10.1%} {row.observed:>9.1%}")
+    fits = cal.fits
+    weights = [c for c in fits.columns if c not in ("first_day", "intercept", "train_days", "event_days")]
+    print(f"\nCalibrator at each refit (P = sigmoid(intercept + weight x logit(input)); inputs: {', '.join(weights)}):")
+    print(f"  {'first day':<12} {'train days':>10} {'event days':>10} {'intercept':>10} " + " ".join(f"{w:>8}" for w in weights))
+    for row in fits.to_dict("records"):
+        head = f"  {row['first_day'].date()!s:<12} {row['train_days']:>10} {row['event_days']:>10}"
+        if row["intercept"] != row["intercept"]:
+            print(f"{head}   too few event days: P(stress) = detector score")
+            continue
+        print(f"{head} {row['intercept']:>10.2f} " + " ".join(f"{row[w]:>8.2f}" for w in weights))
 
 
 def cmd_report(args):
@@ -265,6 +321,7 @@ def main(argv=None):
         ("episodes", cmd_episodes),
         ("states", cmd_states),
         ("holdout", cmd_holdout),
+        ("calibration", cmd_calibration),
         ("data", cmd_data),
         ("world", cmd_world),
         ("app", cmd_app),

@@ -54,6 +54,19 @@ models:
     # Models whose P(stress) can raise the jump model's. [gbm] = v1 (PR #5).
     # [gbm, onset] = v2, adopted 2026-10-01 under the pre-registered rule (docs/DETECTION_V2.md).
     stress_sources: [gbm, onset]
+    # How the sources make the P(stress) that is shown and published (docs/CALIBRATION.md).
+    # max = v2: the highest source. calibrated = Platt scaling of that highest source, refitted
+    # walk-forward on past out-of-sample days, so "30%" means stress followed about 3 times in 10.
+    # The stress alarm does not change: it stays on the highest source (validation.alarm).
+    stress_combination: calibrated
+    stack:
+      inputs: max             # max = Platt scaling of the highest source | sources = one weight per source
+      transform: logit        # the calibrator reads log-odds (Platt) | prob
+      warmup_days: 504        # sources start predicting 2 years in, so the calibrator has out-of-sample history
+      refit_every_days: 126
+      l2: 1.0                 # ridge penalty on the weights (weights also kept >= 0)
+      clip: 0.001             # probabilities clipped to [0.1%, 99.9%] before the logit
+      min_event_days: 20      # fewer stress-event days in the past: show the highest source instead
   kmeans:
     n_init: 10
   jump:
@@ -107,6 +120,10 @@ validation:
       - {learner: gbm, inputs: market}
       - {learner: gbm, inputs: market_credit}
   stress_probability_threshold: 0.5
+  # Calibration of P(stress) (docs/CALIBRATION.md): the event a probability is checked against.
+  calibration:
+    target_horizon_days: 5    # inside a frozen episode, or one starts within 5 business days
+    bins: 10                  # reliability chart and ECE: 10 bins of 10 points
   confirm_days: 3                 # a signal must hold this many days to count
   targets:
     max_median_latency_days: 5

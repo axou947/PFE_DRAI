@@ -19,6 +19,7 @@ from pfe_drai.pipeline import Pipeline  # noqa: E402
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf  # noqa: E402
 from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, rank_scenarios  # noqa: E402
 from pfe_drai.validation import evaluate  # noqa: E402
+from pfe_drai.validation.calibration import calibration_report  # noqa: E402
 from pfe_drai.world import (  # noqa: E402
     HORIZONS,
     REGIONS,
@@ -148,6 +149,20 @@ with tab_dash:
             </div>""",
             unsafe_allow_html=True,
         )
+        alarm = state.alarm
+        if alarm["on"]:
+            st.error(t("dash.alarm_on", lang, date=fmt_date(pd.Timestamp(alarm["since"]), lang)), icon="🚨")
+        else:
+            st.success(t("dash.alarm_off", lang))
+        st.caption(
+            t(
+                "dash.alarm_help",
+                lang,
+                score=fmt_pct(alarm["score"], lang),
+                threshold=fmt_pct(alarm["threshold"], lang),
+                days=alarm["confirm_days"],
+            )
+        )
         if state.early_warning:
             st.metric(t("dash.early_warning", lang), fmt_pct(state.early_warning["stress"], lang))
     with c2:
@@ -168,6 +183,8 @@ with tab_dash:
         fig.update_xaxes(range=[0, 1.12], tickformat=".0%")
         fig.update_yaxes(autorange="reversed")
         st.plotly_chart(base_layout(fig, 220, showlegend=False), width="stretch")
+        if (state.calibration.get("calibrator") or {}).get("calibrated"):
+            st.caption(t("dash.calibrated", lang))
 
     st.subheader(t("dash.dimensions", lang))
     cols = st.columns(3)
@@ -635,7 +652,13 @@ with tab_world:
 # ================================================================ HISTORY
 with tab_hist:
     result = evaluate(
-        probs, pipeline.prices["equity"], pipeline.episodes, pipeline.settings, truth=pipeline.truth, rule=pipeline.labels
+        probs,
+        pipeline.prices["equity"],
+        pipeline.episodes,
+        pipeline.settings,
+        truth=pipeline.truth,
+        rule=pipeline.labels,
+        score=pipeline.alarm_score(model),
     )
     targets = settings["validation"]["targets"]
     st.subheader(t("hist.metrics", lang))
@@ -655,7 +678,7 @@ with tab_hist:
         delta_color="normal" if result["meets_fp_target"] else "inverse",
     )
     m[2].metric(t("hist.detected", lang), f"{result['detected']} / {result['n_episodes']}")
-    m[3].metric(t("hist.brier", lang), f"{result['brier_stress']:.3f}")
+    m[3].metric(t("hist.ece", lang), fmt_num(result["ece"], lang, 3).lstrip("+"))
     if "accuracy_truth" in result:
         m[4].metric(t("hist.accuracy_truth", lang), fmt_pct(result["accuracy_truth"], lang))
     else:
@@ -697,25 +720,48 @@ with tab_hist:
         st.caption(t("hist.latency_help", lang))
     with c2:
         st.subheader(t("hist.calibration", lang))
-        rel = result["reliability"]
+        # As known on the chosen date: out-of-sample days whose outcome was already known.
+        cal = calibration_report(probs["stress"], pipeline.episodes, pipeline.settings, until=as_of)
+        curves = [(t("hist.cal.calibrated", lang), cal, colors["stress"])]
+        score = pipeline.alarm_score(model)
+        raw = None
+        if not score.equals(probs["stress"]):
+            raw = calibration_report(score, pipeline.episodes, pipeline.settings, until=as_of)
+            curves.append((t("hist.cal.raw", lang), raw, MUTED))
         fig = go.Figure()
         fig.add_scatter(
             x=[0, 1], y=[0, 1], mode="lines", line=dict(color=MUTED, dash="dot", width=1), showlegend=False, hoverinfo="skip"
         )
-        fig.add_scatter(
-            x=rel["predicted"],
-            y=rel["observed"],
-            mode="lines+markers",
-            marker=dict(size=9, color=colors["stress"]),
-            line=dict(color=colors["stress"], width=2),
-            showlegend=False,
-            customdata=rel["count"],
-            hovertemplate="%{x:.0%} → %{y:.0%} (n=%{customdata})<extra></extra>",
-        )
+        for name, report, color in curves:
+            rel = report["reliability"]
+            fig.add_scatter(
+                x=rel["predicted"],
+                y=rel["observed"],
+                mode="lines+markers",
+                name=name,
+                marker=dict(size=6 + 18 * (rel["count"] / max(rel["count"].max(), 1)) ** 0.5, color=color),
+                line=dict(color=color, width=2, dash="solid" if color != MUTED else "dash"),
+                customdata=rel["count"],
+                hovertemplate=f"{name}<br>%{{x:.0%}} → %{{y:.0%}} (n=%{{customdata}})<extra></extra>",
+            )
         fig.update_xaxes(title=t("hist.predicted", lang), range=[0, 1], tickformat=".0%")
         fig.update_yaxes(title=t("hist.observed", lang), range=[0, 1], tickformat=".0%")
-        st.plotly_chart(base_layout(fig, 320), width="stretch")
-        st.caption(t("hist.calibration_help", lang))
+        fig = base_layout(fig, 360)
+        fig.update_layout(legend=dict(orientation="h", y=-0.32))
+        st.plotly_chart(fig, width="stretch")
+        if raw is not None and cal["n_days"]:
+            st.caption(
+                t(
+                    "hist.cal.scores",
+                    lang,
+                    brier=fmt_num(cal["brier"], lang, 3).lstrip("+"),
+                    brier_raw=fmt_num(raw["brier"], lang, 3).lstrip("+"),
+                    ece=fmt_num(cal["ece"], lang, 3).lstrip("+"),
+                    ece_raw=fmt_num(raw["ece"], lang, 3).lstrip("+"),
+                    days=cal["n_days"],
+                )
+            )
+        st.caption(t("hist.calibration_help", lang, h=settings["validation"]["calibration"]["target_horizon_days"]))
 
     st.subheader(t("hist.compare", lang))
     rows = []
@@ -727,6 +773,7 @@ with tab_hist:
             pipeline.settings,
             truth=pipeline.truth,
             rule=pipeline.labels,
+            score=pipeline.alarm_score(m_name),
         )
         rows.append(
             {
@@ -734,7 +781,8 @@ with tab_hist:
                 t("hist.median_latency", lang): r["median_latency"],
                 t("hist.false_positives", lang): round(r["false_positives_per_year"], 2),
                 t("hist.detected", lang): f"{r['detected']} / {r['n_episodes']}",
-                t("hist.brier", lang): round(r["brier_stress"], 3),
+                t("hist.brier", lang): round(r["brier"], 3),
+                t("hist.ece", lang): round(r["ece"], 3),
                 t("hist.switches", lang): round(r["switches_per_year"], 1),
                 **({t("hist.accuracy_truth", lang): fmt_pct(r["accuracy_truth"], lang)} if "accuracy_truth" in r else {}),
             }

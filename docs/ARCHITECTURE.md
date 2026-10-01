@@ -80,9 +80,14 @@ placeholder exists in each language.
 - Episode start: first crossing of a −10 % drawdown from the 252-day high, or 21-day realised
   volatility above its expanding 95th percentile; at least 126 business days between starts.
 - Episode end: drawdown back above −5 %, or 126 business days.
-- Detection: P(stress) above the threshold for 3 consecutive days, between 20 days before and
-  60 days after the start. Latency is reported for every episode, not only the median.
+- Detection: the alarm score above the threshold for 3 consecutive days, between 20 days before and
+  60 days after the start. Latency is reported for every episode, not only the median. For
+  `combined` the alarm score is the detector score (highest stress probability of its models);
+  for the other models it is their P(stress).
 - False positive: a detection onset outside every episode (widened by 20 days before).
+- Calibration: P(stress) against the event "inside an episode, or one starts within 5 business
+  days" (Brier, log loss, ECE, reliability table). `combined` shows a Platt-calibrated P(stress),
+  refitted walk-forward on past out-of-sample scores ([CALIBRATION.md](CALIBRATION.md)).
 
 ## Données simulées
 

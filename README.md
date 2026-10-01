@@ -24,14 +24,14 @@ puis le résultat est mis en cache dans `data_cache/`.
 
 | Écran | Contenu |
 |---|---|
-| **Tableau de bord** | régime actuel et probabilités, les 3 dimensions (stress, croissance, inflation), ce qui a changé en une semaine, ce qui ferait basculer, moteurs du régime, historique des régimes sur l'indice actions |
+| **Tableau de bord** | régime actuel et probabilités (probabilité de stress calibrée), alarme de stress (active ou non, depuis quand), les 3 dimensions (stress, croissance, inflation), ce qui a changé en une semaine, ce qui ferait basculer, moteurs du régime, historique des régimes sur l'indice actions |
 | **Marchés mondiaux** | carte de 20 marchés actions (ETF pays cotés aux États-Unis à la place des indices sous licence) : performance de 1 jour à 1 an, ou état de stress de marché propre à chaque pays (calme, tendu, stress) ; zoom par zone, date libre et épisodes passés à revoir, détail d'un pays au clic, part des marchés en stress comparée au régime US, tableau exportable (docs/WORLD.md) |
-| **Historique** | latence de détection par épisode, fausses alertes par an, score de Brier, calibration, comparaison des modèles, track record publié |
-| **Alertes** | changement de régime, probabilité de stress, alerte précoce à 1 semaine, mouvements brusques ; filtres par type et période |
+| **Historique** | latence de détection par épisode, fausses alertes par an, fiabilité de la probabilité de stress (courbe de calibration, Brier, ECE, avant et après calibration), comparaison des modèles, track record publié |
+| **Alertes** | changement de régime, alarme de stress, alerte précoce à 1 semaine, mouvements brusques ; filtres par type et période |
 | **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables), note de comité des risques en PDF / HTML / Markdown |
 
 Dans la barre latérale : langue FR/EN, source de données, modèle, date d'analyse (pour revoir
-n'importe quel jour passé) et seuil de probabilité de stress.
+n'importe quel jour passé) et seuil d'alarme (score du détecteur).
 
 ## Ligne de commande
 
@@ -42,13 +42,14 @@ python -m pfe_drai report --format pdf        # note de comité (md, html ou pdf
 python -m pfe_drai --provider fred episodes   # épisodes de stress datés par la règle gelée
 python -m pfe_drai --provider fred states     # comment les états du modèle sont nommés (docs/REGIMES.md)
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
+python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai --provider fred world --date 2020-03-16   # marchés mondiaux : performance et état de stress (docs/WORLD.md)
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
-API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
+API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
 
 ## Méthode
 
@@ -68,9 +69,16 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/scenario
   les régimes du jump model avec P(stress) = max(jump, gbm, onset). v2 adoptée le 2026-10-01 après un
   protocole pré-enregistré : 11/11 épisodes réels détectés, latence médiane −3 jours, 1,26 fausse
   alerte par an. Voir [docs/DETECTION_V2.md](docs/DETECTION_V2.md) (v1 : [docs/DETECTION.md](docs/DETECTION.md)).
+- **Probabilité de stress calibrée** : le maximum des trois modèles est un bon score de détection
+  mais pas une probabilité. Une régression logistique à deux paramètres (Platt scaling), réestimée
+  sur les seuls jours passés, le transforme en fréquence à laquelle le stress a réellement suivi.
+  L'alarme de stress lit toujours le score du détecteur : la détection ne change pas.
+  Pré-enregistré, en attente du test sur données réelles : [docs/CALIBRATION.md](docs/CALIBRATION.md).
 - **Validation** : walk-forward à fenêtre croissante ; épisodes de stress datés par une règle
   gelée le 2026-10-01 (son hash est dans `validation.episodes.frozen` ; le code refuse une règle
-  modifiée) ; latence publiée pour chaque épisode ; fausses alertes par an ; Brier et calibration.
+  modifiée) ; latence publiée pour chaque épisode ; fausses alertes par an ; Brier, log loss et
+  erreur de calibration (ECE) de la probabilité de stress, contre l'événement « dans un épisode ou
+  un épisode commence dans les 5 jours ».
 - **Track record** : un JSON par jour ouvré, publié par GitHub Actions (`publish.yml`, 22h30 UTC),
   sur données réelles uniquement. Hash SHA-256 chaîné dans `track_record/index.csv`, hash de la
   règle d'épisodes dans chaque entrée, preuve OpenTimestamps (ancrée dans Bitcoin).
@@ -102,7 +110,7 @@ pfe_drai/
   data/        sources : synthetic, csv, fred, yahoo ; catalogue des séries
   features/    12 indicateurs point-in-time -> scores stress / croissance / inflation
   regimes.py   définitions, couleurs, règle d'étiquetage, nommage des états
-  models/      kmeans, jump, gbm, combined (interface commune + registre)
+  models/      kmeans, jump, gbm, onset, combined, calibrateur de P(stress) (interface commune + registre)
   validation/  walk-forward, datation des épisodes, latence, fausses alertes, calibration
   scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds
   reporting/   note de comité FR/EN (Markdown, HTML, PDF)

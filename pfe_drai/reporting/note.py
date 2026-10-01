@@ -69,6 +69,16 @@ def build_note(
         naming = " " + t(
             "note.naming", lang, low=fmt_pct(min(agreement), lang), high=fmt_pct(max(agreement), lang), n=len(agreement)
         )
+    calibration = ""
+    fit = state.calibration.get("calibrator") or {}
+    if fit.get("calibrated") and state.calibration["n_days"]:
+        calibration = " " + t(
+            "note.calibration",
+            lang,
+            days=state.calibration["n_days"],
+            brier=fmt_num(state.calibration["brier"], lang, 3).lstrip("+"),
+            ece=fmt_num(state.calibration["ece"], lang, 3).lstrip("+"),
+        )
     return {
         "lang": lang,
         "title": t("note.title", lang),
@@ -83,6 +93,13 @@ def build_note(
         ),
         "regime_desc": t(f"regime.{state.regime}.desc", lang),
         "early": t("note.early", lang, prob=fmt_pct(state.early_warning["stress"], lang)) if state.early_warning else "",
+        "alarm": t(
+            "note.alarm_on" if state.alarm["on"] else "note.alarm_off",
+            lang,
+            date=fmt_date(pd.Timestamp(state.alarm["since"]), lang) if state.alarm["on"] else "",
+            score=fmt_pct(state.alarm["score"], lang),
+            threshold=fmt_pct(state.alarm["threshold"], lang),
+        ),
         "dimensions": dims,
         "drivers": [{"name": t(f"feature.{k}", lang), "value": fmt_num(v, lang)} for k, v in drivers],
         "changes": changes,
@@ -97,7 +114,8 @@ def build_note(
             detected=metrics["detected"],
             episodes=metrics["n_episodes"],
         )
-        + naming,
+        + naming
+        + calibration,
         "limits": t("note.limits", lang),
         "disclaimer": t("note.disclaimer", lang),
         "ai": t("note.ai", lang),
@@ -111,7 +129,7 @@ def to_markdown(note: dict) -> str:
     lines = [f"# {note['title']}", "", f"**{note['as_of']}** · {note['fund']}", ""]
     if note["synthetic"]:
         lines += [f"> ⚠ {note['synthetic']}", ""]
-    lines += [f"## {t('note.s1', lang)}", "", note["summary"], "", note["regime_desc"], ""]
+    lines += [f"## {t('note.s1', lang)}", "", note["summary"], "", f"**{note['alarm']}**", "", note["regime_desc"], ""]
     if note["early"]:
         lines += [note["early"], ""]
     lines += [
@@ -179,6 +197,7 @@ def to_html(note: dict) -> str:
     parts += [
         f"<h2>{e(t('note.s1', lang))}</h2>",
         f"<p><strong>{e(note['summary'])}</strong></p>",
+        f"<p><strong>{e(note['alarm'])}</strong></p>",
         f"<p>{e(note['regime_desc'])}</p>",
     ]
     if note["early"]:
@@ -269,6 +288,7 @@ def to_pdf(note: dict) -> bytes:
         para(note["synthetic"], 10, "B")
     heading(t("note.s1", lang))
     para(note["summary"], 10, "B")
+    para(note["alarm"], 10, "B")
     para(note["regime_desc"])
     if note["early"]:
         para(note["early"])

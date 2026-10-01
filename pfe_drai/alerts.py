@@ -3,7 +3,14 @@
 import pandas as pd
 
 
-def compute_alerts(probs: pd.DataFrame, scores: pd.DataFrame, settings: dict, early: pd.DataFrame | None = None) -> pd.DataFrame:
+def compute_alerts(
+    probs: pd.DataFrame,
+    scores: pd.DataFrame,
+    settings: dict,
+    early: pd.DataFrame | None = None,
+    score: pd.Series | None = None,
+) -> pd.DataFrame:
+    """`score`: what the stress alarm reads (the detector score of `combined`), default P(stress)."""
     cfg = settings["alerts"]
     confirm = settings["validation"]["confirm_days"]
     rows = []
@@ -25,7 +32,7 @@ def compute_alerts(probs: pd.DataFrame, scores: pd.DataFrame, settings: dict, ea
             }
         )
 
-    p = probs["stress"]
+    p = probs["stress"] if score is None else score
     up = (p > cfg["stress_probability"]) & (p.shift() <= cfg["stress_probability"])
     for date in p.index[up]:
         rows.append(
