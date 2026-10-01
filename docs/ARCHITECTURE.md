@@ -48,6 +48,12 @@ For revised series (IP, CPI), `fetch_fred(..., vintage=...)` reads ALFRED vintag
 Each catalog entry records a `licence` (research / commercial / check), following the
 re-audit: BAA10Y (Moody's) and Yahoo data are research-only; ICE BofA spreads are not used.
 
+Real data = FRED (macro, VIX) + Tiingo (ETF prices). FRED allows commercial use with its
+disclaimer; third-party series need the owner's permission (VIXCLS: cite Cboe). FRED SP500
+is not used: it starts in 2016 and S&P forbids reproduction. Tiingo's free tier is enough for
+research; internal commercial use is a paid plan. HYG starts in 2007, so real-data history
+starts in 2008 once z-scores have a year of data.
+
 ## Ajouter un modèle
 
 Subclass `RegimeModel` in `pfe_drai/models/`, implement `fit` and `predict_proba`

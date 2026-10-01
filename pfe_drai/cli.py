@@ -80,7 +80,7 @@ def cmd_api(args):
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="pfe_drai", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", help="path to a settings.yaml")
-    parser.add_argument("--provider", help="override data.provider (synthetic, csv, fred, yahoo)")
+    parser.add_argument("--provider", help="override data.provider (synthetic, csv, fred, tiingo, yahoo)")
     parser.add_argument("--lang", default="fr", choices=["fr", "en"])
     sub = parser.add_subparsers(dest="command", required=True)
     for name, func in [

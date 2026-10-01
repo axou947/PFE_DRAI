@@ -4,7 +4,7 @@ Adding a real API = one class that subclasses DataProvider, decorated with @regi
 and returns the series listed in catalog.py. Nothing else in the code changes.
 """
 
-from . import csv_provider, fred, synthetic, yahoo  # noqa: F401  (registers providers)
+from . import csv_provider, fred, synthetic, tiingo, yahoo  # noqa: F401  (registers providers)
 from .base import DataProvider, available_providers, get_provider, register
 from .catalog import CATALOG
 
