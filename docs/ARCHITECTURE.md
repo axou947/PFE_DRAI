@@ -66,7 +66,8 @@ features start in March 2004. `python -m pfe_drai --provider fred data` prints t
 Subclass `RegimeModel` in `pfe_drai/models/`, implement `fit` and `predict_proba`
 (one column per regime, rows sum to 1), decorate with `@register`, import it in
 `pfe_drai/models/__init__.py`. It then appears in the app, the API, the backtest and the tests.
-Unsupervised models name their states with `regimes.match_states` (closest prototype).
+Unsupervised models name their states with `regimes.name_states` (closest regime centre, docs/REGIMES.md):
+set `self.state_table` in `fit` and return `self._frame(probs, index, self.state_names)`.
 
 ## Ajouter une langue
 

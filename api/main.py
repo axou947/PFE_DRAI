@@ -56,6 +56,28 @@ def history(model: str | None = None, start: str | None = None, end: str | None 
     ]
 
 
+@app.get("/regime/states")
+def regime_states(model: str | None = None, date: str | None = None, lang: Lang = "fr"):
+    """How the model's unsupervised states map to the regimes (docs/REGIMES.md).
+
+    One entry per walk-forward refit up to `date` (default: all), each with its state table:
+    name, training days, share of those days in each rule regime, centroid on the 3 dimensions.
+    """
+    p = pipeline()
+    maps = p.state_maps(_model(model))
+    if not maps:
+        raise HTTPException(404, f"Model '{_model(model)}' predicts the rule regimes directly: no states to map")
+    if date:
+        maps = [m for m in maps if m[0] <= pd.Timestamp(date)] or maps[:1]
+    return [
+        {
+            "first_day_predicted": start.date().isoformat(),
+            "states": [{**row, "name_label": t(f"regime.{row['name']}", lang)} for row in table.reset_index().to_dict("records")],
+        }
+        for start, table in maps
+    ]
+
+
 @app.get("/metrics")
 def metrics(model: str | None = None):
     r = pipeline().evaluate(_model(model))

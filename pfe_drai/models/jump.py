@@ -8,7 +8,7 @@ Prediction is causal: a forward pass only, so the state on day t uses data up to
 import numpy as np
 from sklearn.cluster import KMeans
 
-from ..regimes import match_states
+from ..regimes import name_states
 from .base import RegimeModel, register, softmax
 
 
@@ -59,7 +59,10 @@ class JumpModel(RegimeModel):
             if np.allclose(new, self.centroids):
                 break
             self.centroids = new
-        self.state_names = match_states(self.centroids, self.settings)
+        # Each state takes the name of the closest regime centre (regimes.name_states, docs/REGIMES.md).
+        states = _viterbi(self._loss(x), cfg["penalty"])
+        self.state_table = name_states(states, self.centroids, scores, labels, self.settings)
+        self.state_names = list(self.state_table["name"])
         return self
 
     def predict_proba(self, features, scores):

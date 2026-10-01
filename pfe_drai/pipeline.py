@@ -20,7 +20,7 @@ from .features.market import market_frame
 from .models import get_model
 from .models.combined import combine
 from .regimes import flip_distances, rule_labels
-from .validation import evaluate, find_episodes, onset_target, rule_fingerprint, walk_forward
+from .validation import evaluate, find_episodes, onset_target, refit_cuts, rule_fingerprint, walk_forward
 
 
 @dataclass
@@ -36,6 +36,8 @@ class State:
     drivers: dict[str, float] = field(default_factory=dict)  # feature z-scores
     flip: dict[str, float] = field(default_factory=dict)
     early_warning: dict[str, float] | None = None
+    # How the unsupervised model behind the regime named its states (regimes.name_states).
+    states: list[dict] = field(default_factory=list)
     data_provider: str = ""
     is_live_data: bool = False
 
@@ -50,6 +52,7 @@ class State:
             "drivers": self.drivers,
             "flip": self.flip,
             "early_warning": self.early_warning,
+            "states": self.states,
             "data_provider": self.data_provider,
             "is_live_data": self.is_live_data,
         }
@@ -166,6 +169,43 @@ class Pipeline:
         model = model or self.settings["models"]["default"]
         return get_model(model, self.settings).fit(self.features, self.scores, self.labels)
 
+    def unsupervised_model(self, model: str | None) -> str | None:
+        """The unsupervised model whose named states give `model` its calm regimes, if any."""
+        model = model or self.settings["models"]["default"]
+        unsupervised = "jump" if model == "combined" else model
+        return unsupervised if unsupervised in ("jump", "kmeans") else None
+
+    def _state_table(self, model: str, cut: int) -> pd.DataFrame:
+        memo = self.__dict__.setdefault("_state_tables", {})
+        if (model, cut) not in memo:
+            fitted = get_model(model, self.settings).fit(self.features.iloc[:cut], self.scores.iloc[:cut], self.labels.iloc[:cut])
+            memo[(model, cut)] = fitted.state_table
+        return memo[(model, cut)]
+
+    def state_maps(self, model: str | None = None) -> list[tuple[pd.Timestamp, pd.DataFrame]]:
+        """How the unsupervised model behind `model` named its states at each walk-forward refit.
+
+        One (first day predicted, state table) per refit: the same fits as the backtest.
+        Empty for supervised models, which predict the rule regimes directly. See docs/REGIMES.md.
+        """
+        unsupervised = self.unsupervised_model(model)
+        if unsupervised is None:
+            return []
+        cuts = refit_cuts(len(self.scores), self.settings, unsupervised)
+        return [(self.scores.index[cut], self._state_table(unsupervised, cut)) for cut in cuts]
+
+    def state_map(self, model: str | None = None, date=None) -> pd.DataFrame | None:
+        """State table of the walk-forward fit that made the prediction on `date` (default: latest)."""
+        unsupervised = self.unsupervised_model(model)
+        if unsupervised is None:
+            return None
+        cuts = refit_cuts(len(self.scores), self.settings, unsupervised)
+        pos = len(self.scores) - 1 if date is None else self.scores.index.searchsorted(pd.Timestamp(date), side="right") - 1
+        earlier = [cut for cut in cuts if cut <= pos]
+        if not earlier:
+            return None  # before the out-of-sample period: no prediction, no table
+        return self._state_table(unsupervised, earlier[-1])
+
     def regimes(self, model: str | None = None) -> pd.Series:
         return self.probabilities(model).idxmax(axis=1).rename("regime")
 
@@ -204,6 +244,10 @@ class Pipeline:
             gbm = self.probabilities("gbm")
             if date in gbm.index:
                 early = {k: float(v) for k, v in gbm.loc[date].items()}
+        table = self.state_map(model, date)
+        states = (
+            [] if table is None else [{k: _round(v) for k, v in row.items()} for row in table.reset_index().to_dict("records")]
+        )
         return State(
             date=date,
             model=model,
@@ -214,9 +258,14 @@ class Pipeline:
             drivers=now["drivers"],
             flip=flip_distances(self.scores.loc[date], self.settings),
             early_warning=early,
+            states=states,
             data_provider=self.provider.name,
             is_live_data=self.provider.is_live,
         )
+
+
+def _round(value):
+    return round(value, 4) if isinstance(value, float) else value
 
 
 __all__ = ["DIMENSIONS", "FEATURES", "Pipeline", "State"]

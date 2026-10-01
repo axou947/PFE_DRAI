@@ -163,6 +163,86 @@ with tab_dash:
         )
     st.caption(t("dash.dimension_help", lang))
 
+    with st.expander(t("dash.states", lang)):
+        rule = settings["regimes"]["rule"]
+        st.markdown(t("dash.states_rule", lang, **{k: fmt_num(v, lang).lstrip("+") for k, v in rule.items()}))
+        table = pipeline.state_map(model, as_of)
+        if table is None:
+            st.markdown(t("dash.states_none", lang))
+        else:
+            unsupervised = pipeline.unsupervised_model(model)
+            st.markdown(t("dash.states_help", lang, model=t(f"model.{unsupervised}", lang)))
+            dims = ["stress", "growth", "inflation"]
+            labels = [t("dash.state_label", lang, n=i + 1, name=reg(row["name"])) for i, (_, row) in enumerate(table.iterrows())]
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        t("dash.state", lang): labels,
+                        **{t(f"dimension.{d}", lang): table[d].map(lambda v: fmt_num(v, lang)) for d in dims},
+                        t("dash.state_distance", lang): table["distance"].map(lambda v: fmt_num(v, lang).lstrip("+")),
+                        t("dash.state_days", lang): table["days"],
+                        t("dash.state_agreement", lang): table["purity"].map(lambda v: fmt_pct(v, lang)),
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+            fig = go.Figure()
+            for r in regimes:
+                fig.add_bar(
+                    y=labels,
+                    x=table[f"share_{r}"],
+                    orientation="h",
+                    name=reg(r),
+                    marker_color=colors[r],
+                    hovertemplate="%{y}<br>" + reg(r) + ": %{x:.0%}<extra></extra>",
+                )
+            fig.update_xaxes(range=[0, 1], tickformat=".0%")
+            fig.update_yaxes(autorange="reversed")
+            fig = base_layout(fig, 90 + 40 * len(table), barmode="stack")
+            st.plotly_chart(fig.update_layout(legend_traceorder="normal"), width="stretch")
+            st.caption(t("dash.states_shares", lang))
+
+            # The three dimensions together: a dot every 5 days, colored by the regime the rule gives it.
+            history = pipeline.scores.loc[:as_of].iloc[::5]
+            rule_days = pipeline.labels.loc[history.index]
+            fig = go.Figure()
+            for r in regimes:
+                pts = history[rule_days == r]
+                fig.add_scatter3d(
+                    x=pts["growth"],
+                    y=pts["inflation"],
+                    z=pts["stress"],
+                    mode="markers",
+                    name=reg(r),
+                    marker=dict(size=2, color=colors[r], opacity=0.4),
+                    hoverinfo="skip",
+                )
+            fig.add_scatter3d(
+                x=table["growth"],
+                y=table["inflation"],
+                z=table["stress"],
+                mode="markers+text",
+                name=t("dash.state", lang),
+                text=[str(i + 1) for i in range(len(table))],
+                hovertext=labels,
+                hoverinfo="text",
+                marker=dict(size=7, color=TEXT, symbol="diamond"),
+            )
+            now = pipeline.scores.loc[as_of]
+            fig.add_scatter3d(
+                x=[now["growth"]],
+                y=[now["inflation"]],
+                z=[now["stress"]],
+                mode="markers",
+                name=fmt_date(as_of, lang),
+                marker=dict(size=9, color=colors[state.regime], line=dict(color=TEXT, width=2)),
+            )
+            axes = {"xaxis": "growth", "yaxis": "inflation", "zaxis": "stress"}
+            fig.update_layout(scene={k: dict(title=t(f"dimension.{d}", lang)) for k, d in axes.items()} | {"aspectmode": "cube"})
+            st.plotly_chart(base_layout(fig, 520).update_layout(legend_itemsizing="constant"), width="stretch")
+            st.caption(t("dash.states_cube", lang))
+
     c1, c2 = st.columns(2)
     with c1:
         st.subheader(t("dash.changes", lang))

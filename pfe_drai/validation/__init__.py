@@ -2,7 +2,7 @@
 
 from .episodes import Episode, check_frozen, episode_mask, find_episodes, onset_target, rule_fingerprint
 from .metrics import evaluate, stress_signal
-from .walkforward import walk_forward
+from .walkforward import refit_cuts, walk_forward
 
 __all__ = [
     "Episode",
@@ -11,6 +11,7 @@ __all__ = [
     "evaluate",
     "find_episodes",
     "onset_target",
+    "refit_cuts",
     "rule_fingerprint",
     "stress_signal",
     "walk_forward",

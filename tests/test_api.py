@@ -24,3 +24,11 @@ def test_scenarios_and_report(client):
 
 def test_bad_model(client):
     assert client.get("/regime", params={"model": "nope"}).status_code == 400
+
+
+def test_regime_states(client):
+    body = client.get("/regime/states", params={"model": "combined", "lang": "en"}).json()
+    latest = body[-1]["states"]
+    assert all(abs(sum(s[f"share_{r}"] for r in ("expansion", "overheating", "slowdown", "stress")) - 1) < 1e-6 for s in latest)
+    assert {s["name_label"] for s in latest} <= {"Expansion", "Inflationary overheating", "Slowdown", "Stress / crisis"}
+    assert client.get("/regime/states", params={"model": "gbm"}).status_code == 404
