@@ -76,3 +76,15 @@ signal.
 - How closely each market moves with the US (rolling correlation, contagion).
 - Full macro regimes outside the US: the euro area would need ECB / Eurostat data with release dates
   (point-in-time), the UK ONS data, and the same validation as the US model.
+
+## Real-data check (2026-10-01)
+
+Run once on real data (Tiingo, all 20 ETFs loaded), thresholds unchanged:
+`python -m pfe_drai --provider fred world --date 2020-03-16`.
+
+- All 20 markets in **Stress** on 2020-03-16, 0 elevated. Each one's 21-day vol ranked at 100% of
+  its last 5 years, with drawdowns from -22% (China) to -54% (Brazil) and 1-month returns from -19%
+  to -49% in USD.
+- The states began between 2020-02-26 (South Korea, the first market hit by Covid) and 2020-03-16
+  (China). The US entered Stress on 2020-03-09.
+- Brazil (vol 144%) and Australia (109%) show how much the USD amplifies local moves.
