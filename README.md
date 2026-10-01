@@ -39,6 +39,7 @@ python -m pfe_drai status                     # régime du jour
 python -m pfe_drai --lang en backtest         # métriques hors échantillon des 3 modèles
 python -m pfe_drai report --format pdf        # note de comité (md, html ou pdf)
 python -m pfe_drai --provider fred episodes   # épisodes de stress datés par la règle gelée
+python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
@@ -55,10 +56,12 @@ API : `GET /regime`, `/regime/history`, `/metrics`, `/scenarios`, `/report` (par
 - **4 régimes** : Expansion, Surchauffe inflationniste, Ralentissement, Stress / crise.
   Les états des modèles non supervisés sont reliés aux régimes par des prototypes fixés dans
   `config/settings.yaml` (appariement un à un).
-- **4 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
-  gradient boosting qui prévoit le régime à 1 semaine, et `combined` (par défaut) : les régimes du
-  jump model avec P(stress) = max(jump, gbm). Choix fait sur données simulées seulement, voir
-  [docs/DETECTION.md](docs/DETECTION.md).
+- **5 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
+  gradient boosting qui prévoit le régime à 1 semaine, `onset` (détecteur de début de stress appris
+  sur les épisodes gelés à partir d'indicateurs de marché quotidiens) et `combined` (par défaut) :
+  les régimes du jump model avec P(stress) = max(jump, gbm, onset). v2 adoptée le 2026-10-01 après un
+  protocole pré-enregistré : 11/11 épisodes réels détectés, latence médiane −3 jours, 1,26 fausse
+  alerte par an. Voir [docs/DETECTION_V2.md](docs/DETECTION_V2.md) (v1 : [docs/DETECTION.md](docs/DETECTION.md)).
 - **Validation** : walk-forward à fenêtre croissante ; épisodes de stress datés par une règle
   gelée le 2026-10-01 (son hash est dans `validation.episodes.frozen` ; le code refuse une règle
   modifiée) ; latence publiée pour chaque épisode ; fausses alertes par an ; Brier et calibration.

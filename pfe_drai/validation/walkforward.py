@@ -6,15 +6,27 @@ from ..models import get_model
 
 
 def walk_forward(
-    model_name: str, features: pd.DataFrame, scores: pd.DataFrame, labels: pd.Series, settings: dict
+    model_name: str,
+    features: pd.DataFrame,
+    scores: pd.DataFrame,
+    labels: pd.Series,
+    settings: dict,
+    market: pd.DataFrame | None = None,
+    onset: pd.Series | None = None,
 ) -> pd.DataFrame:
-    components = getattr(get_model(model_name, settings), "components", None)
+    """`market` and `onset` (inputs and target of market-input models) are needed only by those models."""
+    model = get_model(model_name, settings)
+    components = getattr(model, "components", None)
     if components:
-        # Each component keeps its own refit schedule; the combination is applied afterwards.
+        # Each component keeps its own inputs and refit schedule; the combination is applied afterwards.
         from ..models.combined import combine
 
-        parts = [walk_forward(name, features, scores, labels, settings) for name in components]
+        parts = [walk_forward(name, features, scores, labels, settings, market, onset) for name in components]
         return combine(*parts)
+    if model.inputs == "market":
+        if market is None or onset is None:
+            raise ValueError(f"Model '{model_name}' needs market inputs and the onset target")
+        features, labels = market.loc[scores.index], onset.loc[scores.index]
     cfg = settings["validation"]
     start = cfg["min_train_days"]
     step = settings["models"].get(model_name, {}).get("refit_every_days", cfg["refit_every_days"])

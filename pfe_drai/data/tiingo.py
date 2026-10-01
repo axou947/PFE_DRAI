@@ -40,12 +40,15 @@ class TiingoProvider(DataProvider):
     name = "tiingo"
 
     def fetch(self, start, end):
+        return self.fetch_subset(list(CATALOG), start, end)
+
+    def fetch_subset(self, names, start, end):
         env = self.settings["data"]["tiingo_api_key_env"]
         key = os.environ.get(env)
         if not key:
             raise RuntimeError(f"Set {env} to use Tiingo (free key: https://www.tiingo.com/account/api/token)")
         return {
-            name: fetch_tiingo(series.source_ids["tiingo"], key, start, end)
-            for name, series in CATALOG.items()
-            if "tiingo" in series.source_ids
+            name: fetch_tiingo(CATALOG[name].source_ids["tiingo"], key, start, end)
+            for name in names
+            if "tiingo" in CATALOG[name].source_ids
         }

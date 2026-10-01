@@ -1,10 +1,13 @@
-"""Combined signal: the jump model's regimes, with the stress probability raised by gradient boosting.
+"""Combined signal: the jump model's regimes, with the stress probability raised by faster models.
 
-P(stress) = max(jump, gbm). The jump model is persistent and slow to switch; gradient boosting
-reacts within days but flickers between regimes. Taking the higher stress probability keeps the
-jump model's calm regimes and catches a crisis as soon as either model sees it. The other
+P(stress) = max(jump, each stress source). The jump model is persistent and slow to switch;
+the stress sources react within days but flicker. Taking the highest stress probability keeps
+the jump model's calm regimes and catches a crisis as soon as any model sees it. The other
 regimes keep the jump model's proportions and share what is left, so rows still sum to 1.
-Because gbm looks one week ahead, the combined P(stress) reads "stress now or within a week".
+
+Stress sources are set in models.combined.stress_sources: [gbm] since PR #5 (docs/DETECTION.md);
+[gbm, onset] is the pre-registered v2 (docs/DETECTION_V2.md). Both sources look one week
+ahead, so the combined P(stress) reads "stress now or within a week".
 """
 
 import numpy as np
@@ -13,10 +16,14 @@ import pandas as pd
 from .base import RegimeModel, get_model, register
 
 
-def combine(jump: pd.DataFrame, gbm: pd.DataFrame) -> pd.DataFrame:
-    idx = jump.index.intersection(gbm.index)
-    jump, gbm = jump.loc[idx], gbm.loc[idx]
-    stress = np.maximum(jump["stress"], gbm["stress"])
+def combine(jump: pd.DataFrame, *sources: pd.DataFrame) -> pd.DataFrame:
+    idx = jump.index
+    for source in sources:
+        idx = idx.intersection(source.index)
+    jump = jump.loc[idx]
+    stress = jump["stress"]
+    for source in sources:
+        stress = np.maximum(stress, source.loc[idx, "stress"])
     others = jump.drop(columns="stress")
     total = others.sum(axis=1)
     # When the jump model puts everything on stress, the rest goes to its other regimes evenly.
@@ -29,13 +36,20 @@ def combine(jump: pd.DataFrame, gbm: pd.DataFrame) -> pd.DataFrame:
 @register
 class CombinedModel(RegimeModel):
     name = "combined"
-    #: Walk-forward runs each component on its own refit schedule, then combines.
-    components = ("jump", "gbm")
+
+    @property
+    def components(self) -> tuple[str, ...]:
+        """Walk-forward runs each component on its own inputs and refit schedule, then combines."""
+        sources = self.settings["models"].get("combined", {}).get("stress_sources", ["gbm"])
+        return ("jump", *sources)
 
     def fit(self, features, scores, labels):
-        self.models = {name: get_model(name, self.settings).fit(features, scores, labels) for name in self.components}
+        """Direct fit, for components trained on z-scores and rule labels (walk-forward handles the others)."""
+        self.models = {name: get_model(name, self.settings) for name in self.components}
+        if any(getattr(m, "inputs", "scores") != "scores" for m in self.models.values()):
+            raise NotImplementedError("Fit a combined model with market-input components through walk_forward")
+        self.models = {name: m.fit(features, scores, labels) for name, m in self.models.items()}
         return self
 
     def predict_proba(self, features, scores):
-        probs = {name: m.predict_proba(features, scores) for name, m in self.models.items()}
-        return combine(probs["jump"], probs["gbm"])
+        return combine(*(m.predict_proba(features, scores) for m in self.models.values()))

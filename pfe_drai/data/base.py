@@ -29,6 +29,11 @@ class DataProvider(ABC):
     def fetch(self, start: pd.Timestamp, end: pd.Timestamp) -> dict[str, pd.Series]:
         """Return {series name: pd.Series indexed by date}."""
 
+    def fetch_subset(self, names: list[str], start: pd.Timestamp, end: pd.Timestamp) -> dict[str, pd.Series]:
+        """Only some series (e.g. the market inputs over an older period where others do not exist)."""
+        data = self.fetch(start, end)
+        return {name: data[name] for name in names if name in data}
+
     def truth(self) -> pd.Series | None:
         """True regime per day, known only for simulated data."""
         return None

@@ -102,6 +102,9 @@ class FredProvider(DataProvider):
     name = "fred"
 
     def fetch(self, start, end):
+        return self.fetch_subset(list(CATALOG), start, end)
+
+    def fetch_subset(self, names, start, end):
         cfg = self.settings["data"]
         key = os.environ.get(cfg["fred_api_key_env"])
         if not key:
@@ -112,7 +115,8 @@ class FredProvider(DataProvider):
         lags = cfg.get("publication_lag_days", {})
         data = {}
         missing = []
-        for name, series in CATALOG.items():
+        for name in names:
+            series = CATALOG[name]
             if "fred" not in series.source_ids:
                 missing.append(name)
             elif series.revised and point_in_time:
@@ -124,7 +128,7 @@ class FredProvider(DataProvider):
         if missing:
             fallback_name = cfg.get("fred_fallback", "synthetic")
             fallback = get_provider({**self.settings, "data": {**cfg, "provider": fallback_name}})
-            extra = fallback.fetch(start, end)
+            extra = fallback.fetch_subset(missing, start, end)
             data.update({name: extra[name] for name in missing})
             # Partly simulated data is not live: it must not reach the track record.
             self.is_live = fallback.is_live

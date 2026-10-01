@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from pfe_drai.config import _deep_merge
 from pfe_drai.models import available_models, get_model
 from pfe_drai.models.combined import combine
 from pfe_drai.models.jump import forward_values
@@ -9,6 +10,8 @@ from pfe_drai.models.jump import forward_values
 
 @pytest.mark.parametrize("name", ["kmeans", "jump", "gbm", "combined"])
 def test_probabilities_sum_to_one(pipeline, settings, name):
+    # A combined model can only be fitted directly with z-score components (v1, jump + gbm).
+    settings = _deep_merge(settings, {"models": {"combined": {"stress_sources": ["gbm"]}}})
     model = get_model(name, settings).fit(pipeline.features, pipeline.scores, pipeline.labels)
     probs = model.predict_proba(pipeline.features, pipeline.scores)
     assert list(probs.columns) == settings["regimes"]["order"]
@@ -24,7 +27,7 @@ def test_jump_filter_is_causal():
 
 
 def test_registry():
-    assert set(available_models()) == {"kmeans", "jump", "gbm", "combined"}
+    assert set(available_models()) == {"kmeans", "jump", "gbm", "combined", "onset"}
 
 
 def test_combined_takes_the_higher_stress_probability():
@@ -45,7 +48,15 @@ def test_combined_walk_forward_matches_its_parts(pipeline, settings):
     from pfe_drai.validation import walk_forward
 
     probs = pipeline.probabilities("combined")
-    jump, gbm = pipeline.probabilities("jump"), pipeline.probabilities("gbm")
-    assert np.allclose(probs["stress"], np.maximum(jump["stress"], gbm["stress"]).loc[probs.index])
-    direct = walk_forward("combined", pipeline.features, pipeline.scores, pipeline.labels, settings)
+    parts = [pipeline.probabilities(m)["stress"].loc[probs.index] for m in get_model("combined", settings).components]
+    assert np.allclose(probs["stress"], np.maximum.reduce(parts))
+    direct = walk_forward(
+        "combined",
+        pipeline.features,
+        pipeline.scores,
+        pipeline.labels,
+        settings,
+        market=pipeline.market,
+        onset=pipeline.onset,
+    )
     pd.testing.assert_frame_equal(direct, probs)

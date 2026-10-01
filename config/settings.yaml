@@ -52,9 +52,13 @@ regimes:
     inflation_threshold: 0.8
 
 models:
-  # combined = jump model regimes, P(stress) = max(jump, gbm). Chosen on simulated data only
-  # (docs/DETECTION.md), before any backtest of these settings on real data.
+  # combined = jump model regimes, P(stress) = max(jump, gbm, onset): v2, chosen on simulated
+  # data and a real 1999-2009 holdout, confirmed once on the 11 real episodes (docs/DETECTION_V2.md).
   default: combined
+  combined:
+    # Models whose P(stress) can raise the jump model's. [gbm] = v1 (PR #5).
+    # [gbm, onset] = v2, adopted 2026-10-01 under the pre-registered rule (docs/DETECTION_V2.md).
+    stress_sources: [gbm, onset]
   kmeans:
     n_init: 10
   jump:
@@ -65,6 +69,18 @@ models:
     horizon_days: 5         # predicts the regime one week ahead
     max_iter: 100
     refit_every_days: 252     # slower to fit: refit once a year in walk-forward
+    learning_rate: 0.06
+  onset:
+    # Stress-onset detector (docs/DETECTION_V2.md): learns the start of the frozen episodes
+    # from fast market inputs. learner and inputs selected by the pre-registered holdout
+    # (real data, 1999-2009, run 2026-10-01).
+    learner: gbm            # gbm | logistic
+    inputs: market          # market | market_credit (features/market.py)
+    horizon_days: 5         # target: an episode starts within a week...
+    after_start_days: 21    # ...or started less than a month ago
+    hold_days: 5            # a probability holds 5 days (minimum time on), against flicker
+    refit_every_days: 252
+    max_iter: 100           # gbm learner only, same as models.gbm
     learning_rate: 0.06
 
 validation:
@@ -85,11 +101,25 @@ validation:
     frozen:
       sha256: 6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a
       date: "2026-10-01"
+  # Fresh holdout for the onset detector (docs/DETECTION_V2.md): US history before the real-data
+  # out-of-sample period, never scored before. SPY starts 1993-01-29, VIX 1990, LQD/IEF 2002.
+  holdout:
+    start: "1993-01-29"
+    end: "2009-04-02"       # the day before the real-data out-of-sample period starts
+    candidates:
+      - {learner: logistic, inputs: market}
+      - {learner: logistic, inputs: market_credit}
+      - {learner: gbm, inputs: market}
+      - {learner: gbm, inputs: market_credit}
   stress_probability_threshold: 0.5
   confirm_days: 3                 # a signal must hold this many days to count
   targets:
     max_median_latency_days: 5
     max_false_positives_per_year: 1.5
+    # Added with v2 (docs/DETECTION_V2.md), before any run on real data: false positives count
+    # alarm onsets, so a signal that stays on would pass. 10% of calm days = 1.5 alarms a year
+    # of about three weeks each.
+    max_false_alarm_share: 0.10
 
 alerts:
   stress_probability: 0.5
