@@ -4,6 +4,7 @@ status     current regime and probabilities
 backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
 publish    write today's track record entry (real data only)
+track-record  build the public track-record page (track_record/index.html, fr.html); --out for a preview
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
@@ -15,6 +16,7 @@ api        start the FastAPI server
 """
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -161,6 +163,38 @@ def cmd_publish(args):
 
     path = publish(_pipeline(args), args.model)
     print(path or "Already published for the latest market day: nothing to do.")
+
+
+def cmd_track_record(args):
+    from .config import resolve
+    from .publish import build_site
+
+    p = _pipeline(args)
+    records = resolve(p.settings["publish"]["dir"])
+    out = Path(args.out).resolve() if args.out else records
+    result = build_site(p, records, out)
+    live, score = result["live"], result["score"]
+    action = "written now" if result["backtest_written"] else "already recorded"
+    print(f"Backtest record: {result['backtest']} ({action})")
+    bt = json.loads(result["backtest"].read_text(encoding="utf-8"))
+    m, period = bt["metrics"], bt["period"]
+    print(
+        f"  {bt['data_provider']} data, {period['start']} to {period['end']}: detected {m['detected']}/{m['n_episodes']}, "
+        f"median latency {m['median_latency']} (all episodes {m['median_latency_all']}), "
+        f"{m['false_positives_per_year']:.2f} false alarms/yr, {m['false_alarm_share']:.1%} of calm days in false alarm, "
+        f"{m['n_alarms']} alarms ({m['n_false_alarms']} false), Brier {m['brier']:.3f}, ECE {m['ece']:.3f}"
+    )
+    for ep in bt["episodes"]:
+        latency = "missed" if ep["latency_days"] is None else f"{ep['latency_days']:+d}"
+        print(f"  {ep['start']}  {ep['trigger']:<11} {ep['max_drawdown']:>7.1%}  {latency:>7}")
+    print(f"Live record: {len(live.entries)} day(s) published, hash chain {'intact' if live.chain_ok else 'BROKEN'}")
+    for problem in live.problems:
+        print(f"  {problem}")
+    print(f"Live episodes scored: {len(score['episodes'])}, live alarms: {len(score['alarms'])}")
+    for page in result["pages"]:
+        print(page)
+    if not live.chain_ok:
+        sys.exit(1)
 
 
 def cmd_episodes(args):
@@ -318,6 +352,7 @@ def main(argv=None):
         ("backtest", cmd_backtest),
         ("report", cmd_report),
         ("publish", cmd_publish),
+        ("track-record", cmd_track_record),
         ("episodes", cmd_episodes),
         ("states", cmd_states),
         ("holdout", cmd_holdout),
@@ -333,6 +368,8 @@ def main(argv=None):
         if name == "report":
             sp.add_argument("--format", default="md", choices=["md", "html", "pdf"])
             sp.add_argument("--out")
+        if name == "track-record":
+            sp.add_argument("--out", help="write the pages (and a new backtest record) to this folder instead: a preview")
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
             sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])

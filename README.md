@@ -27,6 +27,7 @@ puis le résultat est mis en cache dans `data_cache/`.
 | **Tableau de bord** | régime actuel et probabilités (probabilité de stress calibrée), alarme de stress (active ou non, depuis quand), les 3 dimensions (stress, croissance, inflation), ce qui a changé en une semaine, ce qui ferait basculer, moteurs du régime, historique des régimes sur l'indice actions |
 | **Marchés mondiaux** | carte de 20 marchés actions (ETF pays cotés aux États-Unis à la place des indices sous licence) : performance de 1 jour à 1 an, ou état de stress de marché propre à chaque pays (calme, tendu, stress) ; zoom par zone, date libre et épisodes passés à revoir, détail d'un pays au clic, part des marchés en stress comparée au régime US, tableau exportable (docs/WORLD.md) |
 | **Historique** | latence de détection par épisode, fausses alertes par an, fiabilité de la probabilité de stress (courbe de calibration, Brier, ECE, avant et après calibration), comparaison des modèles, track record publié |
+| **Track record** | la page publique du track record : chaque jour publié (régime, probabilité de stress, alarme, empreinte SHA-256, horodatage Bitcoin), chaque épisode de stress et son délai de détection, chaque alarme, fausses alarmes comprises ; le backtest 2009-2026 à part, clairement séparé du réel (docs/TRACK_RECORD.md) |
 | **Alertes** | changement de régime, alarme de stress, alerte précoce à 1 semaine, mouvements brusques ; filtres par type et période |
 | **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables), note de comité des risques en PDF / HTML / Markdown |
 
@@ -45,6 +46,7 @@ python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du dét
 python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
+python -m pfe_drai --provider fred track-record --out preview  # aperçu de la page publique du track record (docs/TRACK_RECORD.md)
 python -m pfe_drai --provider fred world --date 2020-03-16   # marchés mondiaux : performance et état de stress (docs/WORLD.md)
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
@@ -83,7 +85,9 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
 - **Track record** : un JSON par jour ouvré, publié par GitHub Actions (`publish.yml`, 22h30 UTC),
   sur données réelles uniquement. Hash SHA-256 chaîné dans `track_record/index.csv`, hash de la
   règle d'épisodes dans chaque entrée, preuve OpenTimestamps (ancrée dans Bitcoin).
-  Secrets GitHub requis : `FRED_API_KEY` et `TIINGO_API_KEY`.
+  Secrets GitHub requis : `FRED_API_KEY` et `TIINGO_API_KEY`. La même tâche construit la page publique
+  (`track_record/index.html`, `fr.html`) : chaque alarme et chaque délai, en réel puis en backtest,
+  publiable sur GitHub Pages. Voir [docs/TRACK_RECORD.md](docs/TRACK_RECORD.md).
 
 Détails : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -115,14 +119,14 @@ pfe_drai/
   validation/  walk-forward, datation des épisodes, latence, fausses alertes, calibration
   scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds
   reporting/   note de comité FR/EN (Markdown, HTML, PDF)
-  publish/     publication quotidienne horodatée
+  publish/     publication quotidienne horodatée, page publique du track record
   alerts.py    règles d'alerte
   world.py     marchés mondiaux : prix des ETF pays, état de stress par pays, diffusion
   pipeline.py  enchaîne tout ; utilisé par l'app, l'API, la CLI et les tests
   i18n/        t(clé, langue) ; textes dans locales/fr.json et locales/en.json
 app/           tableau de bord Streamlit
 api/           API FastAPI
-track_record/  publications quotidiennes
+track_record/  publications quotidiennes, backtest gelé (backtest/) et page publique (index.html, fr.html)
 tests/         pytest
 ```
 

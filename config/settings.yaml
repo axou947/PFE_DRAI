@@ -163,3 +163,6 @@ publish:
   dir: track_record
   opentimestamps: true            # uses the `ots` CLI if installed
   require_live_data: true         # never publish simulated data to the track record
+  # Public track-record page (track_record/index.html and fr.html, docs/TRACK_RECORD.md): links to the code.
+  repository_url: https://github.com/axou947/PFE_DRAI
+  pages_url: https://axou947.github.io/PFE_DRAI/   # once Settings > Pages > Source is GitHub Actions

@@ -1,4 +1,5 @@
-# Daily publication of the regime to track_record/, on real data only.
+# Daily publication of the regime to track_record/, on real data only, and of the public
+# track-record page built from it (track_record/index.html and fr.html, docs/TRACK_RECORD.md).
 # Needs two repository secrets: FRED_API_KEY and TIINGO_API_KEY
 # (Settings > Secrets and variables > Actions). Without them the run fails
 # instead of publishing simulated data.
@@ -28,9 +29,18 @@ jobs:
       - run: pip install -e . opentimestamps-client
       - name: Complete earlier timestamps
         # A fresh OpenTimestamps proof is only anchored in Bitcoin a few hours later.
-        run: for f in track_record/*.ots; do [ -e "$f" ] && ots upgrade "$f" || true; done
+        run: find track_record -name '*.ots' -print0 | xargs -0 -r -n1 ots upgrade || true
       - name: Publish today's regime
         run: python -m pfe_drai --provider fred publish
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+      - name: Build the track-record page
+        # Writes the backtest record once per configuration, then the page. Its failure must
+        # not cost the day's entry: the entry is committed anyway and the run fails at the end.
+        id: page
+        continue-on-error: true
+        run: python -m pfe_drai --provider fred track-record
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
@@ -42,3 +52,41 @@ jobs:
           git commit -m "Track record $(date -u +%F)" || { echo "nothing to publish"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
+      - name: Report a page failure
+        if: steps.page.outcome == 'failure'
+        run: |
+          echo "::error::The track-record page did not build; today's entry was still committed."
+          exit 1
+
+  # Public page on GitHub Pages. Off until an admin of the repository sets
+  # Settings > Pages > Source to "GitHub Actions" (docs/TRACK_RECORD.md); until then this job
+  # only prints a notice and the page stays readable in the repository.
+  pages:
+    needs: publish
+    if: always() && needs.publish.result != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }} # the commit the publish job just pushed
+      - name: Check that GitHub Pages is on
+        id: pages
+        continue-on-error: true
+        uses: actions/configure-pages@v5
+      - name: Pages is off
+        if: steps.pages.outcome != 'success'
+        run: echo "::notice::GitHub Pages is not enabled for this repository (Settings > Pages > Source > GitHub Actions). Skipping the deploy."
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.pages.outcome == 'success'
+        with:
+          path: track_record
+      - id: deploy
+        if: steps.pages.outcome == 'success'
+        uses: actions/deploy-pages@v4

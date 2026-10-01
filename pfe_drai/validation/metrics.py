@@ -33,6 +33,10 @@ def latencies(signal: pd.Series, episodes: list[Episode], settings: dict) -> pd.
                 "max_drawdown": ep.max_drawdown,
                 "latency_days": latency,
                 "detected": latency is not None,
+                # First day of the detection window with the signal on (the day the latency is measured to).
+                "signal_date": dates[lo + hits[0]] if len(hits) else None,
+                # The window ran past the last day of data: a miss is not final yet.
+                "window_complete": pos + cfg["detection_window_days"] <= len(dates),
             }
         )
     return pd.DataFrame(rows)
@@ -50,6 +54,37 @@ def _widened(index: pd.DatetimeIndex, episodes: list[Episode], settings: dict) -
     margin = pd.Timedelta(days=settings["validation"]["episodes"]["lookback_days"] * 7 / 5)
     widened = [Episode(e.start - margin, e.end, e.trigger, e.max_drawdown) for e in episodes]
     return episode_mask(index, widened)
+
+
+def alarm_spells(signal: pd.Series, episodes: list[Episode], settings: dict, score: pd.Series | None = None) -> pd.DataFrame:
+    """Every stretch of days with the stress signal on, and the episode it belongs to, if any.
+
+    A spell counts for an episode when it turns on inside that episode or in the `lookback_days`
+    before its start (where an early signal counts); otherwise it is a false alarm. The false
+    alarms are exactly the onsets `false_positives_per_year` counts. `open`: still on at the last day.
+    """
+    columns = ["start", "end", "days", "peak_score", "episode_start", "false_alarm", "open"]
+    on = signal.astype(bool)
+    if not on.any():
+        return pd.DataFrame(columns=columns)
+    run = (on != on.shift(fill_value=False)).cumsum()[on]
+    margin = pd.Timedelta(days=settings["validation"]["episodes"]["lookback_days"] * 7 / 5)
+    rows = []
+    for _, days in run.groupby(run):
+        start, end = days.index[0], days.index[-1]
+        owner = next((e for e in episodes if e.start - margin <= start <= e.end), None)
+        rows.append(
+            {
+                "start": start,
+                "end": end,
+                "days": int(len(days)),
+                "peak_score": float(score.loc[start:end].max()) if score is not None else float("nan"),
+                "episode_start": owner.start if owner else None,
+                "false_alarm": owner is None,
+                "open": bool(end == signal.index[-1]),
+            }
+        )
+    return pd.DataFrame(rows, columns=columns)
 
 
 def false_alarm_share(signal: pd.Series, episodes: list[Episode], settings: dict) -> float:
