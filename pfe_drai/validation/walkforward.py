@@ -5,6 +5,13 @@ import pandas as pd
 from ..models import get_model
 
 
+def refit_cuts(n: int, settings: dict, model_name: str) -> range:
+    """Training-window ends of the walk-forward: the model fitted on [:cut] predicts from cut on."""
+    cfg = settings["validation"]
+    step = settings["models"].get(model_name, {}).get("refit_every_days", cfg["refit_every_days"])
+    return range(cfg["min_train_days"], n, step)
+
+
 def walk_forward(
     model_name: str,
     features: pd.DataFrame,
@@ -27,17 +34,15 @@ def walk_forward(
         if market is None or onset is None:
             raise ValueError(f"Model '{model_name}' needs market inputs and the onset target")
         features, labels = market.loc[scores.index], onset.loc[scores.index]
-    cfg = settings["validation"]
-    start = cfg["min_train_days"]
-    step = settings["models"].get(model_name, {}).get("refit_every_days", cfg["refit_every_days"])
     n = len(scores)
-    if n <= start:
-        raise ValueError(f"Need more than {start} days of data for walk-forward, got {n}")
+    cuts = refit_cuts(n, settings, model_name)
+    if not cuts:
+        raise ValueError(f"Need more than {cuts.start} days of data for walk-forward, got {n}")
     blocks = []
-    for cut in range(start, n, step):
+    for cut in cuts:
         model = get_model(model_name, settings)
         model.fit(features.iloc[:cut], scores.iloc[:cut], labels.iloc[:cut])
-        end = min(cut + step, n)
+        end = min(cut + cuts.step, n)
         # Causal models (jump) need the full past to carry their state into the block.
         probs = model.predict_proba(features.iloc[:end], scores.iloc[:end]).iloc[cut:end]
         blocks.append(probs)

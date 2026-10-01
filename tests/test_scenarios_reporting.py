@@ -40,6 +40,7 @@ def test_note_in_both_languages(pipeline):
     for lang in ("fr", "en"):
         note = build_note(pipeline, lang)
         assert note["title"] and len(note["scenarios"]) == 3
+        assert ("Noms des régimes" if lang == "fr" else "Regime names") in note["method"]
         assert "#" in to_markdown(note)
         assert to_html(note).startswith("<!doctype html>")
         assert to_pdf(note)[:4] == b"%PDF"
@@ -58,6 +59,8 @@ def test_publish_writes_hash_chain(pipeline, tmp_path, monkeypatch):
     payload = json.loads(path.read_text())
     assert payload["previous_sha256"] == "abc"
     assert payload["episode_rule_sha256"] == rule_fingerprint(pipeline.settings)
+    # Each entry keeps how the model's states were named (docs/REGIMES.md).
+    assert [s["name"] for s in payload["states"]] == list(pipeline.state_map("kmeans")["name"])
     # A second run on the same market day (holiday, re-run) publishes nothing.
     assert publish(pipeline, "kmeans", out_dir=tmp_path) is None
     rows = (tmp_path / "index.csv").read_text().strip().splitlines()

@@ -63,6 +63,12 @@ def build_note(
             }
         )
     latency = metrics["median_latency"]
+    naming = ""
+    if state.states:
+        agreement = [s["purity"] for s in state.states]
+        naming = " " + t(
+            "note.naming", lang, low=fmt_pct(min(agreement), lang), high=fmt_pct(max(agreement), lang), n=len(agreement)
+        )
     return {
         "lang": lang,
         "title": t("note.title", lang),
@@ -90,7 +96,8 @@ def build_note(
             fp=fmt_num(metrics["false_positives_per_year"], lang).lstrip("+"),
             detected=metrics["detected"],
             episodes=metrics["n_episodes"],
-        ),
+        )
+        + naming,
         "limits": t("note.limits", lang),
         "disclaimer": t("note.disclaimer", lang),
         "ai": t("note.ai", lang),

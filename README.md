@@ -39,13 +39,14 @@ python -m pfe_drai status                     # régime du jour
 python -m pfe_drai --lang en backtest         # métriques hors échantillon des 3 modèles
 python -m pfe_drai report --format pdf        # note de comité (md, html ou pdf)
 python -m pfe_drai --provider fred episodes   # épisodes de stress datés par la règle gelée
+python -m pfe_drai --provider fred states     # comment les états du modèle sont nommés (docs/REGIMES.md)
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
-API : `GET /regime`, `/regime/history`, `/metrics`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
+API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
 
 ## Méthode
 
@@ -53,9 +54,12 @@ API : `GET /regime`, `/regime/history`, `/metrics`, `/scenarios`, `/report` (par
   (z-scores sur l'historique disponible à chaque date ; séries révisées — inscriptions au chômage,
   production industrielle, CPI — lues dans ALFRED en première publication, datées du jour de publication).
   Avant HYG (2007), le crédit investment grade (LQD/IEF, 2002) prend le relais : historique réel dès 2004.
-- **4 régimes** : Expansion, Surchauffe inflationniste, Ralentissement, Stress / crise.
-  Les états des modèles non supervisés sont reliés aux régimes par des prototypes fixés dans
-  `config/settings.yaml` (appariement un à un).
+- **4 régimes** : Expansion, Surchauffe inflationniste, Ralentissement, Stress / crise, définis par
+  une règle transparente sur les trois scores (`regimes.rule` dans `config/settings.yaml`).
+  Chaque état d'un modèle non supervisé prend le nom du régime dont le centre (jour moyen de ce
+  régime selon la règle, sur la période d'apprentissage) est le plus proche : rien n'est fixé à la
+  main, et un régime absent de l'historique ne nomme aucun état. `python -m pfe_drai states`
+  montre ce nommage à chaque réapprentissage. Voir [docs/REGIMES.md](docs/REGIMES.md).
 - **5 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
   gradient boosting qui prévoit le régime à 1 semaine, `onset` (détecteur de début de stress appris
   sur les épisodes gelés à partir d'indicateurs de marché quotidiens) et `combined` (par défaut) :
@@ -95,7 +99,7 @@ config/        settings.yaml (tous les réglages), scenarios.yaml, funds.yaml
 pfe_drai/
   data/        sources : synthetic, csv, fred, yahoo ; catalogue des séries
   features/    12 indicateurs point-in-time -> scores stress / croissance / inflation
-  regimes.py   définitions, couleurs, règle d'étiquetage, prototypes
+  regimes.py   définitions, couleurs, règle d'étiquetage, nommage des états
   models/      kmeans, jump, gbm, combined (interface commune + registre)
   validation/  walk-forward, datation des épisodes, latence, fausses alertes, calibration
   scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds

@@ -5,6 +5,7 @@ backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
 publish    write today's track record entry (real data only)
 episodes   list the stress episodes dated by the frozen rule
+states     how the model's states map to the regimes, at every walk-forward refit
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 data       history covered by each series and where the backtest starts
 app        start the Streamlit dashboard
@@ -115,6 +116,51 @@ def cmd_episodes(args):
         print(f"{ep.start.date()!s:<12} {ep.end.date()!s:<12} {ep.trigger:<11} {ep.max_drawdown:>13.1%}")
 
 
+def cmd_states(args):
+    import statistics
+
+    from .features import DIMENSIONS
+    from .regimes import regime_centres
+
+    p = _pipeline(args)
+    model = args.model or p.settings["models"]["default"]
+    maps = p.state_maps(model)
+    if not maps:
+        print(f"Model '{model}' predicts the rule regimes directly: it has no states to name.")
+        return
+    order = p.settings["regimes"]["order"]
+    first, table = maps[-1]
+    cut = p.scores.index.get_loc(first)
+    print(
+        f"States of the {p.unsupervised_model(model)} model behind '{model}' ({p.provider.name} data), "
+        f"latest fit: trained on {p.scores.index[0].date()} to {p.scores.index[cut - 1].date()}. See docs/REGIMES.md."
+    )
+    dims = " ".join(f"{d:>9}" for d in DIMENSIONS)
+    print(f"\nRegime centres (average training day the rule puts in each regime):\n{'regime':<12} {'days':>5}  {dims}")
+    for regime, row in regime_centres(p.scores.iloc[:cut], p.labels.iloc[:cut], p.settings).iterrows():
+        print(f"{regime:<12} {int(row['days']):>5}  " + " ".join(f"{row[d]:>+9.2f}" for d in DIMENSIONS))
+    shares = " ".join(f"{r[:11]:>11}" for r in order)
+    print("\nStates: name = closest regime centre; share = the state's training days in each rule regime.")
+    print(f"{'state':<6} {'name':<12} {'dist.':>6} {'days':>5}  {dims}  {shares}")
+    for state, row in table.iterrows():
+        centre = " ".join(f"{row[d]:>+9.2f}" for d in DIMENSIONS)
+        share = " ".join(f"{row[f'share_{r}']:>11.0%}" for r in order)
+        print(f"{state:<6} {row['name']:<12} {row['distance']:>6.2f} {row['days']:>5}  {centre}  {share}")
+    print("\nEvery refit (first day predicted: state names with the share of their days the rule agrees with):")
+    for start, table in maps:
+        names = " | ".join(
+            f"{row['name']} {row['purity']:.0%}{'*' if row['purity'] < 0.5 else ''}"
+            for _, row in table.sort_values("name").iterrows()
+        )
+        absent = [r for r in order if r not in set(table["name"])]
+        print(f"{start.date()!s:<12} {names}" + (f"   no state: {', '.join(absent)}" if absent else ""))
+    purity = [row["purity"] for _, table in maps for _, row in table.iterrows() if row["days"]]
+    print(
+        f"\nAgreement with the rule: median {statistics.median(purity):.0%}, lowest {min(purity):.0%}, over {len(maps)} refits."
+    )
+    print("* = fewer than half of the state's days are in the regime it is named after: a mixed state.")
+
+
 def cmd_holdout(args):
     import pandas as pd
 
@@ -189,6 +235,7 @@ def main(argv=None):
         ("report", cmd_report),
         ("publish", cmd_publish),
         ("episodes", cmd_episodes),
+        ("states", cmd_states),
         ("holdout", cmd_holdout),
         ("data", cmd_data),
         ("app", cmd_app),

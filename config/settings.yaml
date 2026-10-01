@@ -38,14 +38,9 @@ regimes:
     overheating: "#eda100"
     slowdown: "#2a78d6"
     stress: "#4a3aa7"
-  # Prototype position of each regime on (stress, growth, inflation).
-  # Unsupervised model states are matched to the closest prototype.
-  prototypes:
-    expansion:   [-0.5,  0.5,  0.0]
-    overheating: [ 0.0, -0.2,  1.2]
-    slowdown:    [ 0.4, -0.5, -0.2]
-    stress:      [ 1.8, -0.5, -0.3]
-  # Transparent rule used to label history (target of the supervised model).
+  # Transparent rule that defines the regimes on the three dimension scores. It labels history
+  # (target of the supervised models) and names the states of the unsupervised ones: each state
+  # takes the name of the closest regime centre, the average day of that regime (docs/REGIMES.md).
   rule:
     stress_threshold: 1.0
     growth_threshold: -0.25

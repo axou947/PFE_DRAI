@@ -3,7 +3,7 @@
 import numpy as np
 from sklearn.cluster import KMeans
 
-from ..regimes import match_states
+from ..regimes import name_states
 from .base import RegimeModel, register, softmax
 
 
@@ -15,7 +15,8 @@ class KMeansModel(RegimeModel):
         cfg = self.settings["models"]["kmeans"]
         self.km = KMeans(n_clusters=len(self.regimes), n_init=cfg["n_init"], random_state=0)
         self.km.fit(scores.values)
-        self.state_names = match_states(self.km.cluster_centers_, self.settings)
+        self.state_table = name_states(self.km.labels_, self.km.cluster_centers_, scores, labels, self.settings)
+        self.state_names = list(self.state_table["name"])
         return self
 
     def predict_proba(self, features, scores):
