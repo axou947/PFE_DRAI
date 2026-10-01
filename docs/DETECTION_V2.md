@@ -136,7 +136,37 @@ On simulated data the false alarm share of v2 sits at the 10% target, mostly fro
 
 ## Results
 
-Not run yet.
+### Step 1: holdout (real data, run once by Henry, 2026-10-01)
+
+`python -m pfe_drai --provider fred holdout`, predictions from 1999-02-25 to 2009-04-02.
+
+| candidate                  | detected | median lat. | all eps. | FP / yr | false alarm | Brier |
+|----------------------------|---------:|------------:|---------:|--------:|------------:|------:|
+| logistic / market          |   3/6    |   6.0       |  41.5    |  0.40   |  3.1%       | 0.108 |
+| logistic / market + credit |   3/6    |   6.0       |  41.5    |  0.40   |  2.8%       | 0.109 |
+| **gbm / market** (selected)|   5/6    |  −2.0       |   1.0    |  0.50   |  2.4%       | 0.091 |
+| gbm / market + credit      |   5/6    |  −2.0       |   1.0    |  0.50   |  1.5%       | 0.085 |
+
+| start      | max drawdown | logistic / market | logistic / m + credit | gbm / market | gbm / m + credit |
+|------------|-------------:|------------------:|----------------------:|-------------:|-----------------:|
+| 1999-09-29 | −11.7%       | missed            | missed                | −2           | −2               |
+| 2000-01-07 | −2.6%        | missed            | missed                | +5           | +5               |
+| 2000-03-16 | −0.5%        | +23               | +23                   | −13          | −13              |
+| 2000-05-10 | −10.2%       | −15               | −15                   | −15          | −15              |
+| 2000-10-11 | −27.0%       | +6                | +6                    | +4           | +4               |
+| 2008-01-08 | −19.0%       | missed            | missed                | missed       | missed           |
+
+- Every candidate meets both false-alarm targets. The two gbm candidates tie on latency and on
+  false positives, so the rule takes the earlier one: **gbm / market** (no credit input).
+  gbm / market + credit has less alarm time, but alarm time is a limit in the rule, not a tie-break.
+- Only 6 episodes, fewer than hoped: the frozen rule's re-arming means the market that never got
+  back above −5% from late 2000 to 2003 counts as one long episode, not several.
+- 2008-01 is missed by every candidate: a slow slide, not a sharp break.
+- Both targets hold for the selected detector on its own: median latency 1 day over all
+  episodes (−2 over detected ones), 0.50 false positives a year, 2.4% of calm days in false alarm.
+
+Step 2 (one run on the 11 real episodes) uses `models.onset: {learner: gbm, inputs: market}`
+and `models.combined.stress_sources: [gbm, onset]`, set in the commit after this table.
 
 Fix before the first holdout run (2026-10-01): the first real holdout run crashed before
 printing any result, because gradient boosting cannot use an input that is empty for a whole

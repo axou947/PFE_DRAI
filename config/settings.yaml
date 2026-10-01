@@ -58,7 +58,7 @@ models:
   combined:
     # Models whose P(stress) can raise the jump model's. [gbm] = v1 (PR #5).
     # [gbm, onset] = v2, adopted only under the decision rule of docs/DETECTION_V2.md.
-    stress_sources: [gbm]
+    stress_sources: [gbm, onset]
   kmeans:
     n_init: 10
   jump:
@@ -72,7 +72,8 @@ models:
     learning_rate: 0.06
   onset:
     # Stress-onset detector (docs/DETECTION_V2.md): learns the start of the frozen episodes
-    # from fast market inputs. learner and inputs are set by the pre-registered holdout.
+    # from fast market inputs. learner and inputs selected by the pre-registered holdout
+    # (real data, 1999-2009, run 2026-10-01).
     learner: gbm            # gbm | logistic
     inputs: market          # market | market_credit (features/market.py)
     horizon_days: 5         # target: an episode starts within a week...
