@@ -43,6 +43,7 @@ data:
         source: eurostat
         dataset: prc_hicp_midx
         filters: {geo: EA, coicop: CP00, unit: I15}
+        alternatives: [{geo: EA20}, {geo: EA21}]
         lag_days: 18            # final HICP of month M is published about the 17th of M+1
         licence: Eurostat open data (source acknowledged)
         vintage: "no public vintages; HICP is rarely revised"
@@ -51,6 +52,8 @@ data:
         source: eurostat
         dataset: sts_inpr_m
         filters: {geo: EA, nace_r2: B-D, s_adj: SCA, unit: I21}
+        # Same series under another base year or euro-area code, tried in order if the filters match nothing.
+        alternatives: [{unit: I15}, {unit: I10}, {geo: EA20, unit: I21}, {geo: EA20, unit: I15}, {geo: EA21, unit: I21}, {geo: EA21, unit: I15}]
         lag_days: 50            # published about 45 days after the month; revised afterwards
         licence: Eurostat open data (source acknowledged)
         vintage: "no public vintages; revised: backtest not fully point-in-time"
@@ -59,6 +62,7 @@ data:
         source: eurostat
         dataset: une_rt_m
         filters: {geo: EA, s_adj: SA, age: TOTAL, sex: T, unit: PC_ACT}
+        alternatives: [{geo: EA20}, {geo: EA21}]
         lag_days: 35            # published about the start of M+2
         licence: Eurostat open data (source acknowledged)
         vintage: "no public vintages; revised slightly: backtest not fully point-in-time"

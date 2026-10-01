@@ -81,6 +81,30 @@ def test_parse_eurostat_refuses_several_series():
         euro.parse_eurostat(payload)
 
 
+def test_eurostat_alternatives_are_tried_in_order(monkeypatch):
+    calls = []
+
+    def fake(dataset, filters, start):
+        calls.append(filters["unit"])
+        if filters["unit"] != "I15":
+            raise euro.NoDataError("the filters match no data")
+        return pd.Series([1.0], index=[pd.Timestamp("2024-01-01")])
+
+    monkeypatch.setattr(euro, "fetch_eurostat", fake)
+    spec = {"dataset": "x", "filters": {"unit": "I21"}, "alternatives": [{"unit": "I10"}, {"unit": "I15"}]}
+    series, used = euro.fetch_eurostat_any(spec, "2024-01-01")
+    assert calls == ["I21", "I10", "I15"] and used == {"unit": "I15"} and len(series) == 1
+    monkeypatch.setattr(euro, "fetch_eurostat", lambda *a: (_ for _ in ()).throw(euro.NoDataError("none")))
+    with pytest.raises(euro.NoDataError):
+        euro.fetch_eurostat_any(spec, "2024-01-01")
+
+
+def test_parse_eurostat_empty_dimension_is_no_data():
+    payload = {"id": ["geo", "time"], "size": [0, 1], "value": {}, "dimension": {"time": {"category": {"index": {"2024-01": 0}}}}}
+    with pytest.raises(euro.NoDataError):
+        euro.parse_eurostat(payload)
+
+
 def test_release_dating_is_point_in_time():
     monthly = euro.parse_eurostat(json.loads((FIXTURES / "eurostat_hicp.json").read_text()))
     dated = euro.release_dated(monthly, lag_days=18, monthly=True)

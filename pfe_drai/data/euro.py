@@ -50,9 +50,15 @@ def parse_ecb(payload: dict) -> pd.Series:
     return pd.Series(values, dtype=float).sort_index()
 
 
+class NoDataError(ValueError):
+    """The filters match nothing in the dataset (a code that does not exist there, e.g. another base year)."""
+
+
 def parse_eurostat(payload: dict) -> pd.Series:
     """One series of a Eurostat JSON-stat 2.0 message: every dimension but time must be a single category."""
     ids, sizes = payload["id"], payload["size"]
+    if any(size == 0 for dim, size in zip(ids, sizes, strict=True) if dim != "time"):
+        raise NoDataError("the filters match no data")
     open_dims = [(dim, size) for dim, size in zip(ids, sizes, strict=True) if dim != "time" and size != 1]
     if open_dims:
         dims = payload.get("dimension", {})
@@ -86,8 +92,27 @@ def fetch_eurostat(dataset: str, filters: dict, start) -> pd.Series:
     response.raise_for_status()
     try:
         return parse_eurostat(response.json())
+    except NoDataError as exc:
+        raise NoDataError(f"Eurostat dataset {dataset} with filters {filters}: {exc}") from exc
     except ValueError as exc:
         raise ValueError(f"Eurostat dataset {dataset} with filters {filters}: {exc}") from exc
+
+
+def fetch_eurostat_any(spec: dict, start) -> tuple[pd.Series, dict]:
+    """The series for the first filter set that exists: `filters`, then each of `alternatives` merged over it.
+
+    Eurostat re-bases its indices and changes euro-area codes (EA, EA20, EA21): the alternatives only
+    identify the same series under another code, they are not a choice of data (docs/EURO.md).
+    Returns the series and the filters that worked.
+    """
+    errors = []
+    for extra in [{}, *spec.get("alternatives", [])]:
+        filters = {**spec["filters"], **extra}
+        try:
+            return fetch_eurostat(spec["dataset"], filters, start), filters
+        except NoDataError as exc:
+            errors.append(str(exc))
+    raise NoDataError(" | ".join(errors))
 
 
 def realised_vol_percent(equity: pd.Series, window: int = 21) -> pd.Series:
@@ -108,6 +133,11 @@ def release_dated(series: pd.Series, lag_days: int, monthly: bool) -> pd.Series:
 class EuroProvider(DataProvider):
     name = "euro"
 
+    def __init__(self, settings: dict):
+        super().__init__(settings)
+        #: Eurostat filters that matched, per series (shown by the `data` command).
+        self.used_filters: dict[str, dict] = {}
+
     def _cfg(self) -> dict:
         return self.settings["data"]["euro"]["series"]
 
@@ -127,7 +157,8 @@ class EuroProvider(DataProvider):
         data["credit_spread"] = release_dated(data["credit_spread"], cfg["credit_spread"]["lag_days"], monthly=False)
         for name in ("cpi", "indpro", "claims"):
             spec = cfg[name]
-            data[name] = release_dated(fetch_eurostat(spec["dataset"], spec["filters"], start), spec["lag_days"], monthly=True)
+            series, self.used_filters[name] = fetch_eurostat_any(spec, start)
+            data[name] = release_dated(series, spec["lag_days"], monthly=True)
         self.release_dated.update(["us10y", "us2y", "credit_spread", "cpi", "indpro", "claims"])
         return {name: data[name].loc[pd.Timestamp(start) :] for name in REQUIRED}
 

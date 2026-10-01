@@ -47,7 +47,10 @@ the European Commission sentiment indicator (not needed: the growth score keeps 
 6. **Short history.** The ECB yield-curve data starts in September 2004 and the ETF in July 2000, so features start in
    2005 and the first out-of-sample prediction comes about five years later. The euro backtest has fewer episodes
    than the US one and the 2010-2012 sovereign crisis is only partly inside it. Do not read the euro model as validated like the US one.
-7. The `YC` series keys and the Eurostat dataset codes and filters above were written from the documentation without
+7. Eurostat re-bases its indices and changes euro-area codes (EA, EA20, EA21). Each Eurostat series lists `alternatives` in the
+   overlay, tried in order if the filters match nothing; they identify the same series under another code, they are not a data
+   choice, and `data` prints the filters that worked.
+8. The `YC` series keys and the Eurostat dataset codes and filters above were written from the documentation without
    network access (the build environment cannot reach either server). Phase A (`data`, below) is the check: a wrong key stops the run
    with the server's message, it never produces silent numbers.
 

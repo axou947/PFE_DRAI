@@ -406,7 +406,10 @@ def cmd_data(args):
         if euro:
             spec = lags.get(name, {})
             lag = spec.get("lag_days", spec.get("all", {}).get("lag_days", ""))
+            used = p.provider.used_filters.get(name)
             dated = f"release day, lag {lag} d  |  {spec.get('vintage')}  |  {spec.get('licence')}"
+            if used:
+                dated += f"  |  eurostat {spec['dataset']} {used}"
         else:
             dated = "release day (ALFRED)" if name in p.provider.release_dated else "reference period"
         print(f"{name:<14} {series.index.min().date()!s:<12} {series.index.max().date()!s:<12} {dated}")
