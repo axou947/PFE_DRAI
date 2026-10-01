@@ -74,7 +74,7 @@ class Pipeline:
 
     @cached_property
     def _built(self):
-        return build(self.raw, self.settings)
+        return build(self.raw, self.settings, self.provider.release_dated)
 
     @property
     def prices(self) -> pd.DataFrame:

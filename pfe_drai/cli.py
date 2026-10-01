@@ -5,6 +5,7 @@ backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
 publish    write today's track record entry (real data only)
 episodes   list the stress episodes dated by the frozen rule
+data       history covered by each series and where the backtest starts
 app        start the Streamlit dashboard
 api        start the FastAPI server
 """
@@ -82,6 +83,18 @@ def cmd_episodes(args):
         print(f"{ep.start.date()!s:<12} {ep.end.date()!s:<12} {ep.trigger:<11} {ep.max_drawdown:>13.1%}")
 
 
+def cmd_data(args):
+    p = _pipeline(args)
+    print(f"{'series':<12} {'first':<12} {'last':<12} dated by")
+    for name, series in p.raw.items():
+        dated = "release day (ALFRED)" if name in p.provider.release_dated else "reference period"
+        print(f"{name:<12} {series.index.min().date()!s:<12} {series.index.max().date()!s:<12} {dated}")
+    index, min_train = p.features.index, p.settings["validation"]["min_train_days"]
+    print(f"\nFeatures from {index[0].date()} ({p.provider.name}).")
+    if len(index) > min_train:
+        print(f"Out-of-sample from {index[min_train].date()} (validation.min_train_days: {min_train}).")
+
+
 def cmd_app(args):
     env = {**os.environ, **({"PFE_DRAI_PROVIDER": args.provider} if args.provider else {})}
     try:
@@ -109,6 +122,7 @@ def main(argv=None):
         ("report", cmd_report),
         ("publish", cmd_publish),
         ("episodes", cmd_episodes),
+        ("data", cmd_data),
         ("app", cmd_app),
         ("api", cmd_api),
     ]:

@@ -22,6 +22,8 @@ class DataProvider(ABC):
 
     def __init__(self, settings: dict):
         self.settings = settings
+        #: Series already indexed by their release date (point-in-time): no publication lag.
+        self.release_dated: set[str] = set()
 
     @abstractmethod
     def fetch(self, start: pd.Timestamp, end: pd.Timestamp) -> dict[str, pd.Series]:

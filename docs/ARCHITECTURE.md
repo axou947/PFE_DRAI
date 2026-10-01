@@ -41,9 +41,14 @@ every screen.
    variables, never in the YAML.
 4. Run `pytest` and `python -m pfe_drai backtest`.
 
-Monthly series are returned at their reference date; the pipeline shifts them by
-`data.publication_lag_days` so the model only sees what was published on each day.
-For revised series (IP, CPI), `fetch_fred(..., vintage=...)` reads ALFRED vintages.
+Series are returned at their reference date (monthly ones move to the end of their month);
+the pipeline then adds `data.publication_lag_days` so the model only sees what was published
+on each day. Revised series (catalog `revised=True`: jobless claims, industrial production,
+CPI) come from ALFRED with the `fred` provider: each figure is its first release, dated on its
+release day (`provider.release_dated`), so no lag is added and no later revision leaks into a
+backtest. Observations older than ALFRED's archive fall back to the lag. `data.point_in_time:
+false` reads today's revised values instead. Known limit: a year-on-year change compares two
+first releases, not the year-ago figure as revised on that day.
 
 Each catalog entry records a `licence` (research / commercial / check), following the
 re-audit: BAA10Y (Moody's) and Yahoo data are research-only; ICE BofA spreads are not used.
@@ -51,8 +56,10 @@ re-audit: BAA10Y (Moody's) and Yahoo data are research-only; ICE BofA spreads ar
 Real data = FRED (macro, VIX) + Tiingo (ETF prices). FRED allows commercial use with its
 disclaimer; third-party series need the owner's permission (VIXCLS: cite Cboe). FRED SP500
 is not used: it starts in 2016 and S&P forbids reproduction. Tiingo's free tier is enough for
-research; internal commercial use is a paid plan. HYG starts in 2007, so real-data history
-starts in 2008 once z-scores have a year of data.
+research; internal commercial use is a paid plan. HYG starts in 2007: before its credit
+z-score is ready, the investment-grade ETF (LQD vs IEF, from 2002) stands in, z-scored on its
+own past. The 10-year breakeven (T10YIE, 2003) is then the shortest series, so real-data
+features start in March 2004. `python -m pfe_drai --provider fred data` prints the coverage.
 
 ## Ajouter un modèle
 
