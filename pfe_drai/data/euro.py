@@ -53,8 +53,17 @@ def parse_ecb(payload: dict) -> pd.Series:
 def parse_eurostat(payload: dict) -> pd.Series:
     """One series of a Eurostat JSON-stat 2.0 message: every dimension but time must be a single category."""
     ids, sizes = payload["id"], payload["size"]
-    if any(size != 1 for dim, size in zip(ids, sizes, strict=True) if dim != "time"):
-        raise ValueError("Eurostat response has more than one series: add a filter for every non-time dimension")
+    open_dims = [(dim, size) for dim, size in zip(ids, sizes, strict=True) if dim != "time" and size != 1]
+    if open_dims:
+        dims = payload.get("dimension", {})
+
+        def examples(dim):
+            return ", ".join(list(dims.get(dim, {}).get("category", {}).get("index", {}))[:6])
+
+        detail = "; ".join(f"{dim} ({size} values, e.g. {examples(dim)})" for dim, size in open_dims)
+        raise ValueError(
+            f"Eurostat response has more than one series: add a filter for every non-time dimension. Not filtered: {detail}"
+        )
     time = payload["dimension"]["time"]["category"]["index"]
     position = {period: pos for period, pos in time.items()} if isinstance(time, dict) else {p: i for i, p in enumerate(time)}
     value = payload.get("value", {})
@@ -75,7 +84,10 @@ def fetch_eurostat(dataset: str, filters: dict, start) -> pd.Series:
     params = {"format": "JSON", "lang": "EN", "sinceTimePeriod": pd.Timestamp(start).strftime("%Y-%m"), **filters}
     response = httpx.get(EUROSTAT_URL.format(dataset=dataset), params=params, timeout=60, follow_redirects=True)
     response.raise_for_status()
-    return parse_eurostat(response.json())
+    try:
+        return parse_eurostat(response.json())
+    except ValueError as exc:
+        raise ValueError(f"Eurostat dataset {dataset} with filters {filters}: {exc}") from exc
 
 
 def realised_vol_percent(equity: pd.Series, window: int = 21) -> pd.Series:

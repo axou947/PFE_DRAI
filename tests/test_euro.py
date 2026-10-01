@@ -71,8 +71,13 @@ def test_parse_eurostat_monthly():
 
 
 def test_parse_eurostat_refuses_several_series():
-    payload = {"id": ["geo", "time"], "size": [2, 1], "value": {}, "dimension": {"time": {"category": {"index": {"2024-01": 0}}}}}
-    with pytest.raises(ValueError, match="more than one series"):
+    payload = {
+        "id": ["geo", "time"],
+        "size": [2, 1],
+        "value": {},
+        "dimension": {"geo": {"category": {"index": {"EA": 0, "DE": 1}}}, "time": {"category": {"index": {"2024-01": 0}}}},
+    }
+    with pytest.raises(ValueError, match=r"more than one series.*geo \(2 values, e.g. EA, DE\)"):
         euro.parse_eurostat(payload)
 
 
