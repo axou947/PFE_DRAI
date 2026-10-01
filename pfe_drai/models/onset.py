@@ -41,9 +41,12 @@ class OnsetModel(RegimeModel):
         The target of the last `horizon_days` days of the window depends on days after it:
         they are dropped (purging), as gbm does.
         """
-        x = self._x(features)
         known = labels.iloc[: len(labels) - self.cfg["horizon_days"]].dropna()
-        x, y = x.loc[known.index], known.astype(int)
+        x, y = self._x(features).loc[known.index], known.astype(int)
+        # An input that does not exist yet in this window (credit before LQD/IEF start in 2002)
+        # is left out until it does: gradient boosting cannot bin a column with no values.
+        self.columns = [c for c in x.columns if x[c].nunique() > 1]
+        x = x[self.columns]
         self.single_class = None if y.nunique() > 1 else int(y.iloc[0])
         if self.single_class is not None:  # no episode in the training window yet
             return self
@@ -60,9 +63,9 @@ class OnsetModel(RegimeModel):
         return self
 
     def p_stress(self, market: pd.DataFrame) -> pd.Series:
-        x = self._x(market)
         if self.single_class is not None:
-            return pd.Series(float(self.single_class), index=x.index)
+            return pd.Series(float(self.single_class), index=market.index)
+        x = self._x(market)[self.columns]
         if self.cfg["learner"] == "logistic":
             x = x.fillna(self.fill).fillna(0.0)
         return pd.Series(self.clf.predict_proba(x)[:, 1], index=x.index)

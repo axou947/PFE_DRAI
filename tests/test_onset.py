@@ -74,6 +74,16 @@ def test_onset_walk_forward_does_not_see_the_future(pipeline, settings, learner)
     assert list(full.columns) == settings["regimes"]["order"]
 
 
+@pytest.mark.parametrize("learner", ["gbm", "logistic"])
+def test_onset_handles_an_input_that_starts_later(pipeline, settings, learner):
+    # Real holdout: LQD/IEF only start in 2002, so credit is empty in the first training windows.
+    s = _onset_settings(settings, learner=learner, inputs="market_credit")
+    market = pipeline.market.copy()
+    market.loc[: pipeline.scores.index[2000], ["credit_5d", "credit_21d"]] = np.nan
+    probs = walk_forward("onset", pipeline.features, pipeline.scores, pipeline.labels, s, market=market, onset=pipeline.onset)
+    assert probs["stress"].notna().all()
+
+
 def test_onset_needs_market_inputs(pipeline, settings):
     with pytest.raises(ValueError, match="market inputs"):
         walk_forward("onset", pipeline.features, pipeline.scores, pipeline.labels, settings)

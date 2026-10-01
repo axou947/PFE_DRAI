@@ -137,3 +137,8 @@ On simulated data the false alarm share of v2 sits at the 10% target, mostly fro
 ## Results
 
 Not run yet.
+
+Fix before the first holdout run (2026-10-01): the first real holdout run crashed before
+printing any result, because gradient boosting cannot use an input that is empty for a whole
+training window (credit before LQD/IEF start in 2002). Such an input is now left out until it
+has values. That is what "credit is missing before 2002" already meant above; nothing else changed.
