@@ -10,7 +10,7 @@ import yaml
 
 from pfe_drai.cli import main
 from pfe_drai.config import load_settings
-from pfe_drai.pipeline import State
+from pfe_drai.pipeline import Pipeline, State
 from pfe_drai.publish import NotLiveDataError, publish
 from pfe_drai.publish.page import LANGS, build_site, render
 from pfe_drai.publish.record import (
@@ -299,3 +299,23 @@ def test_cli_refuses_to_write_a_simulated_backtest_into_the_track_record(tmp_pat
     config.write_text(yaml.safe_dump(load_settings(overrides={"publish": {"dir": str(tmp_path / "track_record")}})))
     with pytest.raises(NotLiveDataError):
         main(["--config", str(config), "track-record"])
+
+
+def test_a_pipeline_on_the_same_data_reads_it_the_same_way(settings):
+    """The app's Track record tab reuses the dashboard's data under the configured settings.
+
+    Real providers learn which series are dated by release day (ALFRED) while fetching. A copy that
+    took the data but not that knowledge shifted those releases again and crashed (duplicate dates).
+    """
+    source = Pipeline(settings, use_cache=False)
+    raw = source.raw
+    # As the fred provider does: monthly CPI and IP read from ALFRED, indexed by release day,
+    # irregular enough that two releases can fall in the same calendar month.
+    for name in ("cpi", "indpro"):
+        series = raw[name].dropna()
+        lags = pd.to_timedelta([10 if i % 2 == 0 else 35 for i in range(len(series))], unit="D")
+        raw[name] = pd.Series(series.values, index=series.index + lags)
+    source.provider.release_dated = {"cpi", "indpro"}
+    copy_ = source.with_settings(copy.deepcopy(settings))
+    assert copy_.provider is source.provider and copy_.raw is source.raw
+    pd.testing.assert_frame_equal(copy_.scores, source.scores)
