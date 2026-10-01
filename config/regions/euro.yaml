@@ -1,0 +1,95 @@
+# Euro-area region (docs/EURO.md): deep-merged over settings.yaml by `--region euro`. The US model
+# (settings.yaml alone) is not touched. Everything below was fixed before any real euro-area run.
+
+data:
+  provider: euro
+  start: "2000-07-26"       # first day of the euro-zone equity ETF (EZU)
+  # What each series is, where it comes from, when it is public (docs/EURO.md, "Data decisions").
+  # lag_days: conservative release lag (the public APIs expose no first releases: not fully point-in-time).
+  euro:
+    series:
+      equity:
+        source: tiingo
+        ticker: EZU             # iShares MSCI Eurozone ETF, USD price: stands in for the licensed index levels
+        licence: tiingo (as the US ETFs)
+        vintage: "n/a (market price)"
+        lag_days: 0
+        meaning: euro-zone equity ETF
+      us10y:
+        source: ecb
+        dataset: YC
+        key: B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y   # AAA euro-area government yield curve, spot rate 10y, daily
+        lag_days: 1
+        licence: ECB open data (source acknowledged)
+        vintage: "no (end-of-day curve, not revised)"
+        meaning: AAA euro-area government 10y yield
+      us2y:
+        source: ecb
+        dataset: YC
+        key: B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y
+        lag_days: 1
+        licence: ECB open data (source acknowledged)
+        vintage: "no (end-of-day curve, not revised)"
+        meaning: AAA euro-area government 2y yield
+      credit_spread:
+        source: ecb
+        all: {dataset: YC, key: B.U2.EUR.4F.G_N_C.SV_C_YM.SR_10Y}   # all-issuer curve, 10y
+        aaa: {dataset: YC, key: B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y}   # AAA curve, 10y
+        lag_days: 1
+        licence: ECB open data (source acknowledged)
+        vintage: "no (end-of-day curve, not revised)"
+        meaning: 10y all-issuer minus AAA euro-area government yield (peripheral stress)
+      cpi:
+        source: eurostat
+        dataset: prc_hicp_midx
+        filters: {geo: EA, coicop: CP00, unit: I15}
+        lag_days: 18            # final HICP of month M is published about the 17th of M+1
+        licence: Eurostat open data (source acknowledged)
+        vintage: "no public vintages; HICP is rarely revised"
+        meaning: HICP all items, euro area
+      indpro:
+        source: eurostat
+        dataset: sts_inpr_m
+        filters: {geo: EA, nace_r2: B-D, s_adj: SCA, unit: I21}
+        lag_days: 50            # published about 45 days after the month; revised afterwards
+        licence: Eurostat open data (source acknowledged)
+        vintage: "no public vintages; revised: backtest not fully point-in-time"
+        meaning: industrial production, euro area
+      claims:
+        source: eurostat
+        dataset: une_rt_m
+        filters: {geo: EA, s_adj: SA, age: TOTAL, sex: T, unit: PC_ACT}
+        lag_days: 35            # published about the start of M+2
+        licence: Eurostat open data (source acknowledged)
+        vintage: "no public vintages; revised slightly: backtest not fully point-in-time"
+        meaning: unemployment rate, euro area (stands in for jobless claims)
+
+features:
+  # No free daily euro breakeven (docs/EURO.md): the inflation score reads HICP and the 2y yield only.
+  drop: [breakeven_level, breakeven_change]
+
+models:
+  version: "euro-v1"        # the US model is v2.2; this one is a separate model on separate data
+
+validation:
+  episodes:
+    # The US rule's parameters, unchanged, on the euro-zone equity ETF: no new degree of freedom
+    # (docs/EURO.md). The sha256 is therefore the same as the US one; it is frozen here separately so
+    # the euro rule cannot change without a new hash, a date and a public reason.
+    frozen:
+      sha256: 6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a
+      date: "2026-10-01"
+  # Real holdout before the euro out-of-sample period (docs/EURO.md): the ETF starts in July 2000, so
+  # the market inputs are ready in mid 2001 and 5 years of training put the first prediction around 2006.
+  holdout:
+    start: "2000-07-26"
+    end: "2010-08-31"       # fixed in docs/EURO.md once `data` shows where the backtest starts
+    candidates:
+      - {learner: logistic, inputs: market}
+      - {learner: gbm, inputs: market}
+  slowdown:
+    reference: null         # no outside reference series for euro growth is registered yet
+
+publish:
+  dir: track_record/euro    # its own folder and hash chain, never mixed into the US index.csv
+  enabled: false            # true only once the pre-registered decision rule is passed (docs/EURO.md)

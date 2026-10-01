@@ -361,5 +361,10 @@
   "tr.ver.changed": "The published model changed on {date}: {old} → {new}.",
   "tr.ver.current": "current",
   "tr.ver.period": "Backtest period",
-  "dash.models_only": "Models only (not in a score)"
+  "dash.models_only": "Models only (not in a score)",
+  "app.region": "Region",
+  "region.us": "United States",
+  "region.euro": "Euro area (experimental)",
+  "region.experimental": "Euro-area view, experimental: its data are shorter and less point-in-time than the US ones, and the model is not validated like the US one (docs/EURO.md). Generic market risk levels, not investment advice.",
+  "region.no_record": "No public track record for this region: it is published only once the pre-registered decision rule is passed."
 }

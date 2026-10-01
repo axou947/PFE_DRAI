@@ -1,0 +1,11 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "fixture: HICP index, euro area",
+  "id": ["freq", "unit", "coicop", "geo", "time"],
+  "size": [1, 1, 1, 1, 4],
+  "value": {"0": 100.0, "1": 100.5, "3": 101.4},
+  "dimension": {
+    "time": {"category": {"index": {"2024-01": 0, "2024-02": 1, "2024-03": 2, "2024-04": 3}}}
+  }
+}

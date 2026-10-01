@@ -11,10 +11,9 @@ import streamlit.components.v1 as components
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pfe_drai.config import load_settings, resolve  # noqa: E402
+from pfe_drai.config import available_regions, load_settings, resolve  # noqa: E402
 from pfe_drai.data import available_providers  # noqa: E402
-from pfe_drai.features import FEATURES  # noqa: E402
-from pfe_drai.features.build import score_dimension  # noqa: E402
+from pfe_drai.features.build import active_features, score_dimension  # noqa: E402
 from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
 from pfe_drai.pipeline import Pipeline  # noqa: E402
@@ -54,13 +53,13 @@ st.markdown(
 
 # ---------------------------------------------------------------- data & cache
 @st.cache_resource(show_spinner=False)
-def get_pipeline(provider: str) -> Pipeline:
-    return Pipeline(load_settings(overrides={"data": {"provider": provider}}))
+def get_pipeline(provider: str, zone: str = "us") -> Pipeline:
+    return Pipeline(load_settings(overrides={"data": {"provider": provider}}, region=zone))
 
 
 @st.cache_data(show_spinner=False)
-def get_probs(provider: str, model: str) -> pd.DataFrame:
-    return get_pipeline(provider).probabilities(model)
+def get_probs(provider: str, model: str, zone: str = "us") -> pd.DataFrame:
+    return get_pipeline(provider, zone).probabilities(model)
 
 
 @st.cache_data(show_spinner=False, ttl=3600)
@@ -76,7 +75,7 @@ def get_track_record_page(provider: str, lang: str, files: tuple) -> str:
 
     Built on the configured settings, not on the sidebar threshold: the record is frozen.
     """
-    frozen = get_pipeline(provider).with_settings(load_settings(overrides={"data": {"provider": provider}}))
+    frozen = get_pipeline(provider).with_settings(load_settings(overrides={"data": {"provider": provider}}))  # US record
     return page_html(frozen, resolve(settings["publish"]["dir"]), lang)
 
 
@@ -101,20 +100,27 @@ lang_label = st.sidebar.radio("Langue / Language", ["Français", "English"], hor
 lang = "fr" if lang_label == "Français" else "en"
 
 st.sidebar.header(t("app.settings", lang))
+zone = st.sidebar.selectbox(t("app.region", lang), available_regions(), format_func=lambda r: t(f"region.{r}", lang))
 providers = available_providers()
 # `python -m pfe_drai --provider fred app` passes its choice through PFE_DRAI_PROVIDER.
 default_provider = os.environ.get("PFE_DRAI_PROVIDER") or settings["data"]["provider"]
-provider = st.sidebar.selectbox(t("app.data_source", lang), providers, index=providers.index(default_provider))
+if zone == "us":
+    provider = st.sidebar.selectbox(t("app.data_source", lang), providers, index=providers.index(default_provider))
+else:
+    # A region has its own data source (config/regions/<region>.yaml): the choice is not offered.
+    provider = load_settings(region=zone)["data"]["provider"]
+    st.sidebar.caption(f"{t('app.data_source', lang)}: {provider}")
+    st.warning(t("region.experimental", lang))
 models = available_models()
 model = st.sidebar.selectbox(
     t("app.model", lang), models, index=models.index(settings["models"]["default"]), format_func=lambda m: t(f"model.{m}", lang)
 )
 
 try:
-    pipeline = get_pipeline(provider)
+    pipeline = get_pipeline(provider, zone)
     with st.spinner(t("app.loading", lang)):
-        probs = get_probs(provider, model)
-        early_probs = get_probs(provider, "gbm")
+        probs = get_probs(provider, model, zone)
+        early_probs = get_probs(provider, "gbm", zone)
 except Exception as exc:  # noqa: BLE001 - show the reason instead of a stack trace
     st.error(f"{type(exc).__name__}: {exc}")
     st.stop()
@@ -322,7 +328,7 @@ with tab_dash:
                 st.markdown(f"- {t(f'dash.flip_{dim}', lang, value=fmt_num(dist, lang).lstrip('+'))}")
 
     st.subheader(t("dash.drivers", lang))
-    names = list(FEATURES)
+    names = list(active_features(pipeline.settings))
     fig = go.Figure()
     # A feature outside every score (features.growth.inputs, docs/SLOWDOWN.md) still feeds the models.
     for dim in ["stress", "growth", "inflation", None]:
@@ -791,7 +797,7 @@ with tab_hist:
     rows = []
     for m_name in available_models():
         r = evaluate(
-            get_probs(provider, m_name),
+            get_probs(provider, m_name, zone),
             pipeline.prices["equity"],
             pipeline.episodes,
             pipeline.settings,
@@ -822,17 +828,20 @@ with tab_hist:
 
 # ================================================================ TRACK RECORD
 with tab_track:
-    records = resolve(settings["publish"]["dir"])
-    files = tuple(sorted((p.name, p.stat().st_mtime_ns) for p in records.rglob("*.json*")))
-    try:
-        with st.spinner(t("app.loading", lang)):
-            page = get_track_record_page(provider, lang, files)
-    except Exception as exc:  # noqa: BLE001 - show the reason, keep the other tabs working
-        st.error(f"{type(exc).__name__}: {exc}")
+    if zone != "us":
+        st.info(t("region.no_record", lang))
     else:
-        st.caption(t("tr.app_help", lang, url=settings["publish"].get("pages_url", "")))
-        st.download_button(f"{t('app.download', lang)} HTML", page, f"track-record-{lang}.html", "text/html")
-        components.html(page, height=2600, scrolling=True)
+        records = resolve(settings["publish"]["dir"])
+        files = tuple(sorted((p.name, p.stat().st_mtime_ns) for p in records.rglob("*.json*")))
+        try:
+            with st.spinner(t("app.loading", lang)):
+                page = get_track_record_page(provider, lang, files)
+        except Exception as exc:  # noqa: BLE001 - show the reason, keep the other tabs working
+            st.error(f"{type(exc).__name__}: {exc}")
+        else:
+            st.caption(t("tr.app_help", lang, url=settings["publish"].get("pages_url", "")))
+            st.download_button(f"{t('app.download', lang)} HTML", page, f"track-record-{lang}.html", "text/html")
+            components.html(page, height=2600, scrolling=True)
 
 # ================================================================ ALERTS
 with tab_alerts:

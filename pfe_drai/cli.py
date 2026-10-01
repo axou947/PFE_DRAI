@@ -33,7 +33,7 @@ def _pipeline(args):
     overrides = {}
     if getattr(args, "provider", None):
         overrides = {"data": {"provider": args.provider}}
-    return Pipeline(load_settings(args.config, overrides))
+    return Pipeline(load_settings(args.config, overrides, getattr(args, "region", None)))
 
 
 def cmd_status(args):
@@ -161,8 +161,12 @@ def cmd_report(args):
 
 def cmd_publish(args):
     from .publish import publish
+    from .publish.snapshot import NotEnabledError
 
-    path = publish(_pipeline(args), args.model)
+    try:
+        path = publish(_pipeline(args), args.model)
+    except NotEnabledError as exc:
+        raise SystemExit(str(exc)) from exc
     print(path or "Already published for the latest market day: nothing to do.")
 
 
@@ -395,10 +399,17 @@ def cmd_slowdown(args):
 
 def cmd_data(args):
     p = _pipeline(args)
-    print(f"{'series':<12} {'first':<12} {'last':<12} dated by")
+    euro = p.settings.get("region") == "euro"
+    lags = p.settings["data"].get("euro", {}).get("series", {})
+    print(f"{'series':<14} {'first':<12} {'last':<12} dated by" + ("" if not euro else "  (lag, vintage, licence)"))
     for name, series in p.raw.items():
-        dated = "release day (ALFRED)" if name in p.provider.release_dated else "reference period"
-        print(f"{name:<12} {series.index.min().date()!s:<12} {series.index.max().date()!s:<12} {dated}")
+        if euro:
+            spec = lags.get(name, {})
+            lag = spec.get("lag_days", spec.get("all", {}).get("lag_days", ""))
+            dated = f"release day, lag {lag} d  |  {spec.get('vintage')}  |  {spec.get('licence')}"
+        else:
+            dated = "release day (ALFRED)" if name in p.provider.release_dated else "reference period"
+        print(f"{name:<14} {series.index.min().date()!s:<12} {series.index.max().date()!s:<12} {dated}")
     index, min_train = p.features.index, p.settings["validation"]["min_train_days"]
     print(f"\nFeatures from {index[0].date()} ({p.provider.name}).")
     if len(index) > min_train:
@@ -451,6 +462,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="pfe_drai", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", help="path to a settings.yaml")
     parser.add_argument("--provider", help="override data.provider (synthetic, csv, fred, tiingo, yahoo)")
+    parser.add_argument("--region", default="us", help="us (default, the published model) or euro (experimental, docs/EURO.md)")
     parser.add_argument("--lang", default="fr", choices=["fr", "en"])
     sub = parser.add_subparsers(dest="command", required=True)
     for name, func in [
