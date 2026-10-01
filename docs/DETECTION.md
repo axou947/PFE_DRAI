@@ -1,5 +1,8 @@
 # Stress detection: how the default model was chosen
 
+> v2 (a stress-onset detector added to `combined`) is pre-registered in
+> [DETECTION_V2.md](DETECTION_V2.md). This page is v1 and stays as it was published.
+
 Item 3 of the improvement list: the jump model caught too few stress episodes, too late.
 This page records what was tried, on which data, and what was kept. Every choice below was made
 on **simulated data only**, before running these settings on real data, so the real-data latencies

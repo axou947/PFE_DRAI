@@ -102,3 +102,32 @@ def episode_mask(index: pd.DatetimeIndex, episodes: list[Episode]) -> pd.Series:
     for ep in episodes:
         mask.loc[ep.start : ep.end] = True
     return mask
+
+
+def onset_target(
+    index: pd.DatetimeIndex, episodes: list[Episode], horizon_days: int, after_start_days: int | None = None
+) -> pd.Series:
+    """True when an episode is under way on day t or one of the next `horizon_days` business days.
+
+    With `after_start_days`, an episode only counts for its first `after_start_days` days: the
+    target is then "an episode starts within `horizon_days` or started less than `after_start_days`
+    ago", which teaches the start of a fall rather than the state of a long one.
+
+    The last `horizon_days` days have no known target yet (NaN): training drops them (purging).
+    Episode membership up to day t only uses prices up to day t (starts are crossings, ends are
+    recoveries already seen), so the target needs no other future data than the horizon itself.
+    """
+    if after_start_days is not None:
+        episodes = [
+            Episode(
+                e.start,
+                min(e.end, index[min(index.searchsorted(e.start) + after_start_days - 1, len(index) - 1)]),
+                e.trigger,
+                e.max_drawdown,
+            )
+            for e in episodes
+        ]
+    inside = episode_mask(index, episodes).astype(float)
+    ahead = inside[::-1].rolling(horizon_days + 1, min_periods=1).max()[::-1]
+    ahead.iloc[len(ahead) - horizon_days :] = np.nan
+    return ahead.rename("onset")

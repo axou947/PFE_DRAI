@@ -5,6 +5,7 @@ backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
 publish    write today's track record entry (real data only)
 episodes   list the stress episodes dated by the frozen rule
+holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 data       history covered by each series and where the backtest starts
 app        start the Streamlit dashboard
 api        start the FastAPI server
@@ -43,23 +44,46 @@ def cmd_backtest(args):
     import pandas as pd
 
     from .models import available_models
+    from .models.combined import combine
+    from .validation import evaluate
 
     p = _pipeline(args)
     models = [args.model] if args.model else available_models()
-    print(f"{'model':<8} {'episodes':>9} {'detected':>9} {'median lat.':>12} {'FP/yr':>7} {'Brier':>7} {'acc.':>6}")
-    for m in models:
-        r = p.evaluate(m)
+    results = {m: p.evaluate(m) for m in models}
+    sources = p.settings["models"].get("combined", {}).get("stress_sources", ["gbm"])
+    if "combined" in models and list(sources) != ["gbm"]:
+        # v1 (jump + gbm, docs/DETECTION.md) in the same run, to compare with the configured version.
+        v1 = combine(p.probabilities("jump"), p.probabilities("gbm"))
+        results["v1"] = evaluate(v1, p.prices["equity"], p.episodes, p.settings, truth=p.truth, rule=p.labels)
+    print(
+        f"{'model':<8} {'episodes':>9} {'detected':>9} {'median lat.':>12} {'all eps.':>9} "
+        f"{'FP/yr':>7} {'alarm':>6} {'switch/yr':>10} {'Brier':>7} {'acc.':>6}"
+    )
+    for m, r in results.items():
         acc = r.get("accuracy_truth", float("nan"))
         print(
-            f"{m:<8} {r['n_episodes']:>9} {r['detected']:>9} {r['median_latency']:>12.1f} "
-            f"{r['false_positives_per_year']:>7.2f} {r['brier_stress']:>7.3f} {acc:>6.2f}"
+            f"{m:<8} {r['n_episodes']:>9} {r['detected']:>9} {r['median_latency']:>12.1f} {r['median_latency_all']:>9.1f} "
+            f"{r['false_positives_per_year']:>7.2f} {r['false_alarm_share']:>6.1%} {r['switches_per_year']:>10.1f} "
+            f"{r['brier_stress']:>7.3f} {acc:>6.2f}"
         )
+    window = p.settings["validation"]["episodes"]["detection_window_days"]
+    print(f"all eps. = median latency over every episode, a missed one counting as {window} days")
+    print("alarm = share of calm days (outside episodes) with the stress signal on")
+    print(f"combined = jump + stress sources {list(sources)} (models.combined.stress_sources); v1 = jump + gbm")
     # Every latency of the default (or chosen) model, missed episodes included.
     shown = args.model or p.settings["models"]["default"]
-    print(f"\nLatency per episode ({shown}, business days; negative = signal already on):")
-    for _, row in p.evaluate(shown)["episodes"].iterrows():
-        latency = "missed" if pd.isna(row["latency_days"]) else f"{int(row['latency_days']):+d}"
-        print(f"  {row['start'].date()!s:<12} {row['trigger']:<11} {row['max_drawdown']:>7.1%} {latency:>7}")
+    columns = [shown] + (["v1"] if "v1" in results else [])
+    print(f"\nLatency per episode ({', '.join(columns)}; business days; negative = signal already on):")
+    tables = [results[c]["episodes"] for c in columns]
+    for i, row in tables[0].iterrows():
+        cells = []
+        for table in tables:
+            latency = table.loc[i, "latency_days"]
+            cells.append("missed" if pd.isna(latency) else f"{int(latency):+d}")
+        print(
+            f"  {row['start'].date()!s:<12} {row['trigger']:<11} {row['max_drawdown']:>7.1%} "
+            + " ".join(f"{c:>7}" for c in cells)
+        )
 
 
 def cmd_report(args):
@@ -89,6 +113,41 @@ def cmd_episodes(args):
     print(f"{'start':<12} {'end':<12} {'trigger':<11} {'max drawdown':>13}")
     for ep in p.episodes:
         print(f"{ep.start.date()!s:<12} {ep.end.date()!s:<12} {ep.trigger:<11} {ep.max_drawdown:>13.1%}")
+
+
+def cmd_holdout(args):
+    import pandas as pd
+
+    from .validation.holdout import run_holdout
+
+    p = _pipeline(args)
+    res = run_holdout(p.settings)
+    data = "real" if res.is_live else "SIMULATED"
+    print(
+        f"Onset detector holdout ({data} data, provider {res.provider}): predictions from {res.first_prediction.date()} "
+        f"to {res.last_day.date()}, episodes by the frozen rule."
+    )
+    print(
+        f"\n{'candidate':<26} {'episodes':>9} {'detected':>9} {'median lat.':>12} {'all eps.':>9} "
+        f"{'FP/yr':>7} {'alarm':>6} {'Brier':>7}"
+    )
+    for _, r in res.rows.iterrows():
+        print(
+            f"{r['candidate']:<26} {r['episodes']:>9} {r['detected']:>9} {r['median_latency']:>12.1f} "
+            f"{r['median_latency_all']:>9.1f} {r['fp_per_year']:>7.2f} {r['false_alarm_share']:>6.1%} {r['brier']:>7.3f}"
+        )
+    print("(all eps. = median latency, a missed episode counting as the window end; alarm = share of calm days in false alarm)")
+    print("\nLatency per episode (business days; negative = signal already on; - = missed):")
+    names = [c for c in res.latencies.columns if c != "max_drawdown"]
+    print(f"{'start':<12} {'max dd':>7}  " + "  ".join(f"{i + 1:>4}" for i in range(len(names))))
+    for start, row in res.latencies.iterrows():
+        cells = "  ".join(f"{'-' if pd.isna(row[n]) else f'{int(row[n]):+d}':>4}" for n in names)
+        print(f"{start.date()!s:<12} {row['max_drawdown']:>7.1%}  {cells}")
+    print("  (columns = candidates in the order above)")
+    if res.chosen is None:
+        print("\nNo candidate meets the false-alarm targets (validation.targets): v2 stops here.")
+    else:
+        print(f"\nSelected by the pre-registered rule: {res.rows.loc[res.chosen, 'candidate']}")
 
 
 def cmd_data(args):
@@ -130,6 +189,7 @@ def main(argv=None):
         ("report", cmd_report),
         ("publish", cmd_publish),
         ("episodes", cmd_episodes),
+        ("holdout", cmd_holdout),
         ("data", cmd_data),
         ("app", cmd_app),
         ("api", cmd_api),

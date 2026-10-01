@@ -37,12 +37,33 @@ def latencies(signal: pd.Series, episodes: list[Episode], settings: dict) -> pd.
     return pd.DataFrame(rows)
 
 
-def false_positives_per_year(signal: pd.Series, episodes: list[Episode], settings: dict) -> float:
-    cfg = settings["validation"]["episodes"]
-    margin = pd.Timedelta(days=cfg["lookback_days"] * 7 / 5)
-    onsets = signal & ~signal.shift(1, fill_value=False)
+def median_latency_all(lat: pd.DataFrame, settings: dict) -> float:
+    if not len(lat):
+        return float("nan")
+    window = settings["validation"]["episodes"]["detection_window_days"]
+    return float(lat["latency_days"].astype(float).fillna(window).median())
+
+
+def _widened(index: pd.DatetimeIndex, episodes: list[Episode], settings: dict) -> pd.Series:
+    """Days inside an episode or in the `lookback_days` before it (where an early signal counts)."""
+    margin = pd.Timedelta(days=settings["validation"]["episodes"]["lookback_days"] * 7 / 5)
     widened = [Episode(e.start - margin, e.end, e.trigger, e.max_drawdown) for e in episodes]
-    inside = episode_mask(signal.index, widened)
+    return episode_mask(index, widened)
+
+
+def false_alarm_share(signal: pd.Series, episodes: list[Episode], settings: dict) -> float:
+    """Share of the days outside every (widened) episode on which the stress signal is on.
+
+    False positives count signal onsets, so a signal that turns on once and stays on would
+    score almost none: this measures the time spent in a false alarm instead.
+    """
+    outside = ~_widened(signal.index, episodes, settings)
+    return float(signal[outside].mean()) if outside.any() else float("nan")
+
+
+def false_positives_per_year(signal: pd.Series, episodes: list[Episode], settings: dict) -> float:
+    onsets = signal & ~signal.shift(1, fill_value=False)
+    inside = _widened(signal.index, episodes, settings)
     false = int((onsets & ~inside).sum())
     years = (signal.index[-1] - signal.index[0]).days / 365.25
     return false / years if years else float("nan")
@@ -79,7 +100,11 @@ def evaluate(
         "n_episodes": int(len(lat)),
         "detected": int(lat["detected"].sum()) if len(lat) else 0,
         "median_latency": float(detected["latency_days"].median()) if len(detected) else float("nan"),
+        # Median over every episode, a missed one counting as the end of the detection window.
+        # Unlike the median over detected episodes, it cannot improve by missing the hard ones.
+        "median_latency_all": median_latency_all(lat, settings),
         "false_positives_per_year": false_positives_per_year(signal, episodes, settings),
+        "false_alarm_share": false_alarm_share(signal, episodes, settings),
         "brier_stress": brier(p_stress, in_episode),
         "reliability": reliability(p_stress, in_episode),
         "switches_per_year": float((pred != pred.shift()).sum() / max((probs.index[-1] - probs.index[0]).days / 365.25, 1e-9)),
@@ -91,4 +116,5 @@ def evaluate(
     targets = cfg["targets"]
     result["meets_latency_target"] = bool(result["median_latency"] <= targets["max_median_latency_days"])
     result["meets_fp_target"] = bool(result["false_positives_per_year"] <= targets["max_false_positives_per_year"])
+    result["meets_false_alarm_target"] = bool(result["false_alarm_share"] <= targets["max_false_alarm_share"])
     return result

@@ -50,6 +50,7 @@
   "model.jump": "Statistical jump model",
   "model.gbm": "Gradient boosting (1 week ahead)",
   "model.combined": "Jump model + gradient boosting (stress)",
+  "model.onset": "Stress-onset detector (market, 1 week)",
   "dash.current_regime": "Current regime",
   "dash.confidence": "Probability",
   "dash.probabilities": "Probability of each regime",

@@ -24,7 +24,7 @@ def test_jump_filter_is_causal():
 
 
 def test_registry():
-    assert set(available_models()) == {"kmeans", "jump", "gbm", "combined"}
+    assert set(available_models()) == {"kmeans", "jump", "gbm", "combined", "onset"}
 
 
 def test_combined_takes_the_higher_stress_probability():

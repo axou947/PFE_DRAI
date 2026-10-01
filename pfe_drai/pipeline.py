@@ -16,10 +16,11 @@ from .alerts import compute_alerts
 from .config import load_settings, resolve
 from .data import get_provider
 from .features import DIMENSIONS, FEATURES, build
+from .features.market import market_frame
 from .models import get_model
 from .models.combined import combine
 from .regimes import flip_distances, rule_labels
-from .validation import evaluate, find_episodes, walk_forward
+from .validation import evaluate, find_episodes, onset_target, rule_fingerprint, walk_forward
 
 
 @dataclass
@@ -102,6 +103,17 @@ class Pipeline:
     def episodes(self):
         return find_episodes(self.prices["equity"], self.settings)
 
+    @cached_property
+    def market(self) -> pd.DataFrame:
+        """Fast market inputs of the onset detector, on the same days as the scores."""
+        return market_frame(self.raw, self.settings, self.provider.release_dated).reindex(self.scores.index)
+
+    @cached_property
+    def onset(self) -> pd.Series:
+        """Target of the onset detector: inside an episode now or within `horizon_days`."""
+        cfg = self.settings["models"]["onset"]
+        return onset_target(self.scores.index, self.episodes, cfg["horizon_days"], cfg.get("after_start_days"))
+
     # ---- models -----------------------------------------------------------
     def _cache_key(self, model: str) -> str:
         fingerprint = {
@@ -114,6 +126,9 @@ class Pipeline:
             "name": model,
             "version": 1,
         }
+        if get_model(model, self.settings).inputs == "market":
+            fingerprint["market"] = float(self.market.fillna(0).values.sum())
+            fingerprint["episode_rule"] = rule_fingerprint(self.settings)
         return hashlib.sha256(json.dumps(fingerprint, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
     def probabilities(self, model: str | None = None) -> pd.DataFrame:
@@ -130,7 +145,16 @@ class Pipeline:
         if self.use_cache and path.exists():
             probs = pickle.loads(path.read_bytes())
         else:
-            probs = walk_forward(model, self.features, self.scores, self.labels, self.settings)
+            needs_market = get_model(model, self.settings).inputs == "market"
+            probs = walk_forward(
+                model,
+                self.features,
+                self.scores,
+                self.labels,
+                self.settings,
+                market=self.market if needs_market else None,
+                onset=self.onset if needs_market else None,
+            )
             if self.use_cache:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(pickle.dumps(probs))

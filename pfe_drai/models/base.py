@@ -14,6 +14,9 @@ class RegimeModel(ABC):
     name: str = "base"
     #: True when the model predicts the regime `horizon` days ahead instead of today.
     forward_looking: bool = False
+    #: "scores": fitted on feature z-scores and rule labels. "market": on fast market inputs and
+    #: the episode target (models/onset.py). Walk-forward passes each model its own inputs.
+    inputs: str = "scores"
 
     def __init__(self, settings: dict):
         self.settings = settings
