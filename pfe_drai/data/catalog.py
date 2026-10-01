@@ -17,6 +17,9 @@ class Series:
     dimension: str  # stress | growth | inflation | market
     source_ids: dict[str, str] = field(default_factory=dict)
     licence: str = "research"  # research | commercial | check
+    # Revised after publication: real-data providers must return first releases at their
+    # release date (ALFRED), otherwise backtests see figures nobody had at the time.
+    revised: bool = False
 
 
 CATALOG: dict[str, Series] = {
@@ -31,9 +34,9 @@ CATALOG: dict[str, Series] = {
         Series("us10y", "10-year Treasury yield (%)", "daily", "growth", {"fred": "DGS10"}, "commercial"),
         Series("us2y", "2-year Treasury yield (%)", "daily", "growth", {"fred": "DGS2"}, "commercial"),
         Series("breakeven10", "10-year breakeven inflation (%)", "daily", "inflation", {"fred": "T10YIE"}, "commercial"),
-        Series("claims", "Initial jobless claims", "weekly", "growth", {"fred": "ICSA"}, "commercial"),
-        Series("indpro", "Industrial production index", "monthly", "growth", {"fred": "INDPRO"}, "commercial"),
-        Series("cpi", "Consumer price index", "monthly", "inflation", {"fred": "CPIAUCSL"}, "commercial"),
+        Series("claims", "Initial jobless claims", "weekly", "growth", {"fred": "ICSA"}, "commercial", revised=True),
+        Series("indpro", "Industrial production index", "monthly", "growth", {"fred": "INDPRO"}, "commercial", revised=True),
+        Series("cpi", "Consumer price index", "monthly", "inflation", {"fred": "CPIAUCSL"}, "commercial", revised=True),
     ]
 }
 

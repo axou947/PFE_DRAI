@@ -14,10 +14,16 @@ data:
   fred_api_key_env: FRED_API_KEY
   fred_fallback: tiingo     # source of the series FRED does not have (ETF prices)
   tiingo_api_key_env: TIINGO_API_KEY
-  # Days between the end of a month and the release of monthly data (point-in-time).
+  # Days between the end of the reference period and the release (point-in-time).
+  # Real data (fred) reads release dates from ALFRED instead; these lags only date
+  # the other providers and observations older than ALFRED's archive.
   publication_lag_days:
     indpro: 17
     cpi: 14
+    claims: 5               # week ending Saturday, published the next Thursday
+  # fred: read revised series (claims, IP, CPI) as first releases from ALFRED.
+  # false = today's revised values, which leak the future into backtests.
+  point_in_time: true
   cache_dir: data_cache
 
 features:

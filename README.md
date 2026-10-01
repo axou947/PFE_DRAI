@@ -39,6 +39,7 @@ python -m pfe_drai status                     # régime du jour
 python -m pfe_drai --lang en backtest         # métriques hors échantillon des 3 modèles
 python -m pfe_drai report --format pdf        # note de comité (md, html ou pdf)
 python -m pfe_drai --provider fred episodes   # épisodes de stress datés par la règle gelée
+python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
@@ -48,7 +49,9 @@ API : `GET /regime`, `/regime/history`, `/metrics`, `/scenarios`, `/report` (par
 ## Méthode
 
 - **Régimes sur 3 dimensions** : stress, croissance, inflation. 12 indicateurs point-in-time
-  (z-scores sur l'historique disponible à chaque date, décalage de publication des séries mensuelles).
+  (z-scores sur l'historique disponible à chaque date ; séries révisées — inscriptions au chômage,
+  production industrielle, CPI — lues dans ALFRED en première publication, datées du jour de publication).
+  Avant HYG (2007), le crédit investment grade (LQD/IEF, 2002) prend le relais : historique réel dès 2004.
 - **4 régimes** : Expansion, Surchauffe inflationniste, Ralentissement, Stress / crise.
   Les états des modèles non supervisés sont reliés aux régimes par des prototypes fixés dans
   `config/settings.yaml` (appariement un à un).
