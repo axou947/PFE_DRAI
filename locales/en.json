@@ -353,5 +353,13 @@
   "tr.method.text": "<p><b>What is measured.</b> A stress episode starts when US equities (SPY) fall {dd} from their 1-year high or when their volatility breaks above its historical {q}th percentile. This rule was frozen on 2026-10-01 before any result was seen; its SHA-256 is printed in every published day, and the code refuses to run with any other version.</p><p><b>The alarm</b> turns on when the detector score stays above {thr} for {n} days. <b>P(stress)</b> is a separate, calibrated number: when it says 30%, stress followed about 3 times in 10 in the past. The alarm is tuned for speed, the probability for honesty.</p><p><b>Limits.</b> A dozen or so crises since 2009 are few, and the median moves a lot with one of them. Negative delays mean the alarm was already on, not that the crisis was foreseen. The detector watches the same market the rule dates episodes on, so a delay near zero means \"on the day it started\". Market prices are not published here (data licences): only the model's outputs, episode dates and drawdowns.</p><p>Full method and every pre-registered decision: <a href=\"{repo}/blob/main/docs/DETECTION_V2.md\">detection</a>, <a href=\"{repo}/blob/main/docs/CALIBRATION.md\">calibration</a>, <a href=\"{repo}/blob/main/track_record/README.md\">publication</a>.</p>",
   "tr.footer": "Built by the daily publication job from the files in <a href=\"{repo}/tree/main/track_record\">track_record/</a>. Source code: <a href=\"{repo}\">{repo}</a>. End-of-studies project (PFE DRAI), for information only.",
   "tr.live.unscored": "Episodes and alarms of the live record are scored with real market data only (the daily job does it). This page was built on simulated data, so they are not scored here.",
-  "tr.app_help": "The same page as the public one, built from the files in track_record/: the live record as published, then the backtest. Public address once GitHub Pages is on: {url}"
+  "tr.app_help": "The same page as the public one, built from the files in track_record/: the live record as published, then the backtest. Public address once GitHub Pages is on: {url}",
+  "tr.col.version": "Model",
+  "tr.id.version": "Model version",
+  "tr.ver.title": "Model versions",
+  "tr.ver.help": "Each model configuration gets its own backtest record, written once and never rewritten. When the published model changes, the earlier days keep the numbers published then; the change is listed here (see <a href=\"{doc}\">TRACK_RECORD.md</a>).",
+  "tr.ver.changed": "The published model changed on {date}: {old} → {new}.",
+  "tr.ver.current": "current",
+  "tr.ver.period": "Backtest period",
+  "dash.models_only": "Models only (not in a score)"
 }

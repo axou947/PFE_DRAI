@@ -29,6 +29,15 @@ data:
 features:
   zscore_min_periods: 252   # expanding z-scores: no look-ahead
   zscore_clip: 4.0
+  # How the growth score is built (docs/SLOWDOWN.md). Every feature still feeds the models;
+  # only `inputs` are averaged into the growth score.
+  # v2.2 (pre-registered 2026-10-01): three inputs (the curve slope is a leading indicator whose
+  # sign misleads about current growth), robust scaling (one extreme stretch such as 2020 no longer
+  # squeezes every later reading), a month's average. Until v2.1: all four inputs, standard, none.
+  growth:
+    inputs: [equity_momentum, industrial_production, jobless_claims]
+    scaling: robust           # standard = expanding mean and std | robust = expanding median and IQR
+    smooth_days: 21           # growth score averaged over this many business days (0 = none)
 
 regimes:
   # Order matters: it fixes colors and chart order.
@@ -43,10 +52,14 @@ regimes:
   # takes the name of the closest regime centre, the average day of that regime (docs/REGIMES.md).
   rule:
     stress_threshold: 1.0
-    growth_threshold: -0.25
+    # Growth below its own historical median: below-trend growth (v2.2, docs/SLOWDOWN.md). Was -0.25, set by hand.
+    growth_threshold: 0.0
     inflation_threshold: 0.8
 
 models:
+  # Name of this model configuration, shown on the track record next to its settings fingerprint.
+  # v2.1 = detection v2 + calibrated P(stress); v2.2 = v2.1 + a real Slowdown regime (docs/SLOWDOWN.md).
+  version: "v2.2"
   # combined = jump model regimes, P(stress) = max(jump, gbm, onset): v2, chosen on simulated
   # data and a real 1999-2009 holdout, confirmed once on the 11 real episodes (docs/DETECTION_V2.md).
   default: combined
@@ -121,6 +134,31 @@ validation:
       - {learner: gbm, inputs: market}
       - {learner: gbm, inputs: market_credit}
   stress_probability_threshold: 0.5
+  # Is Slowdown a real regime? Outside reference of below-trend growth, never a model input
+  # (docs/SLOWDOWN.md): Chicago Fed National Activity Index, 3-month average, below 0.
+  slowdown:
+    reference: {fred: CFNAIMA3, below: 0.0}
+    # Decision rule of the one real run: calibration may not get worse (docs/SLOWDOWN.md).
+    calibration_tolerance: {brier: 0.0, ece: 0.005}
+    # The growth score until v2.1, run next to the current one by `slowdown` on the same data.
+    before:
+      growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims], scaling: standard, smooth_days: 0}
+      rule: {growth_threshold: -0.25}
+    # Growth-score holdout, real US data before the out-of-sample period (validation.holdout window).
+    holdout:
+      evaluate_from: "1999-01-04"
+      max_spells_per_year: 2.0    # a regime that changes more often is not a state of the economy
+      tie: 0.01                   # balanced accuracy within 1 point of the best counts as a tie
+      candidates:
+        - name: "three inputs (no curve slope)"
+          growth: {inputs: [equity_momentum, industrial_production, jobless_claims], scaling: robust, smooth_days: 21}
+          rule: {growth_threshold: 0.0}
+        - name: "four inputs (with curve slope)"
+          growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims], scaling: robust, smooth_days: 21}
+          rule: {growth_threshold: 0.0}
+        - name: "macro only (production, claims)"
+          growth: {inputs: [industrial_production, jobless_claims], scaling: robust, smooth_days: 21}
+          rule: {growth_threshold: 0.0}
   # Calibration of P(stress) (docs/CALIBRATION.md): the event a probability is checked against.
   calibration:
     target_horizon_days: 5    # inside a frozen episode, or one starts within 5 business days

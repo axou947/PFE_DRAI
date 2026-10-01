@@ -44,6 +44,8 @@ python -m pfe_drai --provider fred episodes   # épisodes de stress datés par l
 python -m pfe_drai --provider fred states     # comment les états du modèle sont nommés (docs/REGIMES.md)
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
+python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix des indicateurs de croissance, 1999-2009 (docs/SLOWDOWN.md)
+python -m pfe_drai --provider fred slowdown     # Ralentissement : avant / après, contre l'indice d'activité de la Fed de Chicago
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai --provider fred track-record --out preview  # aperçu de la page publique du track record (docs/TRACK_RECORD.md)
@@ -65,6 +67,12 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
   régime selon la règle, sur la période d'apprentissage) est le plus proche : rien n'est fixé à la
   main, et un régime absent de l'historique ne nomme aucun état. `python -m pfe_drai states`
   montre ce nommage à chaque réapprentissage. Voir [docs/REGIMES.md](docs/REGIMES.md).
+- **Un vrai régime de Ralentissement (v2.2, pré-enregistré)** : le score de croissance ne compte
+  plus la pente de la courbe des taux (un indicateur avancé, pas la croissance du moment), est
+  mis à l'échelle de façon robuste (médiane et écart interquartile : 2020 n'écrase plus les années
+  suivantes) et lissé sur un mois ; le seuil devient 0 (croissance sous sa médiane historique).
+  Contrôlé contre une référence extérieure, l'indice d'activité de la Fed de Chicago (CFNAI). Adopté
+  seulement si le test sur données réelles passe. Voir [docs/SLOWDOWN.md](docs/SLOWDOWN.md).
 - **5 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
   gradient boosting qui prévoit le régime à 1 semaine, `onset` (détecteur de début de stress appris
   sur les épisodes gelés à partir d'indicateurs de marché quotidiens) et `combined` (par défaut) :

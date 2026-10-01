@@ -61,6 +61,11 @@ z-score is ready, the investment-grade ETF (LQD vs IEF, from 2002) stands in, z-
 own past. The 10-year breakeven (T10YIE, 2003) is then the shortest series, so real-data
 features start in March 2004. `python -m pfe_drai --provider fred data` prints the coverage.
 
+The growth score is set in `features.growth`: which growth features it averages (every feature
+still feeds the models), standard or robust scaling, and a moving average
+([SLOWDOWN.md](SLOWDOWN.md)). `validation/slowdown.py` checks the Slowdown regime against an
+outside reference (Chicago Fed activity index, `CFNAIMA3`, real data; the hidden regimes, simulated).
+
 ## Ajouter un modèle
 
 Subclass `RegimeModel` in `pfe_drai/models/`, implement `fit` and `predict_proba`

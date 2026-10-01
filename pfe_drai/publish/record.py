@@ -26,23 +26,12 @@ import pandas as pd
 from ..validation import rule_fingerprint, stress_signal
 from ..validation.calibration import json_number, to_json
 from ..validation.metrics import alarm_spells, latencies
-from .snapshot import NotLiveDataError, _git_sha
+from .snapshot import NotLiveDataError, _git_sha, config_fingerprint, model_version
 
 # OpenTimestamps attestation tags (opentimestamps.core.notary): a proof holds the Bitcoin one once
 # `ots upgrade` has completed it, a few hours after `ots stamp`; until then only calendar promises.
 _BITCOIN_TAG = bytes.fromhex("0588960d73d71901")
 _PENDING_TAG = bytes.fromhex("83dfe30d2ef90c8e")
-
-#: Settings that decide the backtest numbers. A new backtest record is written when one changes.
-_CONFIG_KEYS = ("features", "regimes", "models", "validation")
-_DATA_KEYS = ("start", "point_in_time", "publication_lag_days", "fred_fallback")
-
-
-def config_fingerprint(settings: dict) -> str:
-    """SHA-256 of every setting that changes the backtest (data source and end date excluded)."""
-    config = {key: settings[key] for key in _CONFIG_KEYS}
-    config["data"] = {key: settings["data"].get(key) for key in _DATA_KEYS}
-    return hashlib.sha256(json.dumps(config, sort_keys=True, default=str).encode()).hexdigest()
 
 
 def ots_status(path: Path) -> str:
@@ -86,6 +75,7 @@ def backtest_record(pipeline, model: str | None = None) -> dict:
     return {
         "kind": "backtest",
         "model": model,
+        "model_version": model_version(settings),
         "stress_sources": settings["models"].get("combined", {}).get("stress_sources") if model == "combined" else None,
         "combination": combination,
         "data_provider": pipeline.provider.name,
@@ -163,6 +153,24 @@ def find_backtest(folder: Path, settings: dict) -> tuple[Path, dict] | None:
         if record.get("config_sha256") == fingerprint:
             return path, record
     return None
+
+
+def list_backtests(folder: Path) -> list[dict]:
+    """Every backtest record in `folder`/backtest, oldest first: one per model configuration ever published."""
+    out = []
+    for path in sorted((folder / "backtest").glob("*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        out.append(
+            {
+                "file": f"backtest/{path.name}",
+                "generated_at": record.get("generated_at"),
+                "model_version": record.get("model_version"),
+                "config_sha256": record.get("config_sha256"),
+                "period": record.get("period"),
+                "metrics": record.get("metrics"),
+            }
+        )
+    return sorted(out, key=lambda r: r["generated_at"] or "")
 
 
 def record_backtest(pipeline, records_dir: Path, out_dir: Path | None = None) -> tuple[Path, dict, bool]:
@@ -251,6 +259,8 @@ def read_live(folder: Path) -> LiveRecord:
                 "published_at": payload.get("published_at"),
                 "code_version": payload.get("code_version"),
                 "combination": (payload.get("calibration") or {}).get("combination"),
+                "model_version": payload.get("model_version"),
+                "config_sha256": payload.get("config_sha256"),
                 "hash_ok": hash_ok and link_ok,
             }
         )

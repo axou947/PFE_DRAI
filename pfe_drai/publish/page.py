@@ -14,7 +14,16 @@ from pathlib import Path
 import pandas as pd
 
 from ..i18n import fmt_date, fmt_pct, t
-from .record import LiveRecord, backtest_record, find_backtest, live_scorecard, ots_status, read_live, record_backtest
+from .record import (
+    LiveRecord,
+    backtest_record,
+    find_backtest,
+    list_backtests,
+    live_scorecard,
+    ots_status,
+    read_live,
+    record_backtest,
+)
 
 LANGS = {"en": "index.html", "fr": "fr.html"}
 
@@ -436,6 +445,7 @@ def _days_table(live: LiveRecord, lang: str) -> str:
                 _e(_pct(e.get("p_stress"), lang)),
                 f'<span class="alarm-on">{_e(t("tr.on", lang))}</span>' if e.get("alarm_on") else _e(t("tr.off", lang)),
                 _e((e.get("published_at") or "–").replace("T", " ").replace("+00:00", " UTC")),
+                _e(e.get("model_version") or "–"),
                 f"<code>{_e(e['sha256'][:12])}</code>" + ("" if e["hash_ok"] else ' <span class="ko"></span>'),
                 _e(ots_label[e["ots"]]),
                 files,
@@ -447,6 +457,7 @@ def _days_table(live: LiveRecord, lang: str) -> str:
         (t("tr.lg.p", lang), True),
         (t("tr.lg.alarm", lang), False),
         (t("tr.col.published", lang), False),
+        (t("tr.col.version", lang), False),
         ("SHA-256", False),
         ("OpenTimestamps", False),
         (t("tr.col.files", lang), False),
@@ -590,6 +601,7 @@ def _backtest_section(bt: dict | None, bt_meta: dict, repo: str, lang: str) -> s
             f'<a href="{_e(repo)}/commit/{_e(bt["code_version"])}"><code>{_e(bt["code_version"])}</code></a>',
         ),
         (t("tr.id.data", lang), _e(bt["data_provider"])),
+        (t("tr.id.version", lang), _e(bt.get("model_version") or "–")),
         (t("tr.id.model", lang), _e(f"{bt['model']} ({', '.join(bt.get('stress_sources') or [])}; {bt['combination']})")),
         (t("tr.id.config", lang), f"<code>{_e(bt['config_sha256'][:16])}…</code>"),
         (t("tr.id.rule", lang), f"<code>{_e(bt['episode_rule_sha256'][:16])}…</code>"),
@@ -599,6 +611,59 @@ def _backtest_section(bt: dict | None, bt_meta: dict, repo: str, lang: str) -> s
             "<thead><tr><th></th><th></th></tr></thead>", ""
         )
     )
+    return "".join(out)
+
+
+def version_changes(live: LiveRecord) -> list[dict]:
+    """Days the published model changed: the first day of each new settings fingerprint in the live record."""
+    changes, previous = [], None
+    for e in live.entries:
+        sha = e.get("config_sha256")
+        if sha is None:
+            continue  # published before days carried their fingerprint
+        if previous is not None and sha != previous["config_sha256"]:
+            changes.append(
+                {"date": e["date"], "from": previous.get("model_version"), "to": e.get("model_version"), "config_sha256": sha}
+            )
+        previous = e
+    return changes
+
+
+def _versions_section(versions: list[dict], current: str | None, live: LiveRecord, repo: str, lang: str) -> str:
+    """Every model configuration ever recorded, and the days the published one changed."""
+    if not versions and not version_changes(live):
+        return ""
+    out = [f"<h3>{_e(t('tr.ver.title', lang))}</h3>", _note(t("tr.ver.help", lang, doc=f"{repo}/blob/main/docs/TRACK_RECORD.md"))]
+    for change in version_changes(live):
+        text = t("tr.ver.changed", lang, date=_date(change["date"], lang), old=change["from"] or "–", new=change["to"] or "–")
+        out.append(f'<div class="notice">{_e(text)}</div>')
+    rows = []
+    for v in versions:
+        m, period = v.get("metrics") or {}, v.get("period") or {}
+        mark = f' <span class="badge">{_e(t("tr.ver.current", lang))}</span>' if v["config_sha256"] == current else ""
+        rows.append(
+            [
+                _e(v.get("model_version") or "–") + mark,
+                f"<code>{_e((v.get('config_sha256') or '')[:12])}</code>",
+                _e(_date((v.get("generated_at") or "")[:10] or None, lang)),
+                _e(f"{_date(period.get('start'), lang)} – {_date(period.get('end'), lang)}"),
+                _e(f"{m.get('detected', '–')} / {m.get('n_episodes', '–')}"),
+                _e(_num(m.get("false_positives_per_year"), lang)),
+                _e(_num(m.get("brier"), lang, 3)),
+                f'<a href="{_e(v["file"])}">json</a>',
+            ]
+        )
+    headers = [
+        (t("tr.col.version", lang), False),
+        (t("tr.id.config", lang), False),
+        (t("tr.id.generated", lang), False),
+        (t("tr.ver.period", lang), False),
+        (t("tr.bt.detected", lang), True),
+        (t("tr.bt.fp", lang), True),
+        ("Brier", True),
+        (t("tr.col.files", lang), False),
+    ]
+    out.append(_table(headers, rows))
     return "".join(out)
 
 
@@ -615,8 +680,20 @@ def _method(settings: dict, repo: str, lang: str) -> str:
     )
 
 
-def render(live: LiveRecord, score: dict, bt: dict | None, bt_meta: dict, settings: dict, lang: str, switch: bool = True) -> str:
-    """The whole page in `lang` (fr or en). `switch`: link to the other language's page (not inside the app)."""
+def render(
+    live: LiveRecord,
+    score: dict,
+    bt: dict | None,
+    bt_meta: dict,
+    settings: dict,
+    lang: str,
+    switch: bool = True,
+    versions: list[dict] | None = None,
+) -> str:
+    """The whole page in `lang` (fr or en). `switch`: link to the other language's page (not inside the app).
+
+    `versions`: every backtest record (list_backtests), shown with the days the published model changed.
+    """
     repo = settings["publish"].get("repository_url", "").rstrip("/")
     other = "fr" if lang == "en" else "en"
     body = [
@@ -629,6 +706,7 @@ def render(live: LiveRecord, score: dict, bt: dict | None, bt_meta: dict, settin
         _live_section(live, score, settings["validation"]["stress_probability_threshold"], lang),
         _verify_section(live, lang),
         _backtest_section(bt, bt_meta, repo, lang),
+        _versions_section(versions or [], bt["config_sha256"] if bt else None, live, repo, lang),
         f'<h2>{_e(t("tr.method.title", lang))}</h2><div class="card">{_method(settings, repo, lang)}</div>',
         f"<footer>{t('tr.footer', lang, repo=repo)}</footer>",
     ]
@@ -641,12 +719,20 @@ def render(live: LiveRecord, score: dict, bt: dict | None, bt_meta: dict, settin
     )
 
 
-def write_pages(folder: Path, live: LiveRecord, score: dict, bt: dict | None, bt_meta: dict, settings: dict) -> list[Path]:
+def write_pages(
+    folder: Path,
+    live: LiveRecord,
+    score: dict,
+    bt: dict | None,
+    bt_meta: dict,
+    settings: dict,
+    versions: list[dict] | None = None,
+) -> list[Path]:
     folder.mkdir(parents=True, exist_ok=True)
     paths = []
     for lang, name in LANGS.items():
         path = folder / name
-        path.write_text(render(live, score, bt, bt_meta, settings, lang), encoding="utf-8")
+        path.write_text(render(live, score, bt, bt_meta, settings, lang, versions=versions), encoding="utf-8")
         paths.append(path)
     return paths
 
@@ -677,7 +763,8 @@ def build_site(pipeline, records_dir: Path, out_dir: Path | None = None) -> dict
     base = out_dir if path.is_relative_to(out_dir) else records_dir
     live = read_live(records_dir)
     score = _score(pipeline, live)
-    pages = write_pages(out_dir, live, score, bt, _meta(path, base), pipeline.settings)
+    versions = _versions(records_dir, out_dir)
+    pages = write_pages(out_dir, live, score, bt, _meta(path, base), pipeline.settings, versions)
     return {"backtest": path, "backtest_written": written, "pages": pages, "live": live, "score": score}
 
 
@@ -689,4 +776,13 @@ def page_html(pipeline, records_dir: Path, lang: str) -> str:
     else:
         bt, meta = backtest_record(pipeline), {"file": None, "sha256": None, "ots": "missing"}
     live = read_live(records_dir)
-    return render(live, _score(pipeline, live), bt, meta, pipeline.settings, lang, switch=False)
+    return render(live, _score(pipeline, live), bt, meta, pipeline.settings, lang, switch=False, versions=_versions(records_dir))
+
+
+def _versions(records_dir: Path, out_dir: Path | None = None) -> list[dict]:
+    """Backtest records of the track record, plus those of a preview folder."""
+    found = {v["config_sha256"]: v for v in list_backtests(records_dir)}
+    if out_dir is not None and out_dir.resolve() != records_dir.resolve():
+        for v in list_backtests(out_dir):
+            found.setdefault(v["config_sha256"], v)
+    return sorted(found.values(), key=lambda v: v["generated_at"] or "")
