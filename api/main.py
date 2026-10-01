@@ -56,6 +56,52 @@ def history(model: str | None = None, start: str | None = None, end: str | None 
     ]
 
 
+@lru_cache
+def world_data():
+    from pfe_drai.world import fetch_prices, indicators
+
+    settings = pipeline().settings
+    prices, errors = fetch_prices(settings)
+    return prices, indicators(prices, settings), errors
+
+
+@app.get("/world")
+def world(date: str | None = None, horizon: Literal["1D", "1W", "1M", "3M", "YTD", "1Y"] = "1M", lang: Lang = "fr"):
+    """Country equity markets (country ETFs as proxies): return over `horizon` and market stress state.
+
+    The state is market-only (own volatility and drawdown, docs/WORLD.md), not the US macro regime.
+    """
+    from pfe_drai.world import breadth, load_markets, snapshot
+
+    prices, ind, errors = world_data()
+    settings = pipeline().settings
+    day = prices.index[prices.index.searchsorted(pd.Timestamp(date or prices.index[-1]), side="right") - 1]
+    markets = load_markets(settings)
+    names = {m.id: m.name[lang] for m in markets}
+    snap = snapshot(prices, ind, markets, day, horizon, settings["world"]["stale_days"])
+    rows = []
+    for i, r in snap.iterrows():
+        rows.append(
+            {
+                "id": i,
+                "name": names[i],
+                "ticker": r["ticker"],
+                "state": r["state"],
+                "since": r["since"].date().isoformat() if r["since"] is not None else None,
+                **{k: None if r[k] != r[k] else round(float(r[k]), 4) for k in ["close", "return", "vol", "vol_pct", "drawdown"]},
+            }
+        )
+    b = breadth(ind["state"]).loc[:day].iloc[-1]
+    return {
+        "date": day.date().isoformat(),
+        "horizon": horizon,
+        "share_stress": round(float(b["stress"]), 4),
+        "share_elevated": round(float(b["elevated"]), 4),
+        "markets": rows,
+        "not_loaded": errors,
+    }
+
+
 @app.get("/regime/states")
 def regime_states(model: str | None = None, date: str | None = None, lang: Lang = "fr"):
     """How the model's unsupervised states map to the regimes (docs/REGIMES.md).

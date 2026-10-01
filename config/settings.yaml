@@ -122,6 +122,20 @@ alerts:
   score_jump: 1.0                 # 5-day move of a dimension score
   channels: []                    # email / webhook: not wired yet
 
+world:
+  # World tab (docs/WORLD.md): country equity ETFs as proxies for licensed indices.
+  markets: config/markets.yaml
+  # Market-only stress state per country, from its own prices. Set before looking at any
+  # real country data (2026-10-01), same values for every market; not tuned.
+  vol_window: 21              # realised volatility window (business days)
+  vol_history_days: 1260      # vol is ranked within the market's own last 5 years...
+  vol_min_history: 252        # ...once it has at least 1 year of vol history
+  drawdown_window: 252        # drawdown from the 1-year high
+  stress:   {vol_percentile: 0.90, drawdown: -0.10}   # both conditions
+  elevated: {vol_percentile: 0.80}                    # vol alone
+  confirm_days: 3             # a new state counts once it has held 3 days in a row
+  stale_days: 5               # a market with no close in the last 5 days shows as no data
+
 scenarios:
   library: config/scenarios.yaml
   funds: config/funds.yaml

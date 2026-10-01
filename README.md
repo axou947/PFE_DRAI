@@ -25,6 +25,7 @@ puis le résultat est mis en cache dans `data_cache/`.
 | Écran | Contenu |
 |---|---|
 | **Tableau de bord** | régime actuel et probabilités, les 3 dimensions (stress, croissance, inflation), ce qui a changé en une semaine, ce qui ferait basculer, moteurs du régime, historique des régimes sur l'indice actions |
+| **Marchés mondiaux** | carte de 20 marchés actions (ETF pays cotés aux États-Unis à la place des indices sous licence) : performance de 1 jour à 1 an, ou état de stress de marché propre à chaque pays (calme, tendu, stress) ; zoom par zone, date libre et épisodes passés à revoir, détail d'un pays au clic, part des marchés en stress comparée au régime US, tableau exportable (docs/WORLD.md) |
 | **Historique** | latence de détection par épisode, fausses alertes par an, score de Brier, calibration, comparaison des modèles, track record publié |
 | **Alertes** | changement de régime, probabilité de stress, alerte précoce à 1 semaine, mouvements brusques ; filtres par type et période |
 | **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables), note de comité des risques en PDF / HTML / Markdown |
@@ -43,6 +44,7 @@ python -m pfe_drai --provider fred states     # comment les états du modèle so
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
+python -m pfe_drai --provider fred world --date 2020-03-16   # marchés mondiaux : performance et état de stress (docs/WORLD.md)
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
@@ -95,7 +97,7 @@ dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#ajouter-une-source-de-données)
 ## Structure
 
 ```
-config/        settings.yaml (tous les réglages), scenarios.yaml, funds.yaml
+config/        settings.yaml (tous les réglages), scenarios.yaml, funds.yaml, markets.yaml (carte du monde)
 pfe_drai/
   data/        sources : synthetic, csv, fred, yahoo ; catalogue des séries
   features/    12 indicateurs point-in-time -> scores stress / croissance / inflation
@@ -106,6 +108,7 @@ pfe_drai/
   reporting/   note de comité FR/EN (Markdown, HTML, PDF)
   publish/     publication quotidienne horodatée
   alerts.py    règles d'alerte
+  world.py     marchés mondiaux : prix des ETF pays, état de stress par pays, diffusion
   pipeline.py  enchaîne tout ; utilisé par l'app, l'API, la CLI et les tests
   i18n/        t(clé, langue) ; textes dans locales/fr.json et locales/en.json
 app/           tableau de bord Streamlit
