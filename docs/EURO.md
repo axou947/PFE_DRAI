@@ -119,4 +119,19 @@ results are published here, the UI keeps the "experimental" label and nothing is
 
 ## Results
 
-*(empty: nothing has been run on real data yet)*
+### Step 1: holdout (real data, run once by Henry, 2026-10-01)
+
+Window 2001-01-02 to 2011-03-07, predictions from 2007-02-09, 4 episodes dated by the frozen rule (2007-08-14, 2008-01-16, 2010-01-22, 2010-11-23).
+
+| candidate | episodes | detected | median latency | all episodes | FP/yr | calm days in alarm | Brier |
+|---|---|---|---|---|---|---|---|
+| logistic / market | 4 | 3 | 11.0 | 11.5 | 0.49 | 5.2% | 0.240 |
+| gbm / market | 4 | 4 | -14.5 | -14.5 | 1.47 | 3.0% | 0.216 |
+
+Latency per episode (business days, negative = signal already on): logistic +9, +11, +12, missed; gbm -10, -19, -20, -3.
+
+Selected by the pre-registered rule: **gbm / market**, which the US model already uses; it is set in the overlay (`models.onset`). Read with care: only 4 episodes, and the gbm's false alarms (1.47 a year) sit just under the 1.5 limit.
+
+### Step 2: the real backtest (run once by Henry)
+
+*(not run yet)*

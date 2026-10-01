@@ -80,6 +80,8 @@ features:
 
 models:
   version: "euro-v1"        # the US model is v2.2; this one is a separate model on separate data
+  # Selected by the pre-registered real holdout on 2026-10-01 (docs/EURO.md, Results, step 1).
+  onset: {learner: gbm, inputs: market}
 
 validation:
   episodes:
