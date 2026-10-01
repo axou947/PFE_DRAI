@@ -75,8 +75,7 @@ def get_track_record_page(provider: str, lang: str, files: tuple) -> str:
 
     Built on the configured settings, not on the sidebar threshold: the record is frozen.
     """
-    frozen = Pipeline(load_settings(overrides={"data": {"provider": provider}}))
-    frozen.__dict__["raw"] = get_pipeline(provider).raw  # same data, fetched once
+    frozen = get_pipeline(provider).with_settings(load_settings(overrides={"data": {"provider": provider}}))
     return page_html(frozen, resolve(settings["publish"]["dir"]), lang)
 
 
@@ -821,11 +820,15 @@ with tab_hist:
 with tab_track:
     records = resolve(settings["publish"]["dir"])
     files = tuple(sorted((p.name, p.stat().st_mtime_ns) for p in records.rglob("*.json*")))
-    with st.spinner(t("app.loading", lang)):
-        page = get_track_record_page(provider, lang, files)
-    st.caption(t("tr.app_help", lang, url=settings["publish"].get("pages_url", "")))
-    st.download_button(f"{t('app.download', lang)} HTML", page, f"track-record-{lang}.html", "text/html")
-    components.html(page, height=2600, scrolling=True)
+    try:
+        with st.spinner(t("app.loading", lang)):
+            page = get_track_record_page(provider, lang, files)
+    except Exception as exc:  # noqa: BLE001 - show the reason, keep the other tabs working
+        st.error(f"{type(exc).__name__}: {exc}")
+    else:
+        st.caption(t("tr.app_help", lang, url=settings["publish"].get("pages_url", "")))
+        st.download_button(f"{t('app.download', lang)} HTML", page, f"track-record-{lang}.html", "text/html")
+        components.html(page, height=2600, scrolling=True)
 
 # ================================================================ ALERTS
 with tab_alerts:

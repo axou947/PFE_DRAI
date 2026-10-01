@@ -71,6 +71,17 @@ class Pipeline:
         self.settings = settings or load_settings()
         self.use_cache = use_cache
 
+    def with_settings(self, settings: dict) -> "Pipeline":
+        """A pipeline with other settings on the same data, without fetching it again.
+
+        Shares the provider as well as the data: a real provider learns while fetching which series
+        are dated by release day (ALFRED), and the data cannot be read correctly without that.
+        """
+        other = Pipeline(settings, self.use_cache)
+        other.__dict__["provider"] = self.provider
+        other.__dict__["raw"] = self.raw
+        return other
+
     # ---- data -------------------------------------------------------------
     @cached_property
     def provider(self):
