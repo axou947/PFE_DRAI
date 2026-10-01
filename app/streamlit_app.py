@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pfe_drai.config import load_settings, resolve  # noqa: E402
 from pfe_drai.data import available_providers  # noqa: E402
 from pfe_drai.features import FEATURES  # noqa: E402
+from pfe_drai.features.build import score_dimension  # noqa: E402
 from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
 from pfe_drai.pipeline import Pipeline  # noqa: E402
@@ -323,14 +324,17 @@ with tab_dash:
     st.subheader(t("dash.drivers", lang))
     names = list(FEATURES)
     fig = go.Figure()
-    for dim in ["stress", "growth", "inflation"]:
-        feats = [f for f in names if FEATURES[f] == dim]
+    # A feature outside every score (features.growth.inputs, docs/SLOWDOWN.md) still feeds the models.
+    for dim in ["stress", "growth", "inflation", None]:
+        feats = [f for f in names if score_dimension(f, pipeline.settings) == dim]
+        if not feats:
+            continue
         fig.add_bar(
             y=[t(f"feature.{f}", lang) for f in feats],
             x=[state.drivers[f] for f in feats],
             orientation="h",
-            name=t(f"dimension.{dim}", lang),
-            marker_color=DIM_COLORS[dim],
+            name=t(f"dimension.{dim}", lang) if dim else t("dash.models_only", lang),
+            marker_color=DIM_COLORS[dim] if dim else MUTED,
             hovertemplate="%{y}: %{x:+.2f}<extra></extra>",
         )
     fig.update_yaxes(autorange="reversed")

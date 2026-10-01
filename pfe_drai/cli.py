@@ -9,6 +9,7 @@ episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
+slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
 data       history covered by each series and where the backtest starts
 world      country equity markets: return and market stress state on a date (docs/WORLD.md)
 app        start the Streamlit dashboard
@@ -287,6 +288,111 @@ def cmd_holdout(args):
         print(f"\nSelected by the pre-registered rule: {res.rows.loc[res.chosen, 'candidate']}")
 
 
+def cmd_slowdown(args):
+    import pandas as pd
+
+    from .config import _deep_merge
+    from .validation.slowdown import decide, growth_holdout, slowdown_report
+
+    if args.holdout:
+        settings = load_settings(args.config, {"data": {"provider": args.provider}} if args.provider else None)
+        res = growth_holdout(settings)
+        data = "real" if res["is_live"] else "SIMULATED"
+        print(
+            f"Growth score holdout ({data} data, provider {res['provider']}), {res['first_day'].date()} to "
+            f"{res['last_day'].date()}. Reference: {res['reference']} (below-trend growth on "
+            f"{res['reference_share']:.0%} of days). See docs/SLOWDOWN.md."
+        )
+        print(f"\n{'#':>2} {'candidate':<34} {'days':>5} {'bal. acc.':>10} {'below':>6} {'spells/yr':>10} {'median spell':>13}")
+        for _, r in res["rows"].iterrows():
+            number = "-" if pd.isna(r["order"]) else int(r["order"]) + 1
+            print(
+                f"{number:>2} {r['candidate']:<34} {r['days']:>5} {r['balanced_accuracy']:>10.3f} "
+                f"{r['below_share']:>6.0%} {r['spells_per_year']:>10.2f} {r['median_spell']:>13.0f}"
+            )
+        print(
+            "(bal. acc. = average of the shares right on below-trend days and on the other days; "
+            "below = days under the threshold)"
+        )
+        if res["chosen"] is None:
+            print("\nNo candidate qualifies: the growth score stays as it is.")
+        else:
+            print(f"\nSelected by the pre-registered rule: {res['rows'].loc[res['chosen'], 'candidate']}")
+        return
+
+    p = _pipeline(args)
+    model = args.model or p.settings["models"]["default"]
+
+    def variant(name):
+        cfg = p.settings["validation"]["slowdown"][name]
+        return p.with_settings(_deep_merge(p.settings, {"features": {"growth": cfg["growth"]}, "regimes": {"rule": cfg["rule"]}}))
+
+    # --tested: the pre-registered v2.2 against the published v2.1; otherwise the current settings against v2.1.
+    runs = {"before": variant("before"), "after": variant("tested") if args.tested else p}
+    p = runs["after"]
+    results = {name: {"slowdown": slowdown_report(q, model), "detection": q.evaluate(model)} for name, q in runs.items()}
+    reference = results["after"]["slowdown"]["reference"]
+    data = "real" if p.provider.is_live else "SIMULATED"
+    index = p.probabilities(model).index
+    print(
+        f"Slowdown regime, before and after ({data} data, provider {p.provider.name}, model {model}), out-of-sample from "
+        f"{index[0].date()} to {index[-1].date()}. Reference: {reference or 'none (no below-trend growth series)'}. "
+        "See docs/SLOWDOWN.md."
+    )
+    rows = [
+        ("rule: days in Slowdown", "slowdown_share", "{:.1%}"),
+        ("rule: Slowdown spells a year", "spells_per_year", "{:.2f}"),
+        ("rule: median Slowdown spell (days)", "median_spell", "{:.0f}"),
+        ("growth below threshold vs reference (bal. acc.)", "growth_ba", "{:.3f}"),
+        ("refits with a state named Slowdown, >= 50% agreement", "state_share", "{:.0%}"),
+        ("displayed: days shown as Slowdown", "shown_share", "{:.1%}"),
+        ("displayed Slowdown vs reference (bal. acc.)", "shown_ba", "{:.3f}"),
+        ("displayed: reference slowdown days found", "shown_recall", "{:.1%}"),
+        ("displayed: Slowdown days that are reference slowdown", "shown_precision", "{:.1%}"),
+        ("reference: days of below-trend growth", "reference_share", "{:.1%}"),
+    ]
+    print(f"\n{'':<54} {'before':>9} {'after':>9}")
+    for label, key, fmt in rows:
+        cells = [results[n]["slowdown"]["summary"][key] for n in ("before", "after")]
+        print(f"{label:<54} " + " ".join(f"{'-' if c != c else fmt.format(c):>9}" for c in cells))
+    det = [
+        ("stress episodes detected", lambda r: f"{r['detected']}/{r['n_episodes']}"),
+        ("median latency (days)", lambda r: f"{r['median_latency']:.1f}"),
+        ("median latency, all episodes", lambda r: f"{r['median_latency_all']:.1f}"),
+        ("false positives a year", lambda r: f"{r['false_positives_per_year']:.2f}"),
+        ("calm days in false alarm", lambda r: f"{r['false_alarm_share']:.1%}"),
+        ("regime switches a year", lambda r: f"{r['switches_per_year']:.1f}"),
+        ("Brier", lambda r: f"{r['brier']:.3f}"),
+        ("ECE", lambda r: f"{r['ece']:.3f}"),
+    ]
+    for label, fmt in det:
+        print(f"{label:<54} " + " ".join(f"{fmt(results[n]['detection']):>9}" for n in ("before", "after")))
+    lat = [results[n]["detection"]["episodes"].set_index("start")["latency_days"] for n in ("before", "after")]
+    print("\nLatency per episode (business days; negative = signal already on):")
+    for start in lat[0].index:
+        cells = ["missed" if v != v or v is None else f"{int(v):+d}" for v in (lat[0].get(start), lat[1].get(start))]
+        print(f"  {start.date()!s:<12} {cells[0]:>7} {cells[1]:>7}")
+    states = results["after"]["slowdown"]["states"]
+    if len(states):
+        print("\nAfter: Slowdown in the jump model at each refit (first day predicted, states named Slowdown, best agreement):")
+        for row in states.itertuples():
+            best = "-" if row.best_agreement != row.best_agreement else f"{row.best_agreement:.0%}"
+            print(f"  {row.first_day.date()!s:<12} {row.slowdown_states:>2} {best:>5}{'' if row.named else '  *'}")
+        print("  * = no state named Slowdown with at least half of its days Slowdown by the rule")
+    if reference is None:
+        print("\nNo reference series for this provider: the decision needs --provider fred.")
+        return
+    decision = decide(
+        *({"slowdown": results[n]["slowdown"]["summary"], "detection": results[n]["detection"]} for n in ("before", "after")),
+        p.settings,
+    )
+    print("\nPre-registered decision (docs/SLOWDOWN.md):")
+    for label, ok in decision["checks"].items():
+        print(f"  [{'x' if ok else ' '}] {label}")
+    verdict = "ADOPT the new growth score" if decision["adopt"] else "KEEP the growth score as it was"
+    print(f"Decision: {verdict}.")
+
+
 def cmd_data(args):
     p = _pipeline(args)
     print(f"{'series':<12} {'first':<12} {'last':<12} dated by")
@@ -357,6 +463,7 @@ def main(argv=None):
         ("states", cmd_states),
         ("holdout", cmd_holdout),
         ("calibration", cmd_calibration),
+        ("slowdown", cmd_slowdown),
         ("data", cmd_data),
         ("world", cmd_world),
         ("app", cmd_app),
@@ -370,6 +477,11 @@ def main(argv=None):
             sp.add_argument("--out")
         if name == "track-record":
             sp.add_argument("--out", help="write the pages (and a new backtest record) to this folder instead: a preview")
+        if name == "slowdown":
+            sp.add_argument("--holdout", action="store_true", help="growth score candidates on 1999-2009 (no model fitted)")
+            sp.add_argument(
+                "--tested", action="store_true", help="run the pre-registered v2.2 (the holdout's choice) as the 'after'"
+            )
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
             sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])

@@ -66,6 +66,16 @@ start of the next run, which adds the Bitcoin attestation. The page reads each p
 "anchored in Bitcoin", "pending" or "none". Nothing had been published before this page was
 added: the first stamped day is the first scheduled run.
 
+## Model versions
+
+Every configuration has a name (`models.version` in `config/settings.yaml`: v2.1 = detection v2
+with the calibrated probability; v2.2 = v2.1 with a real Slowdown regime, [SLOWDOWN.md](SLOWDOWN.md))
+and a settings fingerprint. Each published day carries both (`model_version`, `config_sha256`),
+and each backtest record carries both. The page lists every backtest record ever written, marks the
+current one, and says on which day the published model changed. A change never rewrites what was
+published before it: days keep the numbers of the model that made them, and the earlier backtest
+record stays next to the new one. Days published before 2026-10-02 carry no version.
+
 ## Preview without touching the record
 
     python -m pfe_drai --provider fred track-record --out preview

@@ -17,6 +17,22 @@ from pathlib import Path
 from ..config import resolve
 from ..validation import rule_fingerprint
 
+#: Settings that decide the model's numbers. A new backtest record is written when one changes.
+_CONFIG_KEYS = ("features", "regimes", "models", "validation")
+_DATA_KEYS = ("start", "point_in_time", "publication_lag_days", "fred_fallback")
+
+
+def config_fingerprint(settings: dict) -> str:
+    """SHA-256 of every setting that changes the backtest (data source and end date excluded)."""
+    config = {key: settings[key] for key in _CONFIG_KEYS}
+    config["data"] = {key: settings["data"].get(key) for key in _DATA_KEYS}
+    return hashlib.sha256(json.dumps(config, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def model_version(settings: dict) -> str | None:
+    """Human name of the model configuration (models.version), shown next to its fingerprint."""
+    return settings["models"].get("version")
+
 
 def _git_sha() -> str:
     try:
@@ -47,6 +63,9 @@ def publish(pipeline, model: str | None = None, out_dir: str | Path | None = Non
         "published_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "code_version": _git_sha(),
         "episode_rule_sha256": rule_fingerprint(settings),
+        # Which model made this day: the page shows when it changed (docs/TRACK_RECORD.md).
+        "model_version": model_version(settings),
+        "config_sha256": config_fingerprint(settings),
     }
     index_path = folder / "index.csv"
     previous_hash = ""

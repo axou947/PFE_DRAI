@@ -21,11 +21,16 @@ dimension scores. A high score means "more" of the dimension.
 
 ## 2. The rule that defines the four regimes
 
+> **v2.2, adopted 2026-10-01 ([SLOWDOWN.md](SLOWDOWN.md)):** a real Slowdown regime. The growth
+> score drops the curve slope, uses robust scaling and a 21-day average, and the Slowdown threshold
+> becomes 0 (growth below its own median). The real-data run passed. The sections below were written for v2.1
+> (growth threshold −0.25, four inputs with standard scaling); the results quoted are v2.1's.
+
 `regimes.rule` in `config/settings.yaml`, applied in this order:
 
 1. **Stress / crisis** if stress > 1.0, whatever growth and inflation do;
 2. otherwise **Inflationary overheating** if inflation > 0.8 (with weak growth too: stagflation);
-3. otherwise **Slowdown** if growth < −0.25;
+3. otherwise **Slowdown** if growth < 0 (v2.2; −0.25 until v2.1);
 4. otherwise **Expansion**.
 
 So each regime is a region of the three-dimensional space, not a quadrant of two axes. The rule
