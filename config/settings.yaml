@@ -52,12 +52,12 @@ regimes:
     inflation_threshold: 0.8
 
 models:
-  # combined = jump model regimes, P(stress) = max(jump, gbm). Chosen on simulated data only
-  # (docs/DETECTION.md), before any backtest of these settings on real data.
+  # combined = jump model regimes, P(stress) = max(jump, gbm, onset): v2, chosen on simulated
+  # data and a real 1999-2009 holdout, confirmed once on the 11 real episodes (docs/DETECTION_V2.md).
   default: combined
   combined:
     # Models whose P(stress) can raise the jump model's. [gbm] = v1 (PR #5).
-    # [gbm, onset] = v2, adopted only under the decision rule of docs/DETECTION_V2.md.
+    # [gbm, onset] = v2, adopted 2026-10-01 under the pre-registered rule (docs/DETECTION_V2.md).
     stress_sources: [gbm, onset]
   kmeans:
     n_init: 10

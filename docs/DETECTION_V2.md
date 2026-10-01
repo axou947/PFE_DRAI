@@ -1,6 +1,7 @@
 # Stress detection v2: pre-registration
 
-**Status: pre-registered on 2026-10-01, before any run of v2 on real data** (neither the holdout
+**Status: adopted on 2026-10-01** (decision rule met, results at the bottom). Pre-registered
+the same day, **before any run of v2 on real data** (neither the holdout
 nor the 11 published episodes). This page fixes what will be tested, on which data, and how the
 result decides. It is committed and pushed before Henry runs anything; the results are added
 below it afterwards, as they come out, and nothing above the "Results" heading changes.
@@ -172,3 +173,46 @@ Fix before the first holdout run (2026-10-01): the first real holdout run crashe
 printing any result, because gradient boosting cannot use an input that is empty for a whole
 training window (credit before LQD/IEF start in 2002). Such an input is now left out until it
 has values. That is what "credit is missing before 2002" already meant above; nothing else changed.
+
+### Step 2: the 11 real episodes (run once by Henry, 2026-10-01)
+
+`python -m pfe_drai --provider fred backtest`, out-of-sample from 2009-04, same run for v1 and v2.
+
+| model                          | detected | median lat. | all eps. | FP / yr | false alarm | switches / yr | Brier |
+|--------------------------------|---------:|------------:|---------:|--------:|------------:|--------------:|------:|
+| **v2** (jump + gbm + onset)    |  11/11   |  −3.0       |  −3.0    |  1.26   |  4.9%       |  5.6          | 0.101 |
+| v1 (jump + gbm)                |   5/11   |  11.0       |  60.0    |  0.17   |  0.4%       |  3.4          | 0.097 |
+| onset alone                    |  11/11   |  −3.0       |  −3.0    |  1.09   |  4.4%       |  5.7          | 0.108 |
+
+| start      | max drawdown | v2   | v1     |
+|------------|-------------:|-----:|-------:|
+| 2010-05-20 | −15.7%       |  −8  | missed |
+| 2011-08-04 | −18.6%       |  +1  | +11    |
+| 2011-12-19 | −10.4%       | −17  | missed |
+| 2015-08-24 | −11.9%       |  +4  | missed |
+| 2016-01-13 | −13.0%       |  −2  | +18    |
+| 2018-02-08 | −10.1%       |  +2  | missed |
+| 2018-12-14 | −19.3%       | −18  | +6     |
+| 2020-02-27 | −33.7%       |   0  | +5     |
+| 2022-02-22 | −12.9%       | −20  | missed |
+| 2022-05-05 | −24.5%       |  −5  | missed |
+| 2025-03-13 | −18.8%       |  −3  | +18    |
+
+**Decision: v2 is adopted.** It meets both pre-registered false-alarm targets (1.26 ≤ 1.5 false
+positives a year, 4.9% ≤ 10% of calm days), so `combined` keeps `stress_sources: [gbm, onset]` and
+becomes the daily publication. With it, the audit's latency target is met on real data for the
+first time: median −3 business days (≤ 5), every episode caught within 4 days of its dated start.
+
+What it costs, said as plainly as the gains:
+
+- **False positives go from 0.17 to 1.26 a year**, close to the 1.5 limit: about 20 false alarms
+  over 16 years. They are short (4.9% of calm days in all), but a committee will see roughly one a year.
+- **Regime switches go from 3.4 to 5.6 a year.**
+- **Large negative latencies mean the signal was already on, not a forecast.** −17 to −20 days
+  (2011-12, 2018-12, 2022-02) usually mean an alarm from an earlier dip was still running when the
+  episode started. The detection window counts that as caught, as it did for v1. The latency at
+  the start of each new fall is what the per-episode numbers above show; they are not all foresight.
+- 11 episodes are few, and the holdout had 6. Both runs point the same way, but this is evidence,
+  not proof. The daily track record is the real test from here on.
+
+Nothing was retuned after this run.
