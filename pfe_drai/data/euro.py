@@ -91,6 +91,23 @@ def fetch_ecb(dataset: str, key: str, start, end, monthly: bool = False) -> pd.S
     return parse_ecb(response.json())
 
 
+def fetch_ecb_any(spec: dict, start, end) -> tuple[pd.Series, dict]:
+    """A monthly ECB series: `key`, then each of `alternative_keys` when the ECB answers 404 (unknown key).
+
+    The ECB replaced its ICP dataset by HICP in February 2026 and renamed the dimensions: the alternatives
+    only identify the same series under another key (docs/EURO.md).
+    """
+    errors = []
+    for key in [spec["key"], *spec.get("alternative_keys", [])]:
+        try:
+            return fetch_ecb(spec["dataset"], key, start, end, monthly=True), {"key": key}
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code != 404:
+                raise
+            errors.append(f"{key}: 404")
+    raise NoDataError(f"ECB dataset {spec['dataset']}: no such key ({'; '.join(errors)})")
+
+
 def fetch_eurostat(dataset: str, filters: dict, start) -> pd.Series:
     params = {"format": "JSON", "lang": "EN", "sinceTimePeriod": pd.Timestamp(start).strftime("%Y-%m"), **filters}
     response = httpx.get(EUROSTAT_URL.format(dataset=dataset), params=params, timeout=60, follow_redirects=True)
@@ -174,7 +191,7 @@ class EuroProvider(DataProvider):
         for name in ("cpi", "indpro", "claims"):
             spec = cfg[name]
             if spec["source"] == "ecb":
-                series = fetch_ecb(spec["dataset"], spec["key"], start, end, monthly=True)
+                series, self.used_filters[name] = fetch_ecb_any(spec, start, end)
             else:
                 series, self.used_filters[name] = fetch_eurostat_any(spec, start)
             check_fresh(name, series, end, spec.get("max_stale_days", 150))

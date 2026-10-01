@@ -20,7 +20,7 @@ The pipeline, features, models and calibration are the US ones, unchanged. Only 
 | `vix` | 21-day realised volatility of EZU, annualised, in % | computed | daily | 0 | n/a | derived |
 | `us10y`, `us2y` | AAA euro-area government yield curve, spot 10y and 2y (`YC`, `B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y` / `SR_2Y`) | ECB Data Portal | daily | 1 day | no, end-of-day curve | ECB open data, source acknowledged |
 | `credit_spread` | 10y all-issuer euro-area yield minus the AAA 10y (`...G_N_C...` minus `...G_N_A...`) | ECB Data Portal | daily | 1 day | no | ECB open data |
-| `cpi` | HICP overall index, euro area (`ICP`, `M.U2.N.000000.4.INX`) | ECB Data Portal (Eurostat's `prc_hicp_midx` ended in December 2025 in the 2026-10-01 run, probably replaced when HICP changed classification) | monthly | 18 days after month end | no public vintages; rarely revised | Eurostat open data |
+| `cpi` | HICP overall index, euro area (`HICP`, `M.U2.N.000000.4D0.INX`) | ECB Data Portal (the ECB replaced its `ICP` dataset by `HICP` on 4 February 2026 for Eurostat's new methodology, and Eurostat's `prc_hicp_midx` also ended in December 2025; both ends were seen in the 2026-10-01 run) | monthly | 18 days after month end | no public vintages; rarely revised | ECB open data, HICP produced by Eurostat |
 | `indpro` | Industrial production, B-D, calendar adjusted (`sts_inpr_m`, I21, EA20 code) | Eurostat | monthly | 50 days | no public vintages; **revised** | Eurostat open data |
 | `claims` | Unemployment rate, seasonally adjusted (`une_rt_m`, EA21 code) | Eurostat | monthly | 35 days | no public vintages; revised slightly | Eurostat open data |
 

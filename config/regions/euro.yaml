@@ -47,8 +47,9 @@ data:
         meaning: 10y all-issuer minus AAA euro-area government yield (peripheral stress)
       cpi:
         source: ecb
-        dataset: ICP
-        key: M.U2.N.000000.4.INX   # HICP overall index, euro area (changing composition), monthly
+        dataset: HICP             # replaced the ICP dataset in February 2026 (ICP ends in 2025-12)
+        key: M.U2.N.000000.4D0.INX   # HICP overall index, euro area (changing composition), monthly
+        alternative_keys: [M.U2.N.TOTAL.4D0.INX, M.U2.N.00.4D0.INX]
         lag_days: 18            # final HICP of month M is published about the 17th of M+1
         licence: ECB open data (source acknowledged; HICP is produced by Eurostat)
         vintage: "no public vintages; HICP is rarely revised"

@@ -6,6 +6,7 @@ Everything runs offline on small recorded payloads and simulated data.
 import json
 from pathlib import Path
 
+import httpx
 import numpy as np
 import pandas as pd
 import pytest
@@ -105,6 +106,20 @@ def test_parse_eurostat_empty_dimension_is_no_data():
         euro.parse_eurostat(payload)
 
 
+def test_ecb_alternative_keys_on_404(monkeypatch):
+    def fake(dataset, key, start, end, monthly=False):
+        if key != "B":
+            response = httpx.Response(404, request=httpx.Request("GET", "https://x"))
+            raise httpx.HTTPStatusError("not found", request=response.request, response=response)
+        return pd.Series([1.0], index=[pd.Timestamp("2026-08-01")])
+
+    monkeypatch.setattr(euro, "fetch_ecb", fake)
+    series, used = euro.fetch_ecb_any({"dataset": "HICP", "key": "A", "alternative_keys": ["B"]}, "2026-01-01", "2026-09-30")
+    assert used == {"key": "B"} and len(series) == 1
+    with pytest.raises(euro.NoDataError, match="A: 404"):
+        euro.fetch_ecb_any({"dataset": "HICP", "key": "A"}, "2026-01-01", "2026-09-30")
+
+
 def test_stale_series_is_refused():
     old = pd.Series([1.0, 2.0], index=pd.to_datetime(["2025-11-01", "2025-12-01"]))
     euro.check_fresh("cpi", old, "2026-01-31", 150)
@@ -167,7 +182,7 @@ def patched_sources(monkeypatch, euro_settings):
         "B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y": sim["us10y"],
         "B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y": sim["us2y"],
         "B.U2.EUR.4F.G_N_C.SV_C_YM.SR_10Y": sim["us10y"] + spread,
-        "M.U2.N.000000.4.INX": monthly["cpi"],
+        "M.U2.N.000000.4D0.INX": monthly["cpi"],
     }
     stat = {"sts_inpr_m": monthly["indpro"], "une_rt_m": monthly["claims"] / 50_000}
     monkeypatch.setenv("TIINGO_API_KEY", "test")
