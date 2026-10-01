@@ -34,3 +34,25 @@ def test_changed_episode_rule_is_refused(pipeline, settings):
     changed = load_settings(overrides={"validation": {"episodes": {"drawdown_threshold": -0.08}}})
     with pytest.raises(ValueError, match="frozen"):
         find_episodes(pipeline.prices["equity"], changed)
+
+
+def _path(*legs):
+    """Equity curve from (number of business days, total return) legs."""
+    values = [100.0]
+    for days, ret in legs:
+        step = (1 + ret) ** (1 / days)
+        values += [values[-1] * step**k for k in range(1, days + 1)]
+    return pd.Series(values, index=pd.bdate_range("2000-01-03", periods=len(values)))
+
+
+def test_two_falls_after_a_recovery_are_two_episodes(settings):
+    # Fall, full recovery, then a second fall 3 months later (2015 then 2016, 2022).
+    equity = _path((300, 0.2), (20, -0.15), (30, 0.18), (60, 0.0), (20, -0.15), (100, 0.0))
+    starts = [e.start for e in find_episodes(equity, settings)]
+    assert len(starts) == 2
+
+
+def test_no_new_episode_without_recovery(settings):
+    # Crash, then a market that hovers around -10% without recovering (2009, early 2023).
+    equity = _path((300, 0.2), (40, -0.4), (100, 0.45), (5, -0.03), (5, 0.03), (5, -0.03), (100, 0.0))
+    assert len(find_episodes(equity, settings)) == 1

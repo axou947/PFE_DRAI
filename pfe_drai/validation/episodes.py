@@ -5,7 +5,10 @@ A stress episode starts on the first day when either
 - 21-day realised volatility rises above its expanding `vol_quantile` percentile,
 and ends when the drawdown recovers above `recovery_drawdown` or after
 `max_duration_days`. A start needs a fresh crossing of either line, at least
-`min_gap_days` after the previous start.
+`min_gap_days` after the end of the previous episode, and the drawdown must have
+recovered above `recovery_drawdown` since then (re-arming). Re-arming keeps a market
+that never recovered (e.g. 2009, early 2023) from opening a new episode, while two
+distinct falls a few months apart (2015 then 2016, March then May 2022) stay two episodes.
 """
 
 import hashlib
@@ -76,19 +79,21 @@ def find_episodes(equity: pd.Series, settings: dict) -> list[Episode]:
     dd_cross = dd_hit & ~dd_hit.shift(1, fill_value=False)
     vol_cross = vol_hit & ~vol_hit.shift(1, fill_value=False)
     dates = equity.index
+    recovered_days = (dd > cfg["recovery_drawdown"]).values
     episodes: list[Episode] = []
-    last_start = None
+    last_end = None
     for i in np.flatnonzero((dd_cross | vol_cross).values):
         start = dates[i]
-        if last_start is not None and i - last_start < cfg["min_gap_days"]:
-            continue
+        if last_end is not None:
+            if i - last_end < cfg["min_gap_days"] or not recovered_days[last_end + 1 : i].any():
+                continue
         stop = min(i + cfg["max_duration_days"], len(dates) - 1)
         recovered = np.flatnonzero((dd.iloc[i + 5 : stop + 1] > cfg["recovery_drawdown"]).values)
         j = i + 5 + recovered[0] if len(recovered) else stop
         j = min(j, len(dates) - 1)
         trigger = "drawdown" if dd_cross.iloc[i] else "volatility"
         episodes.append(Episode(start, dates[j], trigger, float(dd.iloc[i : j + 1].min())))
-        last_start = i
+        last_end = j
     return episodes
 
 
