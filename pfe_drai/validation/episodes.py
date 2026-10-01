@@ -8,6 +8,8 @@ and ends when the drawdown recovers above `recovery_drawdown` or after
 `min_gap_days` after the previous start.
 """
 
+import hashlib
+import json
 from dataclasses import asdict, dataclass
 
 import numpy as np
@@ -27,7 +29,43 @@ class Episode:
         return d
 
 
+# Parameters of the episode rule. Changing any of them changes every latency.
+RULE_KEYS = (
+    "drawdown_threshold",
+    "vol_window",
+    "vol_quantile",
+    "min_gap_days",
+    "recovery_drawdown",
+    "max_duration_days",
+    "detection_window_days",
+    "lookback_days",
+)
+
+
+def rule_fingerprint(settings: dict) -> str:
+    """SHA-256 of the episode rule parameters (published with every track record entry)."""
+    cfg = settings["validation"]["episodes"]
+    rule = {key: cfg[key] for key in RULE_KEYS}
+    return hashlib.sha256(json.dumps(rule, sort_keys=True).encode()).hexdigest()
+
+
+def check_frozen(settings: dict) -> None:
+    """Refuse to date episodes with a rule that differs from the frozen one.
+
+    The rule is frozen in validation.episodes.frozen (sha256 + date) before any backtest,
+    so a latency can never come from a rule tuned after looking at the results.
+    """
+    frozen = settings["validation"]["episodes"].get("frozen") or {}
+    expected = frozen.get("sha256")
+    if expected and rule_fingerprint(settings) != expected:
+        raise ValueError(
+            f"The episode rule was frozen on {frozen.get('date')} and its parameters have changed. "
+            "Restore them, or record a new version (new sha256 and date) and publish why."
+        )
+
+
 def find_episodes(equity: pd.Series, settings: dict) -> list[Episode]:
+    check_frozen(settings)
     cfg = settings["validation"]["episodes"]
     dd = equity / equity.rolling(252, min_periods=21).max() - 1
     vol = np.log(equity).diff().rolling(cfg["vol_window"]).std()

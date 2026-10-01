@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore: ["track_record/**"] # daily publication commits
   pull_request:
 
 jobs:

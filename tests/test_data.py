@@ -67,6 +67,15 @@ def test_fred_with_tiingo_fallback_returns_every_series(monkeypatch, settings):
     provider.check(data)
     assert data["hy_bond"].tolist() == [99.0, 100.0]  # adjusted close
     assert data["us10y"].tolist() == [1.5]  # FRED "." means missing
+    assert provider.is_live
+
+
+def test_fred_with_synthetic_fallback_is_not_live(monkeypatch, settings):
+    monkeypatch.setattr(httpx, "get", _fake_get)
+    monkeypatch.setenv("FRED_API_KEY", "fred-key")
+    provider = get_provider({**settings, "data": {**settings["data"], "provider": "fred", "fred_fallback": "synthetic"}})
+    provider.fetch(pd.Timestamp("2020-01-01"), pd.Timestamp("2020-01-10"))
+    assert not provider.is_live
 
 
 def test_tiingo_needs_a_key(monkeypatch, settings):

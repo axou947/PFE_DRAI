@@ -3,7 +3,8 @@
 status     current regime and probabilities
 backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
-publish    write today's track record entry
+publish    write today's track record entry (real data only)
+episodes   list the stress episodes dated by the frozen rule
 app        start the Streamlit dashboard
 api        start the FastAPI server
 """
@@ -66,7 +67,18 @@ def cmd_report(args):
 def cmd_publish(args):
     from .publish import publish
 
-    print(publish(_pipeline(args), args.model))
+    path = publish(_pipeline(args), args.model)
+    print(path or "Already published for the latest market day: nothing to do.")
+
+
+def cmd_episodes(args):
+    from .validation import rule_fingerprint
+
+    p = _pipeline(args)
+    print(f"Episode rule sha256: {rule_fingerprint(p.settings)} (data: {p.provider.name})")
+    print(f"{'start':<12} {'end':<12} {'trigger':<11} {'max drawdown':>13}")
+    for ep in p.episodes:
+        print(f"{ep.start.date()!s:<12} {ep.end.date()!s:<12} {ep.trigger:<11} {ep.max_drawdown:>13.1%}")
 
 
 def cmd_app(args):
@@ -88,6 +100,7 @@ def main(argv=None):
         ("backtest", cmd_backtest),
         ("report", cmd_report),
         ("publish", cmd_publish),
+        ("episodes", cmd_episodes),
         ("app", cmd_app),
         ("api", cmd_api),
     ]:

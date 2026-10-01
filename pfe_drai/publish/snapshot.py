@@ -15,6 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from ..config import resolve
+from ..validation import rule_fingerprint
 
 
 def _git_sha() -> str:
@@ -26,20 +27,33 @@ def _git_sha() -> str:
         return "unknown"
 
 
-def publish(pipeline, model: str | None = None, out_dir: str | Path | None = None) -> Path:
+class NotLiveDataError(RuntimeError):
+    """Raised when publishing would put simulated data in the track record."""
+
+
+def publish(pipeline, model: str | None = None, out_dir: str | Path | None = None) -> Path | None:
+    """Write the latest regime. Returns None when that date is already published (holidays)."""
     settings = pipeline.settings
     state = pipeline.state(model)
+    if settings["publish"].get("require_live_data", True) and not state.is_live_data:
+        raise NotLiveDataError(
+            f"Data provider '{state.data_provider}' is not fully live: refusing to publish simulated data. "
+            "Run with --provider fred and set FRED_API_KEY and TIINGO_API_KEY."
+        )
     folder = resolve(out_dir or settings["publish"]["dir"])
     folder.mkdir(parents=True, exist_ok=True)
     payload = {
         **state.to_dict(),
         "published_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "code_version": _git_sha(),
+        "episode_rule_sha256": rule_fingerprint(settings),
     }
     index_path = folder / "index.csv"
     previous_hash = ""
     if index_path.exists():
         rows = list(csv.DictReader(index_path.open(encoding="utf-8")))
+        if any(row["date"] == payload["date"] for row in rows):
+            return None  # no new market day since the last run
         previous_hash = rows[-1]["sha256"] if rows else ""
     payload["previous_sha256"] = previous_hash
     body = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False)
