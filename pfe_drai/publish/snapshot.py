@@ -47,9 +47,18 @@ class NotLiveDataError(RuntimeError):
     """Raised when publishing would put simulated data in the track record."""
 
 
+class NotEnabledError(RuntimeError):
+    """Raised when a region is not (yet) published: its decision rule has not been passed."""
+
+
 def publish(pipeline, model: str | None = None, out_dir: str | Path | None = None) -> Path | None:
     """Write the latest regime. Returns None when that date is already published (holidays)."""
     settings = pipeline.settings
+    if not settings["publish"].get("enabled", True):
+        raise NotEnabledError(
+            f"Publishing is off for region '{settings.get('region')}': it is switched on (publish.enabled) only once "
+            "the pre-registered decision rule is passed (docs/EURO.md)."
+        )
     state = pipeline.state(model)
     if settings["publish"].get("require_live_data", True) and not state.is_live_data:
         raise NotLiveDataError(
@@ -67,6 +76,8 @@ def publish(pipeline, model: str | None = None, out_dir: str | Path | None = Non
         "model_version": model_version(settings),
         "config_sha256": config_fingerprint(settings),
     }
+    if settings.get("region"):
+        payload["region"] = settings["region"]  # absent for the US: its published files stay byte-identical
     index_path = folder / "index.csv"
     previous_hash = ""
     if index_path.exists():

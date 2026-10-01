@@ -1,0 +1,26 @@
+{
+  "header": {"id": "fixture", "prepared": "2026-10-01T00:00:00.000+02:00", "sender": {"id": "ECB"}},
+  "dataSets": [
+    {
+      "action": "Replace",
+      "validFrom": "2026-10-01T00:00:00.000+02:00",
+      "series": {
+        "0:0:0:0:0:0:0": {
+          "attributes": [0],
+          "observations": {"0": [2.51, 0], "1": [2.55, 0], "2": [null, 0], "3": [2.6, 0]}
+        }
+      }
+    }
+  ],
+  "structure": {
+    "dimensions": {
+      "series": [{"id": "FREQ", "values": [{"id": "B"}]}],
+      "observation": [
+        {
+          "id": "TIME_PERIOD",
+          "values": [{"id": "2024-01-02"}, {"id": "2024-01-03"}, {"id": "2024-01-04"}, {"id": "2024-01-05"}]
+        }
+      ]
+    }
+  }
+}

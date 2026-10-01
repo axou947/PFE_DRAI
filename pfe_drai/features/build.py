@@ -47,18 +47,35 @@ def align(raw: dict[str, pd.Series], lags: dict[str, int], release_dated: set[st
     return pd.DataFrame(columns, index=daily_index)
 
 
+def dropped_features(settings: dict | None) -> list[str]:
+    """Features a region does not have (features.drop): left out of the scores and of the models."""
+    return list((settings or {}).get("features", {}).get("drop", []))
+
+
+def active_features(settings: dict | None = None) -> dict[str, str]:
+    drop = dropped_features(settings)
+    return {f: d for f, d in FEATURES.items() if f not in drop}
+
+
 def raw_features(prices: pd.DataFrame) -> pd.DataFrame:
     eq = prices["equity"]
     log_eq = np.log(eq)
     f = pd.DataFrame(index=prices.index)
     f["vix_level"] = prices["vix"]
     f["realised_vol"] = log_eq.diff().rolling(21).std() * np.sqrt(252)
-    f["credit_stress"] = credit_stress(prices["hy_bond"], prices["treasury"])
+    if "credit_spread" in prices:
+        # Euro area (docs/EURO.md): no credit ETF, a daily spread of the all-issuer government curve over
+        # the AAA curve. A widening spread (positive change over a quarter) reads as stress.
+        f["credit_stress"] = prices["credit_spread"].diff(63)
+    else:
+        f["credit_stress"] = credit_stress(prices["hy_bond"], prices["treasury"])
     f["drawdown"] = -(eq / eq.rolling(252, min_periods=21).max() - 1)
     f = f.join(growth_features(prices))
     f["cpi_inflation"] = np.log(prices["cpi"]).diff(252)
-    f["breakeven_level"] = prices["breakeven10"]
-    f["breakeven_change"] = prices["breakeven10"].diff(63)
+    # No daily euro breakeven exists for free: the euro region drops these two (features.drop).
+    breakeven = prices["breakeven10"] if "breakeven10" in prices else pd.Series(np.nan, index=prices.index)
+    f["breakeven_level"] = breakeven
+    f["breakeven_change"] = breakeven.diff(63)
     f["short_rate_change"] = prices["us2y"].diff(126)
     return f[list(FEATURES)]
 
@@ -133,7 +150,7 @@ def growth_score(z: pd.DataFrame, settings: dict) -> pd.Series:
 
 
 def dimension_scores(z: pd.DataFrame, settings: dict | None = None) -> pd.DataFrame:
-    scores = {dim: z[[f for f, d in FEATURES.items() if d == dim]].mean(axis=1) for dim in DIMENSIONS}
+    scores = {dim: z[[f for f, d in active_features(settings).items() if d == dim]].mean(axis=1) for dim in DIMENSIONS}
     scores["growth"] = growth_score(z, settings or {"features": {}})
     return pd.DataFrame(scores)
 
@@ -143,17 +160,18 @@ def build(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Return (aligned prices, feature z-scores, dimension scores), without warm-up rows."""
     prices = align(raw, settings["data"].get("publication_lag_days", {}), release_dated)
-    feats = raw_features(prices)
+    feats = raw_features(prices).drop(columns=dropped_features(settings))
     cfg = settings["features"]
     z = expanding_zscore(feats, cfg["zscore_min_periods"], cfg["zscore_clip"])
-    growth = [f for f, d in FEATURES.items() if d == "growth"]
+    growth = [f for f, d in active_features(settings).items() if d == "growth"]
     z[growth] = growth_zscores(feats[growth], settings)
     # HYG only exists since 2007. Before its z-score is ready, the investment-grade ETF (LQD,
     # 2002) stands in, z-scored on its own past so both read on the same scale.
-    proxy = credit_stress(prices["ig_bond"], prices["treasury"]).to_frame("credit_stress")
-    z["credit_stress"] = z["credit_stress"].fillna(
-        expanding_zscore(proxy, cfg["zscore_min_periods"], cfg["zscore_clip"])["credit_stress"]
-    )
+    if "ig_bond" in prices:
+        proxy = credit_stress(prices["ig_bond"], prices["treasury"]).to_frame("credit_stress")
+        z["credit_stress"] = z["credit_stress"].fillna(
+            expanding_zscore(proxy, cfg["zscore_min_periods"], cfg["zscore_clip"])["credit_stress"]
+        )
     z = z.dropna()
     scores = dimension_scores(z, settings).dropna()
     z = z.loc[scores.index]
