@@ -49,6 +49,7 @@
   "model.kmeans": "K-means (référence)",
   "model.jump": "Jump model statistique",
   "model.gbm": "Gradient boosting (à 1 semaine)",
+  "model.combined": "Jump model + gradient boosting (combinés)",
   "dash.current_regime": "Régime actuel",
   "dash.confidence": "Probabilité",
   "dash.probabilities": "Probabilité de chaque régime",

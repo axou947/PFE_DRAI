@@ -52,11 +52,13 @@ regimes:
     inflation_threshold: 0.8
 
 models:
-  default: jump
+  # combined = jump model regimes, P(stress) = max(jump, gbm). Chosen on simulated data only
+  # (docs/DETECTION.md), before any backtest of these settings on real data.
+  default: combined
   kmeans:
     n_init: 10
   jump:
-    penalty: 12.0           # cost of switching regime (higher = fewer switches)
+    penalty: 6.0            # cost of switching regime (higher = fewer switches); was 12, see docs/DETECTION.md
     n_iter: 15
     temperature: 3.0        # softness of the probabilities
   gbm:

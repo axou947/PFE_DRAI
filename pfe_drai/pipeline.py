@@ -17,6 +17,7 @@ from .config import load_settings, resolve
 from .data import get_provider
 from .features import DIMENSIONS, FEATURES, build
 from .models import get_model
+from .models.combined import combine
 from .regimes import flip_distances, rule_labels
 from .validation import evaluate, find_episodes, walk_forward
 
@@ -120,6 +121,10 @@ class Pipeline:
         model = model or self.settings["models"]["default"]
         memo = self.__dict__.setdefault("_probs", {})
         if model in memo:
+            return memo[model]
+        components = getattr(get_model(model, self.settings), "components", None)
+        if components:  # built from its components' cached probabilities
+            memo[model] = combine(*(self.probabilities(name) for name in components))
             return memo[model]
         path = resolve(self.settings["data"]["cache_dir"]) / "models" / f"{model}-{self._cache_key(model)}.pkl"
         if self.use_cache and path.exists():

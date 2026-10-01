@@ -55,8 +55,10 @@ API : `GET /regime`, `/regime/history`, `/metrics`, `/scenarios`, `/report` (par
 - **4 régimes** : Expansion, Surchauffe inflationniste, Ralentissement, Stress / crise.
   Les états des modèles non supervisés sont reliés aux régimes par des prototypes fixés dans
   `config/settings.yaml` (appariement un à un).
-- **3 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
-  gradient boosting qui prévoit le régime à 1 semaine.
+- **4 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
+  gradient boosting qui prévoit le régime à 1 semaine, et `combined` (par défaut) : les régimes du
+  jump model avec P(stress) = max(jump, gbm). Choix fait sur données simulées seulement, voir
+  [docs/DETECTION.md](docs/DETECTION.md).
 - **Validation** : walk-forward à fenêtre croissante ; épisodes de stress datés par une règle
   gelée le 2026-10-01 (son hash est dans `validation.episodes.frozen` ; le code refuse une règle
   modifiée) ; latence publiée pour chaque épisode ; fausses alertes par an ; Brier et calibration.
@@ -91,7 +93,7 @@ pfe_drai/
   data/        sources : synthetic, csv, fred, yahoo ; catalogue des séries
   features/    12 indicateurs point-in-time -> scores stress / croissance / inflation
   regimes.py   définitions, couleurs, règle d'étiquetage, prototypes
-  models/      kmeans, jump, gbm (interface commune + registre)
+  models/      kmeans, jump, gbm, combined (interface commune + registre)
   validation/  walk-forward, datation des épisodes, latence, fausses alertes, calibration
   scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds
   reporting/   note de comité FR/EN (Markdown, HTML, PDF)

@@ -40,6 +40,8 @@ def cmd_status(args):
 
 
 def cmd_backtest(args):
+    import pandas as pd
+
     from .models import available_models
 
     p = _pipeline(args)
@@ -52,6 +54,12 @@ def cmd_backtest(args):
             f"{m:<8} {r['n_episodes']:>9} {r['detected']:>9} {r['median_latency']:>12.1f} "
             f"{r['false_positives_per_year']:>7.2f} {r['brier_stress']:>7.3f} {acc:>6.2f}"
         )
+    # Every latency of the default (or chosen) model, missed episodes included.
+    shown = args.model or p.settings["models"]["default"]
+    print(f"\nLatency per episode ({shown}, business days; negative = signal already on):")
+    for _, row in p.evaluate(shown)["episodes"].iterrows():
+        latency = "missed" if pd.isna(row["latency_days"]) else f"{int(row['latency_days']):+d}"
+        print(f"  {row['start'].date()!s:<12} {row['trigger']:<11} {row['max_drawdown']:>7.1%} {latency:>7}")
 
 
 def cmd_report(args):

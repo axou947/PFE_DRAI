@@ -8,6 +8,13 @@ from ..models import get_model
 def walk_forward(
     model_name: str, features: pd.DataFrame, scores: pd.DataFrame, labels: pd.Series, settings: dict
 ) -> pd.DataFrame:
+    components = getattr(get_model(model_name, settings), "components", None)
+    if components:
+        # Each component keeps its own refit schedule; the combination is applied afterwards.
+        from ..models.combined import combine
+
+        parts = [walk_forward(name, features, scores, labels, settings) for name in components]
+        return combine(*parts)
     cfg = settings["validation"]
     start = cfg["min_train_days"]
     step = settings["models"].get(model_name, {}).get("refit_every_days", cfg["refit_every_days"])
