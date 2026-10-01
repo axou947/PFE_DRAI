@@ -2,7 +2,9 @@
 
 Needs a free API key in the environment variable named by data.fred_api_key_env.
 Series without a FRED id (ETF prices) are taken from the fallback provider
-set in data.fred_fallback (default: synthetic) so the pipeline still runs.
+set in data.fred_fallback: tiingo for real prices, synthetic to run without a Tiingo key.
+Commercial use must show: "This product uses the FRED® API but is not endorsed or
+certified by the Federal Reserve Bank of St. Louis."
 """
 
 import os

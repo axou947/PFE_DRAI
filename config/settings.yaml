@@ -2,14 +2,18 @@
 # Override the file path with the PFE_DRAI_CONFIG environment variable.
 
 data:
-  # Which data source to use: synthetic | csv | fred | yahoo
+  # Which data source to use: synthetic | csv | fred | tiingo | yahoo
   # "synthetic" generates realistic simulated data (no API key needed).
+  # Real data: provider: fred with fred_fallback: tiingo (macro + VIX from FRED,
+  # ETF prices from Tiingo). Needs FRED_API_KEY and TIINGO_API_KEY.
   provider: synthetic
   start: "2000-01-03"
   end: null                 # null = today
   seed: 42                  # synthetic data only
   csv_dir: data_cache/csv   # csv provider: one <series>.csv per series (date,value)
   fred_api_key_env: FRED_API_KEY
+  fred_fallback: tiingo     # source of the series FRED does not have (ETF prices)
+  tiingo_api_key_env: TIINGO_API_KEY
   # Days between the end of a month and the release of monthly data (point-in-time).
   publication_lag_days:
     indpro: 17

@@ -68,7 +68,8 @@ Tout passe par `config/settings.yaml`, sans toucher au code :
 |---|---|---|
 | Données simulées | `provider: synthetic` | par défaut |
 | Fichiers CSV | `provider: csv` | un fichier `date,value` par série dans `data_cache/csv/` |
-| FRED / ALFRED | `provider: fred` + variable `FRED_API_KEY` | clé gratuite ; les ETF manquants viennent de `fred_fallback` |
+| FRED + Tiingo (données réelles) | `provider: fred` + variables `FRED_API_KEY` et `TIINGO_API_KEY` | clés gratuites ; macro et VIX depuis FRED, ETF (SPY, HYG, LQD, IEF) depuis Tiingo via `fred_fallback: tiingo` |
+| FRED seul | `provider: fred`, `fred_fallback: synthetic` | les ETF restent simulés |
 | Yahoo Finance | `provider: yahoo` + `pip install -e ".[yahoo]"` | usage recherche uniquement |
 
 Pour une nouvelle API : une classe dans `pfe_drai/data/`, héritée de `DataProvider`, décorée
