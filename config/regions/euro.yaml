@@ -3,7 +3,7 @@
 
 data:
   provider: euro
-  start: "2000-07-26"       # first day of the euro-zone equity ETF (EZU)
+  start: "2000-07-26"       # EZU launched in July 2000; Tiingo has it from 2001-01-02
   # What each series is, where it comes from, when it is public (docs/EURO.md, "Data decisions").
   # lag_days: conservative release lag (the public APIs expose no first releases: not fully point-in-time).
   euro:
@@ -15,6 +15,12 @@ data:
         vintage: "n/a (market price)"
         lag_days: 0
         meaning: euro-zone equity ETF
+      vix:
+        source: computed
+        licence: derived from the ETF price (VSTOXX is licensed and not used)
+        vintage: "n/a"
+        lag_days: 0
+        meaning: 21-day realised volatility of the euro-zone ETF, annualised, in %
       us10y:
         source: ecb
         dataset: YC
@@ -40,12 +46,11 @@ data:
         vintage: "no (end-of-day curve, not revised)"
         meaning: 10y all-issuer minus AAA euro-area government yield (peripheral stress)
       cpi:
-        source: eurostat
-        dataset: prc_hicp_midx
-        filters: {geo: EA, coicop: CP00, unit: I15}
-        alternatives: [{geo: EA20}, {geo: EA21}]
+        source: ecb
+        dataset: ICP
+        key: M.U2.N.000000.4.INX   # HICP overall index, euro area (changing composition), monthly
         lag_days: 18            # final HICP of month M is published about the 17th of M+1
-        licence: Eurostat open data (source acknowledged)
+        licence: ECB open data (source acknowledged; HICP is produced by Eurostat)
         vintage: "no public vintages; HICP is rarely revised"
         meaning: HICP all items, euro area
       indpro:
@@ -84,10 +89,10 @@ validation:
       sha256: 6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a
       date: "2026-10-01"
   # Real holdout before the euro out-of-sample period (docs/EURO.md): the ETF starts in July 2000, so
-  # the market inputs are ready in mid 2001 and 5 years of training put the first prediction around 2006.
+  # the market inputs are ready in early 2001 and 5 years of training put the first prediction around 2006.
   holdout:
-    start: "2000-07-26"
-    end: "2010-08-31"       # fixed in docs/EURO.md once `data` shows where the backtest starts
+    start: "2001-01-02"
+    end: "2011-03-07"       # the day before the euro out-of-sample period (2011-03-08, `data` run of 2026-10-01)
     candidates:
       - {learner: logistic, inputs: market}
       - {learner: gbm, inputs: market}

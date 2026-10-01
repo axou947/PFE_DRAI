@@ -20,9 +20,9 @@ The pipeline, features, models and calibration are the US ones, unchanged. Only 
 | `vix` | 21-day realised volatility of EZU, annualised, in % | computed | daily | 0 | n/a | derived |
 | `us10y`, `us2y` | AAA euro-area government yield curve, spot 10y and 2y (`YC`, `B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y` / `SR_2Y`) | ECB Data Portal | daily | 1 day | no, end-of-day curve | ECB open data, source acknowledged |
 | `credit_spread` | 10y all-issuer euro-area yield minus the AAA 10y (`...G_N_C...` minus `...G_N_A...`) | ECB Data Portal | daily | 1 day | no | ECB open data |
-| `cpi` | HICP all items, euro area (`prc_hicp_midx`, I15) | Eurostat | monthly | 18 days after month end | no public vintages; rarely revised | Eurostat open data |
-| `indpro` | Industrial production, B-D, calendar adjusted (`sts_inpr_m`, I21) | Eurostat | monthly | 50 days | no public vintages; **revised** | Eurostat open data |
-| `claims` | Unemployment rate, seasonally adjusted (`une_rt_m`) | Eurostat | monthly | 35 days | no public vintages; revised slightly | Eurostat open data |
+| `cpi` | HICP overall index, euro area (`ICP`, `M.U2.N.000000.4.INX`) | ECB Data Portal (Eurostat's `prc_hicp_midx` ended in December 2025 in the 2026-10-01 run, probably replaced when HICP changed classification) | monthly | 18 days after month end | no public vintages; rarely revised | Eurostat open data |
+| `indpro` | Industrial production, B-D, calendar adjusted (`sts_inpr_m`, I21, EA20 code) | Eurostat | monthly | 50 days | no public vintages; **revised** | Eurostat open data |
+| `claims` | Unemployment rate, seasonally adjusted (`une_rt_m`, EA21 code) | Eurostat | monthly | 35 days | no public vintages; revised slightly | Eurostat open data |
 
 Not used, on purpose: **PMIs** (S&P Global, licensed), **VSTOXX** (STOXX, licensed), **iBoxx** and index levels
 (licensed), the daily Italy-Germany spread (no free daily source found: the ECB's long-term rate statistics are monthly),
@@ -44,8 +44,8 @@ the European Commission sentiment indicator (not needed: the growth score keeps 
    model. The ECB survey of professional forecasters is quarterly and the 5y5y inflation swap is licensed: neither is used.
 5. **Credit is a sovereign proxy.** `credit_spread` measures how much the all-issuer curve sits above the AAA curve
    (peripheral and non-AAA sovereign stress), not corporate credit. No free euro corporate-bond price series was found.
-6. **Short history.** The ECB yield-curve data starts in September 2004 and the ETF in July 2000, so features start in
-   2005 and the first out-of-sample prediction comes about five years later. The euro backtest has fewer episodes
+6. **Short history.** The ECB yield-curve data starts in September 2004 and Tiingo's EZU in January 2001: features start on
+   2006-03-07 and the first out-of-sample prediction is on 2011-03-08 (`data` run of 2026-10-01). The euro backtest has fewer episodes
    than the US one and the 2010-2012 sovereign crisis is only partly inside it. Do not read the euro model as validated like the US one.
 7. Eurostat re-bases its indices and changes euro-area codes (EA, EA20, EA21). Each Eurostat series lists `alternatives` in the
    overlay, tried in order if the filters match nothing; they identify the same series under another code, they are not a data
@@ -75,7 +75,7 @@ moves of the ETF can open an episode of their own (limit 2 above).
   euro out-of-sample period (about 2010), two candidates for the onset detector (`logistic` or `gbm` on `market` inputs;
   `market_credit` does not exist for the euro). Rule: `select()` of `validation/holdout.py`, as in
   [DETECTION_V2.md](DETECTION_V2.md). The window is shorter than the US 1993-2009 and trains on 5 years, so it can
-  select between two learners and nothing more. The holdout's end date is fixed from the `data` output (Phase A) before the holdout runs.
+  select between two learners and nothing more. The holdout runs from 2001-01-02 to 2011-03-07, the day before the first out-of-sample day shown by `data`.
 - **Simulated data.** The simulator is shared with the US model (euro-shaped payloads are built from it in
   `tests/test_euro.py`); it checks that the whole chain runs on euro inputs, not that the model is right for the euro area.
 

@@ -105,6 +105,23 @@ def test_parse_eurostat_empty_dimension_is_no_data():
         euro.parse_eurostat(payload)
 
 
+def test_stale_series_is_refused():
+    old = pd.Series([1.0, 2.0], index=pd.to_datetime(["2025-11-01", "2025-12-01"]))
+    euro.check_fresh("cpi", old, "2026-01-31", 150)
+    with pytest.raises(ValueError, match="stale.*2025-12-01"):
+        euro.check_fresh("cpi", old, "2026-10-01", 150)
+    with pytest.raises(ValueError, match="stale"):
+        euro.check_fresh("cpi", pd.Series(dtype=float), "2026-10-01", 150)
+
+
+def test_parse_ecb_monthly_period():
+    payload = {
+        "dataSets": [{"series": {"0": {"observations": {"0": [100.0], "1": [100.4]}}}}],
+        "structure": {"dimensions": {"observation": [{"values": [{"id": "2024-01"}, {"id": "2024-02"}]}]}},
+    }
+    assert list(euro.parse_ecb(payload).index) == [pd.Timestamp("2024-01-01"), pd.Timestamp("2024-02-01")]
+
+
 def test_release_dating_is_point_in_time():
     monthly = euro.parse_eurostat(json.loads((FIXTURES / "eurostat_hicp.json").read_text()))
     dated = euro.release_dated(monthly, lag_days=18, monthly=True)
@@ -150,11 +167,12 @@ def patched_sources(monkeypatch, euro_settings):
         "B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y": sim["us10y"],
         "B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y": sim["us2y"],
         "B.U2.EUR.4F.G_N_C.SV_C_YM.SR_10Y": sim["us10y"] + spread,
+        "M.U2.N.000000.4.INX": monthly["cpi"],
     }
-    stat = {"prc_hicp_midx": monthly["cpi"], "sts_inpr_m": monthly["indpro"], "une_rt_m": monthly["claims"] / 50_000}
+    stat = {"sts_inpr_m": monthly["indpro"], "une_rt_m": monthly["claims"] / 50_000}
     monkeypatch.setenv("TIINGO_API_KEY", "test")
     monkeypatch.setattr(euro, "fetch_tiingo", lambda ticker, key, start, end: sim["equity"])
-    monkeypatch.setattr(euro, "fetch_ecb", lambda dataset, key, start, end: ecb[key])
+    monkeypatch.setattr(euro, "fetch_ecb", lambda dataset, key, start, end, monthly=False: ecb[key])
     monkeypatch.setattr(euro, "fetch_eurostat", lambda dataset, filters, start: stat[dataset])
 
 

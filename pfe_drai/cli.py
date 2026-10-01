@@ -405,7 +405,7 @@ def cmd_data(args):
     for name, series in p.raw.items():
         if euro:
             spec = lags.get(name, {})
-            lag = spec.get("lag_days", spec.get("all", {}).get("lag_days", ""))
+            lag = spec.get("lag_days", "")
             used = p.provider.used_filters.get(name)
             dated = f"release day, lag {lag} d  |  {spec.get('vintage')}  |  {spec.get('licence')}"
             if used:

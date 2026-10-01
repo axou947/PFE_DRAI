@@ -79,8 +79,13 @@ def parse_eurostat(payload: dict) -> pd.Series:
     return pd.Series(values, dtype=float).sort_index()
 
 
-def fetch_ecb(dataset: str, key: str, start, end) -> pd.Series:
-    params = {"startPeriod": str(pd.Timestamp(start).date()), "endPeriod": str(pd.Timestamp(end).date()), "format": "jsondata"}
+def fetch_ecb(dataset: str, key: str, start, end, monthly: bool = False) -> pd.Series:
+    fmt = "%Y-%m" if monthly else "%Y-%m-%d"  # a monthly series is asked for in months
+    params = {
+        "startPeriod": pd.Timestamp(start).strftime(fmt),
+        "endPeriod": pd.Timestamp(end).strftime(fmt),
+        "format": "jsondata",
+    }
     response = httpx.get(ECB_URL.format(dataset=dataset, key=key), params=params, timeout=60, follow_redirects=True)
     response.raise_for_status()
     return parse_ecb(response.json())
@@ -122,6 +127,17 @@ def realised_vol_percent(equity: pd.Series, window: int = 21) -> pd.Series:
     return (np.log(equity).diff().rolling(window).std() * np.sqrt(252) * 100).dropna()
 
 
+def check_fresh(name: str, series: pd.Series, end, max_stale_days: int) -> None:
+    """Refuse a series that stopped updating: a stale last value would be carried forward as if it were current.
+
+    Eurostat re-bases and replaces datasets (HICP moved to a new classification in 2026), so an old code can
+    keep answering with a series that ends months ago.
+    """
+    if series.empty or (pd.Timestamp(end) - series.index[-1]).days > max_stale_days:
+        last = series.index[-1].date() if len(series) else "no data"
+        raise ValueError(f"Series '{name}' is stale: its last reference period is {last}. Its source code needs updating.")
+
+
 def release_dated(series: pd.Series, lag_days: int, monthly: bool) -> pd.Series:
     """Date a series by the day it was public: end of its period (months) plus a conservative lag."""
     out = series.copy()
@@ -157,7 +173,11 @@ class EuroProvider(DataProvider):
         data["credit_spread"] = release_dated(data["credit_spread"], cfg["credit_spread"]["lag_days"], monthly=False)
         for name in ("cpi", "indpro", "claims"):
             spec = cfg[name]
-            series, self.used_filters[name] = fetch_eurostat_any(spec, start)
+            if spec["source"] == "ecb":
+                series = fetch_ecb(spec["dataset"], spec["key"], start, end, monthly=True)
+            else:
+                series, self.used_filters[name] = fetch_eurostat_any(spec, start)
+            check_fresh(name, series, end, spec.get("max_stale_days", 150))
             data[name] = release_dated(series, spec["lag_days"], monthly=True)
         self.release_dated.update(["us10y", "us2y", "credit_spread", "cpi", "indpro", "claims"])
         return {name: data[name].loc[pd.Timestamp(start) :] for name in REQUIRED}
