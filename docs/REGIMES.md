@@ -1,7 +1,7 @@
 # Regimes on three dimensions, and how the model's states get their names
 
-**Status: adopted on simulated data on 2026-10-01; real-data check pending** (protocol at the
-bottom, written before any real-data run of this change).
+**Status: adopted on 2026-10-01.** Chosen on simulated data; the pre-registered real-data
+no-regression check (section 6, written before the run) passed the same day. Results at the bottom.
 
 The 2026-09-30 re-audit asked for two things: regimes that rest on three dimensions (stress,
 growth, inflation) rather than two axes, and an explanation of how an unsupervised model's states
@@ -143,4 +143,37 @@ check, not a new test: nothing will be tuned on it. Results go below, as they co
 
 ## Results
 
-*(pending: Henry's real-data run)*
+### Real data, 2026-10-01 (Henry, run once on branch `claude/three-dimension-regimes-xh2h72`)
+
+**No-regression check: passed.** `backtest --model combined` with the new naming:
+
+| | Episodes | Detected | Median latency | FP / year | Alarm | Switches / year |
+|---|---|---|---|---|---|---|
+| combined (v2), new naming | 11 | 11 | −3 days | 1.26 | 4.9% | 5.4 |
+| combined (v2), as adopted (DETECTION_V2.md) | 11 | 11 | −3 days | 1.26 | 4.9% | 5.6 |
+
+Every episode latency is the same as at adoption. Both targets hold (FP ≤ 1.5, alarm ≤ 10%), so the
+new naming stays. Only the calm regimes move a little (5.4 regime switches a year instead of 5.6).
+
+**What `states` shows on real data** (35 refits, training from 2004-04; this decides nothing,
+it describes):
+
+- Regime centres of the latest fit (to 2026-04-15): expansion 3,903 days, overheating 740,
+  slowdown 527, stress 374. The rule puts 9.5% of days in Slowdown, and its centre
+  (−0.13, −0.47, +0.04) is close to Expansion's (−0.39, +0.27, −0.04).
+- **Stress is clean.** One state is named Stress at every refit, with 96-100% of stress days.
+- **Overheating follows history.** No state is named Overheating in most refits from 2016-10 to
+  2021-10, when inflation was low, and again from 2022-10 (80-82% agreement), after the 2021-22
+  surge. The old one-to-one match would have called some state "Overheating" through 2016-2021.
+- **Slowdown is not a distinct state on real data.** Until 2023-04 the state named Slowdown has
+  only 13-26% slowdown days: mostly expansion days, on the slowdown side of the space. From
+  2023-10 no state is named Slowdown, and two states are named Expansion (the latest fit's
+  state 2 is 75% expansion, 13% slowdown, 12% stress: a "calm but tense" state).
+- Median agreement 82%, lowest 13% (that Slowdown state).
+
+**What follows.** The jump model's four states, on 2004-2026 US data, are best read as calm,
+calm-but-tense, stress and (some years) overheating. Its Slowdown label is weak. That regime's
+probability mostly comes from gbm, which learns the rule directly. Making Slowdown a real
+regime would mean revisiting the rule's growth threshold or the growth indicators. Both change
+gbm's target and so the adopted detection, which would need its own pre-registration. Nothing
+is tuned here.
