@@ -129,8 +129,27 @@ def metrics(model: str | None = None):
     r = pipeline().evaluate(_model(model))
     episodes = r.pop("episodes")
     r.pop("reliability")
+    r.pop("calibration")
     r["episodes"] = episodes.assign(start=episodes["start"].astype(str), end=episodes["end"].astype(str)).to_dict("records")
     return r
+
+
+@app.get("/calibration")
+def calibration(model: str | None = None, date: str | None = None):
+    """Is P(stress) a probability? Brier, ECE, log loss and the reliability table (docs/CALIBRATION.md).
+
+    Out-of-sample days whose outcome was known on `date` (default: all). For the calibrated
+    `combined` model, the same scores for the uncalibrated detector score, and the calibrator in use.
+    """
+    from pfe_drai.validation.calibration import calibration_report, to_json
+
+    p = pipeline()
+    name = _model(model)
+    out = {"model": name, "probability": to_json(p.calibration(name, date)), "calibrator": p.calibrator_fit(name, date)}
+    score = p.alarm_score(name)
+    if not score.equals(p.probabilities(name)["stress"]):
+        out["detector_score"] = to_json(calibration_report(score, p.episodes, p.settings, until=date))
+    return out
 
 
 @app.get("/scenarios")

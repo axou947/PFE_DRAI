@@ -18,9 +18,11 @@ from .data import get_provider
 from .features import DIMENSIONS, FEATURES, build
 from .features.market import market_frame
 from .models import get_model
-from .models.combined import combine
+from .models.calibrator import Calibrated
+from .models.combined import calibrate, combination, combine, combine_calibrated, detector_score
 from .regimes import flip_distances, rule_labels
-from .validation import evaluate, find_episodes, onset_target, refit_cuts, rule_fingerprint, walk_forward
+from .validation import evaluate, find_episodes, onset_target, refit_cuts, rule_fingerprint, stress_signal, walk_forward
+from .validation.calibration import calibration_report, json_number, stress_event, to_json
 
 
 @dataclass
@@ -38,6 +40,10 @@ class State:
     early_warning: dict[str, float] | None = None
     # How the unsupervised model behind the regime named its states (regimes.name_states).
     states: list[dict] = field(default_factory=list)
+    # Stress alarm (detector score above the threshold for `confirm_days` days) and how well
+    # P(stress) has been calibrated so far (docs/CALIBRATION.md).
+    alarm: dict = field(default_factory=dict)
+    calibration: dict = field(default_factory=dict)
     data_provider: str = ""
     is_live_data: bool = False
 
@@ -53,6 +59,8 @@ class State:
             "flip": self.flip,
             "early_warning": self.early_warning,
             "states": self.states,
+            "alarm": self.alarm,
+            "calibration": self.calibration,
             "data_provider": self.data_provider,
             "is_live_data": self.is_live_data,
         }
@@ -117,8 +125,13 @@ class Pipeline:
         cfg = self.settings["models"]["onset"]
         return onset_target(self.scores.index, self.episodes, cfg["horizon_days"], cfg.get("after_start_days"))
 
+    @cached_property
+    def event(self) -> pd.Series:
+        """What P(stress) is checked against: inside an episode, or one starts within the horizon."""
+        return stress_event(self.scores.index, self.episodes, self.settings)
+
     # ---- models -----------------------------------------------------------
-    def _cache_key(self, model: str) -> str:
+    def _cache_key(self, model: str, warmup: int | None = None) -> str:
         fingerprint = {
             "provider": self.settings["data"],
             "features": self.settings["features"],
@@ -129,22 +142,36 @@ class Pipeline:
             "name": model,
             "version": 1,
         }
+        if warmup is not None:
+            fingerprint["warmup"] = warmup
         if get_model(model, self.settings).inputs == "market":
             fingerprint["market"] = float(self.market.fillna(0).values.sum())
             fingerprint["episode_rule"] = rule_fingerprint(self.settings)
         return hashlib.sha256(json.dumps(fingerprint, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
-    def probabilities(self, model: str | None = None) -> pd.DataFrame:
-        """Out-of-sample regime probabilities from walk-forward (cached on disk)."""
+    def probabilities(self, model: str | None = None, warmup: int | None = None) -> pd.DataFrame:
+        """Out-of-sample regime probabilities from walk-forward (cached on disk).
+
+        `warmup`: start predicting earlier than the backtest (calibrated combination, models/calibrator.py).
+        """
         model = model or self.settings["models"]["default"]
         memo = self.__dict__.setdefault("_probs", {})
-        if model in memo:
-            return memo[model]
+        if (model, warmup) in memo:
+            return memo[(model, warmup)]
+        combined = get_model("combined", self.settings)
         components = getattr(get_model(model, self.settings), "components", None)
         if components:  # built from its components' cached probabilities
-            memo[model] = combine(*(self.probabilities(name) for name in components))
-            return memo[model]
-        path = resolve(self.settings["data"]["cache_dir"]) / "models" / f"{model}-{self._cache_key(model)}.pkl"
+            if combined.warmup is None:
+                memo[(model, warmup)] = combine(*(self.probabilities(name) for name in components))
+            else:
+                parts = {name: self.probabilities(name, combined.warmup) for name in components}
+                memo[(model, warmup)] = combine_calibrated(parts, self.calibrated())
+            return memo[(model, warmup)]
+        if warmup is None and combined.warmup is not None and model in combined.components:
+            # Same fits as the warm-up run from the backtest start on: reuse it instead of refitting.
+            memo[(model, warmup)] = self.probabilities(model, combined.warmup).loc[self.backtest_start :]
+            return memo[(model, warmup)]
+        path = resolve(self.settings["data"]["cache_dir"]) / "models" / f"{model}-{self._cache_key(model, warmup)}.pkl"
         if self.use_cache and path.exists():
             probs = pickle.loads(path.read_bytes())
         else:
@@ -157,12 +184,78 @@ class Pipeline:
                 self.settings,
                 market=self.market if needs_market else None,
                 onset=self.onset if needs_market else None,
+                warmup=warmup,
             )
             if self.use_cache:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(pickle.dumps(probs))
-        memo[model] = probs
+        memo[(model, warmup)] = probs
         return probs
+
+    def calibrated(self) -> Calibrated:
+        """Calibrated P(stress) of the combined model, with the fit of every refit (docs/CALIBRATION.md).
+
+        Available whatever `stress_combination` is set to, so a backtest can compare both.
+        """
+        if "_calibrated" not in self.__dict__:
+            combined = get_model("combined", self.settings)
+            warmup = self.settings["models"]["combined"]["stack"]["warmup_days"]
+            parts = {name: self.probabilities(name, warmup) for name in combined.components}
+            self.__dict__["_calibrated"] = calibrate(parts, self.event, self.settings, self.backtest_start)
+        return self.__dict__["_calibrated"]
+
+    @property
+    def backtest_start(self) -> pd.Timestamp:
+        return self.scores.index[self.settings["validation"]["min_train_days"]]
+
+    def alarm_score(self, model: str | None = None) -> pd.Series:
+        """What the stress alarm reads: the detector score for `combined` (highest stress probability of
+        its components, uncalibrated: the alarm is unchanged by calibration), P(stress) for the others."""
+        model = model or self.settings["models"]["default"]
+        components = getattr(get_model(model, self.settings), "components", None)
+        if not components:
+            return self.probabilities(model)["stress"]
+        return detector_score(*(self.probabilities(name) for name in components)).loc[self.probabilities(model).index]
+
+    def calibration(self, model: str | None = None, date=None) -> dict:
+        """Calibration of the model's P(stress) on its out-of-sample days whose outcome was known by `date`."""
+        return calibration_report(self.probabilities(model)["stress"], self.episodes, self.settings, until=date)
+
+    def calibrator_fit(self, model: str | None = None, date=None) -> dict | None:
+        """The calibrator behind P(stress) on `date` (default: latest), None when P(stress) is not calibrated."""
+        model = model or self.settings["models"]["default"]
+        if model != "combined" or combination(self.settings) != "calibrated":
+            return None
+        fits = self.calibrated().fits
+        day = self.probabilities(model).index[-1] if date is None else pd.Timestamp(date)
+        row = fits[fits["first_day"] <= day].iloc[-1]
+        return {
+            "first_day": row["first_day"].date().isoformat(),
+            "train_days": int(row["train_days"]),
+            "event_days": int(row["event_days"]),
+            "intercept": json_number(row["intercept"]),
+            "weights": {k: json_number(row[k]) for k in fits.columns if k not in _FIT_KEYS},
+            "calibrated": bool(row["intercept"] == row["intercept"]),
+        }
+
+    def alarm(self, model: str | None = None, date=None) -> dict:
+        """Stress alarm on `date`: on once the alarm score has stayed above the threshold for `confirm_days` days."""
+        cfg = self.settings["validation"]
+        score = self.alarm_score(model)
+        score = score if date is None else score.loc[:date]
+        signal = stress_signal(score, cfg["stress_probability_threshold"], cfg["confirm_days"])
+        on = bool(signal.iloc[-1])
+        since = None
+        if on:
+            off = signal[~signal]
+            since = signal.loc[off.index[-1] :].index[1] if len(off) else signal.index[0]
+        return {
+            "on": on,
+            "since": since.date().isoformat() if since is not None else None,
+            "score": _round(float(score.iloc[-1])),
+            "threshold": cfg["stress_probability_threshold"],
+            "confirm_days": cfg["confirm_days"],
+        }
 
     def fitted_model(self, model: str | None = None):
         """A model fitted on all available data (for explanations, not for backtests)."""
@@ -212,14 +305,19 @@ class Pipeline:
     # ---- outputs ------------------------------------------------------------
     def evaluate(self, model: str | None = None) -> dict:
         return evaluate(
-            self.probabilities(model), self.prices["equity"], self.episodes, self.settings, truth=self.truth, rule=self.labels
+            self.probabilities(model),
+            self.prices["equity"],
+            self.episodes,
+            self.settings,
+            truth=self.truth,
+            rule=self.labels,
+            score=self.alarm_score(model),
         )
 
     def alerts(self, model: str | None = None) -> pd.DataFrame:
         early = self.probabilities("gbm") if model != "gbm" else None
-        return compute_alerts(
-            self.probabilities(model), self.scores.loc[self.probabilities(model).index], self.settings, early=early
-        )
+        probs = self.probabilities(model)
+        return compute_alerts(probs, self.scores.loc[probs.index], self.settings, early=early, score=self.alarm_score(model))
 
     def state(self, model: str | None = None, date=None, week: int = 5) -> State:
         model = model or self.settings["models"]["default"]
@@ -248,6 +346,9 @@ class Pipeline:
         states = (
             [] if table is None else [{k: _round(v) for k, v in row.items()} for row in table.reset_index().to_dict("records")]
         )
+        calibration = to_json(self.calibration(model, date))
+        calibration["combination"] = combination(self.settings) if model == "combined" else "raw"
+        calibration["calibrator"] = self.calibrator_fit(model, date)
         return State(
             date=date,
             model=model,
@@ -259,9 +360,14 @@ class Pipeline:
             flip=flip_distances(self.scores.loc[date], self.settings),
             early_warning=early,
             states=states,
+            alarm=self.alarm(model, date),
+            calibration=calibration,
             data_provider=self.provider.name,
             is_live_data=self.provider.is_live,
         )
+
+
+_FIT_KEYS = ("first_day", "intercept", "train_days", "event_days")
 
 
 def _round(value):

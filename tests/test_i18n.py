@@ -26,7 +26,7 @@ def test_translation_and_fallback():
     assert t("screen.dashboard", "fr") == "Tableau de bord"
     assert t("screen.dashboard", "de") == "Tableau de bord"
     assert t("missing.key", "en") == "missing.key"
-    assert t("alert.msg.stress_probability", "en", value="72%") == "Stress probability at 72%"
+    assert t("alert.msg.stress_probability", "en", value="72%") == "Detector score at 72%"
 
 
 def test_every_static_key_used_in_code_exists():

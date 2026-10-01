@@ -11,7 +11,7 @@ from pfe_drai.models.jump import forward_values
 @pytest.mark.parametrize("name", ["kmeans", "jump", "gbm", "combined"])
 def test_probabilities_sum_to_one(pipeline, settings, name):
     # A combined model can only be fitted directly with z-score components (v1, jump + gbm).
-    settings = _deep_merge(settings, {"models": {"combined": {"stress_sources": ["gbm"]}}})
+    settings = _deep_merge(settings, {"models": {"combined": {"stress_sources": ["gbm"], "stress_combination": "max"}}})
     model = get_model(name, settings).fit(pipeline.features, pipeline.scores, pipeline.labels)
     probs = model.predict_proba(pipeline.features, pipeline.scores)
     assert list(probs.columns) == settings["regimes"]["order"]
@@ -49,7 +49,10 @@ def test_combined_walk_forward_matches_its_parts(pipeline, settings):
 
     probs = pipeline.probabilities("combined")
     parts = [pipeline.probabilities(m)["stress"].loc[probs.index] for m in get_model("combined", settings).components]
-    assert np.allclose(probs["stress"], np.maximum.reduce(parts))
+    # The alarm reads the highest stress probability; P(stress) shown is its calibrated version.
+    assert np.allclose(pipeline.alarm_score("combined"), np.maximum.reduce(parts))
+    assert np.allclose(probs["stress"], pipeline.calibrated().stress)
+    assert np.allclose(probs.sum(axis=1), 1.0)
     direct = walk_forward(
         "combined",
         pipeline.features,
@@ -58,5 +61,6 @@ def test_combined_walk_forward_matches_its_parts(pipeline, settings):
         settings,
         market=pipeline.market,
         onset=pipeline.onset,
+        event=pipeline.event,
     )
     pd.testing.assert_frame_equal(direct, probs)

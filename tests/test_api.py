@@ -40,3 +40,12 @@ def test_world(client):
     assert body["share_stress"] + body["share_elevated"] > 0.5
     france = next(m for m in body["markets"] if m["id"] == "FRA")
     assert france["name"] == "France" and france["ticker"] == "EWQ" and france["state"] in ("calm", "elevated", "stress")
+
+
+def test_calibration(client):
+    body = client.get("/calibration", params={"model": "combined"}).json()
+    assert body["probability"]["ece"] < body["detector_score"]["ece"]
+    assert sum(b["days"] for b in body["probability"]["reliability"]) == body["probability"]["n_days"]
+    assert body["calibrator"]["weights"]["max"] >= 0
+    regime = client.get("/regime", params={"model": "combined", "date": "2020-03-20"}).json()
+    assert regime["alarm"]["on"] is True and regime["calibration"]["combination"] == "calibrated"

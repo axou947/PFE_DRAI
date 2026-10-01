@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 
+from .calibration import calibration_report
 from .episodes import Episode, episode_mask
 
 
@@ -73,13 +74,6 @@ def brier(p: pd.Series, outcome: pd.Series) -> float:
     return float(((p - outcome.astype(float)) ** 2).mean())
 
 
-def reliability(p: pd.Series, outcome: pd.Series, bins: int = 10) -> pd.DataFrame:
-    frame = pd.DataFrame({"p": p, "y": outcome.astype(float)})
-    frame["bin"] = pd.cut(frame["p"], np.linspace(0, 1, bins + 1), include_lowest=True)
-    out = frame.groupby("bin", observed=True).agg(predicted=("p", "mean"), observed=("y", "mean"), count=("y", "size"))
-    return out.reset_index(drop=True)
-
-
 def evaluate(
     probs: pd.DataFrame,
     equity: pd.Series,
@@ -87,14 +81,19 @@ def evaluate(
     settings: dict,
     truth: pd.Series | None = None,
     rule: pd.Series | None = None,
+    score: pd.Series | None = None,
 ) -> dict:
+    """`score`: what the stress alarm reads (the detector score of `combined`, docs/CALIBRATION.md).
+    Default: P(stress). Calibration is always measured on P(stress), the number that is shown."""
     cfg = settings["validation"]
     p_stress = probs["stress"]
-    signal = stress_signal(p_stress, cfg["stress_probability_threshold"], cfg["confirm_days"])
+    alarm = p_stress if score is None else score.reindex(p_stress.index)
+    signal = stress_signal(alarm, cfg["stress_probability_threshold"], cfg["confirm_days"])
     lat = latencies(signal, episodes, settings)
     in_episode = episode_mask(probs.index, episodes)
     detected = lat[lat["detected"]] if len(lat) else lat
     pred = probs.idxmax(axis=1)
+    calibration = calibration_report(p_stress, episodes, settings)
     result = {
         "episodes": lat,
         "n_episodes": int(len(lat)),
@@ -105,8 +104,14 @@ def evaluate(
         "median_latency_all": median_latency_all(lat, settings),
         "false_positives_per_year": false_positives_per_year(signal, episodes, settings),
         "false_alarm_share": false_alarm_share(signal, episodes, settings),
+        # Against days inside an episode (kept for the earlier tables in docs/DETECTION*.md).
         "brier_stress": brier(p_stress, in_episode),
-        "reliability": reliability(p_stress, in_episode),
+        # Against the stress event (inside an episode or one starts within 5 days): docs/CALIBRATION.md.
+        "calibration": calibration,
+        "brier": calibration["brier"],
+        "ece": calibration["ece"],
+        "log_loss": calibration["log_loss"],
+        "reliability": calibration["reliability"],
         "switches_per_year": float((pred != pred.shift()).sum() / max((probs.index[-1] - probs.index[0]).days / 365.25, 1e-9)),
     }
     if truth is not None:

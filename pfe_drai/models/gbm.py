@@ -4,6 +4,7 @@ Target = the transparent rule label `horizon_days` later. The last `horizon_days
 rows of each training window have no known target yet and are dropped (purging).
 """
 
+import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 
@@ -31,5 +32,7 @@ class GBMModel(RegimeModel):
 
     def predict_proba(self, features, scores):
         x = self._inputs(features, scores)
-        probs = self.clf.predict_proba(x)
-        return self._frame(probs, x.index, list(self.clf.classes_))
+        classes = list(self.clf.classes_)
+        # A training window with one regime only (early warm-up years, docs/CALIBRATION.md): that regime.
+        probs = self.clf.predict_proba(x)[:, : len(classes)] if len(classes) > 1 else np.ones((len(x), 1))
+        return self._frame(probs, x.index, classes)
