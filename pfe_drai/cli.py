@@ -8,6 +8,7 @@ episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 data       history covered by each series and where the backtest starts
+world      country equity markets: return and market stress state on a date (docs/WORLD.md)
 app        start the Streamlit dashboard
 api        start the FastAPI server
 """
@@ -208,6 +209,33 @@ def cmd_data(args):
         print(f"Out-of-sample from {index[min_train].date()} (validation.min_train_days: {min_train}).")
 
 
+def cmd_world(args):
+    import pandas as pd
+
+    from .world import breadth, fetch_prices, indicators, load_markets, snapshot
+
+    settings = load_settings(args.config, {"data": {"provider": args.provider}} if args.provider else None)
+    prices, errors = fetch_prices(settings)
+    ind = indicators(prices, settings)
+    day = prices.index[prices.index.searchsorted(pd.Timestamp(args.date or prices.index[-1]), side="right") - 1]
+    markets = load_markets(settings)
+    snap = snapshot(prices, ind, markets, day, args.horizon, settings["world"]["stale_days"])
+    data = "SIMULATED" if settings["data"]["provider"] == "synthetic" else "country ETFs, USD"
+    print(f"World markets on {day.date()} ({data}; provider {settings['data']['provider']}). See docs/WORLD.md.")
+    print(f"\n{'market':<16} {'etf':<5} {'state':<9} {args.horizon:>7} {'vol 21d':>8} {'vol rank':>9} {'drawdown':>9}  since")
+    names = {m.id: m.name["en"] for m in markets}
+    for i, r in snap.iterrows():
+        since = r["since"].date() if r["since"] is not None else "-"
+        print(
+            f"{names[i]:<16} {r['ticker']:<5} {r['state'] or 'no data':<9} {r['return']:>7.1%} {r['vol']:>8.1%} "
+            f"{r['vol_pct']:>9.0%} {r['drawdown']:>9.1%}  {since}"
+        )
+    b = breadth(ind["state"]).loc[:day].iloc[-1]
+    print(f"\nIn stress: {b['stress']:.0%} of {int(b['markets'])} markets; elevated: {b['elevated']:.0%}.")
+    for market, error in errors.items():
+        print(f"Not loaded: {market} ({error})")
+
+
 def cmd_app(args):
     env = {**os.environ, **({"PFE_DRAI_PROVIDER": args.provider} if args.provider else {})}
     try:
@@ -238,6 +266,7 @@ def main(argv=None):
         ("states", cmd_states),
         ("holdout", cmd_holdout),
         ("data", cmd_data),
+        ("world", cmd_world),
         ("app", cmd_app),
         ("api", cmd_api),
     ]:
@@ -247,6 +276,9 @@ def main(argv=None):
         if name == "report":
             sp.add_argument("--format", default="md", choices=["md", "html", "pdf"])
             sp.add_argument("--out")
+        if name == "world":
+            sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
+            sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])
     args = parser.parse_args(argv)
     args.func(args)
 

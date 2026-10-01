@@ -1,0 +1,40 @@
+# Country equity markets on the World tab (docs/WORLD.md).
+#
+# Official index levels (S&P 500, CAC 40, DAX, FTSE 100, Nikkei 225...) are licensed by their
+# publishers and free feeds of them are research-only. Each market is therefore shown through a
+# US-listed country ETF, priced in USD at the US close (Tiingo end-of-day, adjusted for dividends).
+# `tracks` is the index the ETF replicates; `benchmark` is the local index people know, for
+# context only: its level is never shown.
+#
+# Synthetic data: beta to the US market, own volatility, regional factor (see pfe_drai/world.py).
+markets:
+  - {id: USA, ticker: SPY,  region: americas, tracks: S&P 500,             benchmark: S&P 500,      name: {fr: États-Unis,     en: United States},  beta: 1.00, vol: 0.00}
+  - {id: CAN, ticker: EWC,  region: americas, tracks: MSCI Canada,         benchmark: S&P/TSX,      name: {fr: Canada,         en: Canada},         beta: 0.90, vol: 0.10}
+  - {id: MEX, ticker: EWW,  region: americas, tracks: MSCI Mexico,         benchmark: S&P/BMV IPC,  name: {fr: Mexique,        en: Mexico},         beta: 0.90, vol: 0.20}
+  - {id: BRA, ticker: EWZ,  region: americas, tracks: MSCI Brazil 25/50,   benchmark: Ibovespa,     name: {fr: Brésil,         en: Brazil},         beta: 1.10, vol: 0.28}
+  - {id: GBR, ticker: EWU,  region: europe,   tracks: MSCI UK,             benchmark: FTSE 100,     name: {fr: Royaume-Uni,    en: United Kingdom}, beta: 0.80, vol: 0.10}
+  - {id: FRA, ticker: EWQ,  region: europe,   tracks: MSCI France,         benchmark: CAC 40,       name: {fr: France,         en: France},         beta: 0.90, vol: 0.12}
+  - {id: DEU, ticker: EWG,  region: europe,   tracks: MSCI Germany,        benchmark: DAX,          name: {fr: Allemagne,      en: Germany},        beta: 0.95, vol: 0.13}
+  - {id: ITA, ticker: EWI,  region: europe,   tracks: MSCI Italy 25/50,    benchmark: FTSE MIB,     name: {fr: Italie,         en: Italy},          beta: 0.95, vol: 0.16}
+  - {id: ESP, ticker: EWP,  region: europe,   tracks: MSCI Spain 25/50,    benchmark: IBEX 35,      name: {fr: Espagne,        en: Spain},          beta: 0.95, vol: 0.16}
+  - {id: NLD, ticker: EWN,  region: europe,   tracks: MSCI Netherlands,    benchmark: AEX,          name: {fr: Pays-Bas,       en: Netherlands},    beta: 0.95, vol: 0.12}
+  - {id: CHE, ticker: EWL,  region: europe,   tracks: MSCI Switzerland,    benchmark: SMI,          name: {fr: Suisse,         en: Switzerland},    beta: 0.70, vol: 0.10}
+  - {id: SWE, ticker: EWD,  region: europe,   tracks: MSCI Sweden 25/50,   benchmark: OMX S30,      name: {fr: Suède,          en: Sweden},         beta: 1.00, vol: 0.15}
+  - {id: JPN, ticker: EWJ,  region: asia,     tracks: MSCI Japan,          benchmark: Nikkei 225,   name: {fr: Japon,          en: Japan},          beta: 0.70, vol: 0.13}
+  - {id: CHN, ticker: MCHI, region: asia,     tracks: MSCI China,          benchmark: CSI 300,      name: {fr: Chine,          en: China},          beta: 0.80, vol: 0.24}
+  - {id: IND, ticker: INDA, region: asia,     tracks: MSCI India,          benchmark: Nifty 50,     name: {fr: Inde,           en: India},          beta: 0.70, vol: 0.18}
+  - {id: KOR, ticker: EWY,  region: asia,     tracks: MSCI Korea 25/50,    benchmark: KOSPI,        name: {fr: Corée du Sud,   en: South Korea},    beta: 1.00, vol: 0.20}
+  - {id: TWN, ticker: EWT,  region: asia,     tracks: MSCI Taiwan 25/50,   benchmark: TAIEX,        name: {fr: Taïwan,         en: Taiwan},         beta: 1.00, vol: 0.18}
+  - {id: AUS, ticker: EWA,  region: asia,     tracks: MSCI Australia,      benchmark: S&P/ASX 200,  name: {fr: Australie,      en: Australia},      beta: 0.90, vol: 0.13}
+  - {id: ZAF, ticker: EZA,  region: africa,   tracks: MSCI South Africa,   benchmark: JSE Top 40,   name: {fr: Afrique du Sud, en: South Africa},   beta: 1.05, vol: 0.25}
+  - {id: SAU, ticker: KSA,  region: asia,     tracks: MSCI Saudi Arabia,   benchmark: Tadawul TASI, name: {fr: Arabie saoudite, en: Saudi Arabia},  beta: 0.50, vol: 0.18}
+
+# Dates offered by "Replay an episode" on the World tab.
+replay:
+  - {date: "2008-10-10", name: {fr: Faillite de Lehman,       en: Lehman collapse}}
+  - {date: "2011-08-08", name: {fr: Crise de la zone euro,    en: Euro-area crisis}}
+  - {date: "2015-08-24", name: {fr: Dévaluation chinoise,     en: China devaluation}}
+  - {date: "2018-12-24", name: {fr: Resserrement de la Fed,   en: Fed tightening sell-off}}
+  - {date: "2020-03-16", name: {fr: Covid-19,                 en: Covid-19}}
+  - {date: "2022-03-07", name: {fr: Invasion de l'Ukraine,    en: Invasion of Ukraine}}
+  - {date: "2025-04-08", name: {fr: Droits de douane US,      en: US tariffs}}

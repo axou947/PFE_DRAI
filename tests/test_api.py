@@ -32,3 +32,11 @@ def test_regime_states(client):
     assert all(abs(sum(s[f"share_{r}"] for r in ("expansion", "overheating", "slowdown", "stress")) - 1) < 1e-6 for s in latest)
     assert {s["name_label"] for s in latest} <= {"Expansion", "Inflationary overheating", "Slowdown", "Stress / crisis"}
     assert client.get("/regime/states", params={"model": "gbm"}).status_code == 404
+
+
+def test_world(client):
+    body = client.get("/world", params={"date": "2020-04-01", "horizon": "1W", "lang": "en"}).json()
+    assert body["date"] == "2020-04-01" and len(body["markets"]) == 20
+    assert body["share_stress"] + body["share_elevated"] > 0.5
+    france = next(m for m in body["markets"] if m["id"] == "FRA")
+    assert france["name"] == "France" and france["ticker"] == "EWQ" and france["state"] in ("calm", "elevated", "stress")
