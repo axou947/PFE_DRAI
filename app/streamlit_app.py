@@ -1,5 +1,6 @@
 """PFE DRAI dashboard: python -m pfe_drai app  (or: streamlit run app/streamlit_app.py)."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -69,7 +70,9 @@ lang = "fr" if lang_label == "Français" else "en"
 
 st.sidebar.header(t("app.settings", lang))
 providers = available_providers()
-provider = st.sidebar.selectbox(t("app.data_source", lang), providers, index=providers.index(settings["data"]["provider"]))
+# `python -m pfe_drai --provider fred app` passes its choice through PFE_DRAI_PROVIDER.
+default_provider = os.environ.get("PFE_DRAI_PROVIDER") or settings["data"]["provider"]
+provider = st.sidebar.selectbox(t("app.data_source", lang), providers, index=providers.index(default_provider))
 models = available_models()
 model = st.sidebar.selectbox(
     t("app.model", lang), models, index=models.index(settings["models"]["default"]), format_func=lambda m: t(f"model.{m}", lang)

@@ -10,6 +10,7 @@ api        start the FastAPI server
 """
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -82,11 +83,18 @@ def cmd_episodes(args):
 
 
 def cmd_app(args):
-    subprocess.run([sys.executable, "-m", "streamlit", "run", str(ROOT / "app" / "streamlit_app.py")], check=False)
+    env = {**os.environ, **({"PFE_DRAI_PROVIDER": args.provider} if args.provider else {})}
+    try:
+        subprocess.run([sys.executable, "-m", "streamlit", "run", str(ROOT / "app" / "streamlit_app.py")], check=False, env=env)
+    except KeyboardInterrupt:  # Ctrl+C stops the app: no traceback
+        pass
 
 
 def cmd_api(args):
-    subprocess.run([sys.executable, "-m", "uvicorn", "api.main:app", "--reload"], cwd=ROOT, check=False)
+    try:
+        subprocess.run([sys.executable, "-m", "uvicorn", "api.main:app", "--reload"], cwd=ROOT, check=False)
+    except KeyboardInterrupt:
+        pass
 
 
 def main(argv=None):
