@@ -205,7 +205,7 @@ def test_page_lists_every_backtest_record_and_marks_the_current_one(settings, tm
 
 
 def test_a_pipeline_with_other_growth_settings_reads_the_same_data(pipeline, settings):
-    before = settings["validation"]["slowdown"]["tested"]
+    before = settings["validation"]["slowdown"]["before"]
     other = pipeline.with_settings(
         _deep_merge(settings, {"features": {"growth": before["growth"]}, "regimes": {"rule": before["rule"]}})
     )

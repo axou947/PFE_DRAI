@@ -31,12 +31,13 @@ features:
   zscore_clip: 4.0
   # How the growth score is built (docs/SLOWDOWN.md). Every feature still feeds the models;
   # only `inputs` are averaged into the growth score.
-  # v2.1 (published). v2.2 is pre-registered but not adopted (docs/SLOWDOWN.md); its settings are
-  # under validation.slowdown.tested.
+  # v2.2, adopted 2026-10-01 under the pre-registered rule (docs/SLOWDOWN.md): robust scaling (one
+  # extreme stretch such as 2020 no longer squeezes every later reading) and a month's average.
+  # v2.1 was the same four inputs with standard scaling and no average (validation.slowdown.before).
   growth:
     inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims]
-    scaling: standard         # standard = expanding mean and std | robust = expanding median and IQR
-    smooth_days: 0            # growth score averaged over this many business days (0 = none)
+    scaling: robust           # standard = expanding mean and std | robust = expanding median and IQR
+    smooth_days: 21           # growth score averaged over this many business days (0 = none)
 
 regimes:
   # Order matters: it fixes colors and chart order.
@@ -51,13 +52,14 @@ regimes:
   # takes the name of the closest regime centre, the average day of that regime (docs/REGIMES.md).
   rule:
     stress_threshold: 1.0
-    growth_threshold: -0.25
+    # Growth below its own historical median: below-trend growth (v2.2). Was -0.25, set by hand.
+    growth_threshold: 0.0
     inflation_threshold: 0.8
 
 models:
   # Name of this model configuration, shown on the track record next to its settings fingerprint.
-  # v2.1 = detection v2 + calibrated P(stress). v2.2 (a real Slowdown regime) is not adopted (docs/SLOWDOWN.md).
-  version: "v2.1"
+  # v2.1 = detection v2 + calibrated P(stress); v2.2 = v2.1 + a real Slowdown regime (docs/SLOWDOWN.md).
+  version: "v2.2"
   # combined = jump model regimes, P(stress) = max(jump, gbm, onset): v2, chosen on simulated
   # data and a real 1999-2009 holdout, confirmed once on the 11 real episodes (docs/DETECTION_V2.md).
   default: combined
@@ -142,8 +144,7 @@ validation:
     before:
       growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims], scaling: standard, smooth_days: 0}
       rule: {growth_threshold: -0.25}
-    # v2.2 as selected by the holdout of 2026-10-01 (four inputs, docs/SLOWDOWN.md): `slowdown --tested`
-    # runs it as the "after". Not adopted yet: it becomes features.growth only if step 2 passes.
+    # v2.2 as it was tested (same as the current settings): `slowdown --tested` reproduces the run.
     tested:
       growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims], scaling: robust, smooth_days: 21}
       rule: {growth_threshold: 0.0}

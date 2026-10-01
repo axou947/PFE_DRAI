@@ -67,12 +67,12 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
   régime selon la règle, sur la période d'apprentissage) est le plus proche : rien n'est fixé à la
   main, et un régime absent de l'historique ne nomme aucun état. `python -m pfe_drai states`
   montre ce nommage à chaque réapprentissage. Voir [docs/REGIMES.md](docs/REGIMES.md).
-- **Un vrai régime de Ralentissement (v2.2, pré-enregistré)** : le score de croissance ne compte
+- **Un vrai régime de Ralentissement (v2.2, adopté le 2026-10-01)** : le score de croissance ne compte
   plus la pente de la courbe des taux (un indicateur avancé, pas la croissance du moment), est
   mis à l'échelle de façon robuste (médiane et écart interquartile : 2020 n'écrase plus les années
   suivantes) et lissé sur un mois ; le seuil devient 0 (croissance sous sa médiane historique).
-  Contrôlé contre une référence extérieure, l'indice d'activité de la Fed de Chicago (CFNAI). Adopté
-  seulement si le test sur données réelles passe. Voir [docs/SLOWDOWN.md](docs/SLOWDOWN.md).
+  Contrôlé contre une référence extérieure, l'indice d'activité de la Fed de Chicago (CFNAI) : un état
+  Ralentissement existe dans 83 % des réapprentissages (0 % avant), détection et calibration inchangées. Voir [docs/SLOWDOWN.md](docs/SLOWDOWN.md).
 - **5 modèles** : k-means (référence), Statistical Jump Model (régimes persistants, filtrage causal),
   gradient boosting qui prévoit le régime à 1 semaine, `onset` (détecteur de début de stress appris
   sur les épisodes gelés à partir d'indicateurs de marché quotidiens) et `combined` (par défaut) :

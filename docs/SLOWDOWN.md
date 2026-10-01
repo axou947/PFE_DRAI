@@ -1,6 +1,6 @@
 # A real Slowdown regime: pre-registration
 
-**Status: pre-registered on 2026-10-01. Step 1 done; step 2 not yet run on the variant step 1 selected (see Results).** This page fixes what changes,
+**Status: ADOPTED on 2026-10-01** (all nine conditions met on the step-2 run of the selected variant, see Results). Pre-registered the same day, before any real run. This page fixes what changes,
 how it was chosen (simulated data only), the holdout that picks the growth inputs and the rule
 that decides on real data. It is committed and pushed before Henry runs anything; the real results
 are added under "Results" as they come out, and nothing above that heading changes afterwards.
@@ -303,3 +303,49 @@ curve slope, so a pass on the four-input variant is weaker evidence than a pass 
 Both runs are published either way, and a failure ends v2.2: `features.growth` and the threshold
 stay as in v2.1 (this is the state of the branch now, `models.version` is `v2.1`), and any further
 change needs a v2.3 with its own pre-registration.
+
+### Step 2 on the selected variant (run once by Henry, 2026-10-01)
+
+`python -m pfe_drai --provider fred slowdown --tested`, out-of-sample 2009-04-03 to 2026-09-30,
+four inputs (with the curve slope), robust scaling, 21-day average, threshold 0.
+
+| | v2.1 | v2.2 |
+|---|---:|---:|
+| rule: days in Slowdown | 9.0% | 43.3% |
+| rule: Slowdown spells / yr (median spell, days) | 3.32 (3) | 2.12 (30) |
+| growth match with the reference (balanced accuracy) | 0.551 | 0.620 |
+| refits with a state named Slowdown, agreement ≥ 50% | 0% | 83% |
+| days shown as Slowdown | 6.7% | 12.5% |
+| displayed Slowdown vs reference (balanced accuracy) | 0.480 | 0.492 |
+| reference slowdown days found / shown days that are right | 4.9% / 39.2% | 11.9% / 51.0% |
+| reference: days of below-trend growth | 61.2% | 61.2% |
+| episodes detected, median latency | 11/11, −3 | 11/11, −3 |
+| false positives / yr, calm days in false alarm | 1.26, 4.9% | 1.14, 5.2% |
+| regime switches / yr | 2.2 | 3.0 |
+| Brier, ECE | 0.091, 0.042 | 0.090, 0.039 |
+
+Every latency, episode by episode, is the same as v2.1's. All nine conditions hold: growth match
+0.551 → 0.620; a Slowdown state in 83% of refits (the 6 refits from 2013-04 to 2015-10 are the
+exceptions, with 46 to 49%); displayed match 0.480 → 0.492; no episode lost; median latency −3;
+1.14 false positives a year; 5.2% of calm days in false alarm; Brier 0.091 → 0.090; ECE 0.042 → 0.039.
+**Decision: v2.2 is adopted.** `features.growth`, `regimes.rule.growth_threshold: 0.0` and
+`models.version: v2.2` are set in the commit after this table. Nothing was retuned.
+
+What it does not show, said as plainly:
+
+- **The displayed Slowdown is only marginally better, and still under chance.** 0.492 against 0.480;
+  0.5 is chance. Condition 3 asked for "higher" and it is, by 0.012, which on 17 years of mostly
+  correlated days is not evidence of a better match. The app finds 12% of the reference's slowdown
+  days. The rule's Slowdown is a better measure of growth (0.620 against 0.551) and a persistent
+  regime, but what the dashboard displays as Slowdown is not a good match for CFNAI. Part of this is
+  the reference (CFNAI is below its trend on 61% of days since 2009), part is the jump model,
+  which also needs the stress and inflation dimensions to agree.
+- **The rule now puts 43% of days in Slowdown** (the threshold 0 is the median of a history that
+  starts in 2004, so growth since 2009 sits below it often). The app displays Slowdown on 12.5%.
+- **The run was not blind** for the reason given above, and the unplanned three-input run is
+  published next to it. It passed eight conditions and failed Brier by 0.001; the four-input
+  variant passes all nine, a margin of the same size (Brier 0.090 against 0.091).
+- Regime switches rise from 2.2 to 3.0 a year; detection and the alarm are unchanged.
+
+The track record: the daily job writes a new backtest record for v2.2 on its next run and the page
+lists both versions. The days published before then keep v2.1.
