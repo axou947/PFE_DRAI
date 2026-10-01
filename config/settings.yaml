@@ -58,6 +58,7 @@ models:
     # max = v2: the highest source. calibrated = Platt scaling of that highest source, refitted
     # walk-forward on past out-of-sample days, so "30%" means stress followed about 3 times in 10.
     # The stress alarm does not change: it stays on the highest source (validation.alarm).
+    # Adopted 2026-10-01 under the pre-registered rule (real data: Brier 0.100 -> 0.091, ECE 0.083 -> 0.042).
     stress_combination: calibrated
     stack:
       inputs: max             # max = Platt scaling of the highest source | sources = one weight per source

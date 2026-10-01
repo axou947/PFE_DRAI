@@ -73,7 +73,8 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
   mais pas une probabilité. Une régression logistique à deux paramètres (Platt scaling), réestimée
   sur les seuls jours passés, le transforme en fréquence à laquelle le stress a réellement suivi.
   L'alarme de stress lit toujours le score du détecteur : la détection ne change pas.
-  Pré-enregistré, en attente du test sur données réelles : [docs/CALIBRATION.md](docs/CALIBRATION.md).
+  Adoptée le 2026-10-01 après un test pré-enregistré sur données réelles (2009-2026) : Brier
+  0,100 → 0,091, erreur de calibration (ECE) 0,083 → 0,042. Voir [docs/CALIBRATION.md](docs/CALIBRATION.md).
 - **Validation** : walk-forward à fenêtre croissante ; épisodes de stress datés par une règle
   gelée le 2026-10-01 (son hash est dans `validation.episodes.frozen` ; le code refuse une règle
   modifiée) ; latence publiée pour chaque épisode ; fausses alertes par an ; Brier, log loss et

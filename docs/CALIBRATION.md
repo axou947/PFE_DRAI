@@ -1,6 +1,6 @@
 # Calibrated stress probability: pre-registration
 
-**Status: pre-registered on 2026-10-01, before any run on real data.** This page fixes what was
+**Status: adopted on 2026-10-01** (decision rule met, results at the bottom). Pre-registered the same day, before any run on real data. This page fixes what was
 changed, how it was chosen (simulated data only), and the rule that decides on real data. It is
 committed and pushed before Henry runs anything; the real results are added under "Results" as
 they come out, and nothing above that heading changes afterwards.
@@ -154,4 +154,61 @@ One run on real data, by Henry, of each:
 
 ## Results
 
-_To be filled with the real-data run, as it comes out._
+### The one real-data run (Henry, 2026-10-01)
+
+`python -m pfe_drai --provider fred calibration`, out-of-sample from 2009-04-03 to 2026-09-30,
+4,395 days whose outcome is known (stress event on 13.6% of them).
+
+| P(stress)                   | Brier | ECE   | log loss | Brier skill | mean P | observed |
+|-----------------------------|------:|------:|---------:|------------:|-------:|---------:|
+| v2 (detector score)         | 0.100 | 0.083 | 0.414    | 0.15        | 14.6%  | 13.6%    |
+| **calibrated (Platt)**      | 0.091 | 0.042 | 0.316    | 0.22        | 14.0%  | 13.6%    |
+
+Reliability (days grouped by predicted probability; predicted → observed, days):
+
+| bin      | v2 detector score       | calibrated              |
+|----------|-------------------------|-------------------------|
+| 0–10%    | 1.0% → 5.7% (3,346)     | 6.7% → 4.8% (2,216)     |
+| 10–20%   | 14.2% → 14.1% (213)     | 14.0% → 9.9% (1,327)    |
+| 20–30%   | 25.0% → 12.2% (98)      | 24.1% → 22.1% (453)     |
+| 30–40%   | 33.4% → 17.2% (93)      | 34.8% → 45.7% (199)     |
+| 40–50%   | 45.6% → 33.9% (62)      | 44.2% → 72.6% (106)     |
+| 50–60%   | 54.5% → 35.9% (64)      | 55.3% → 88.6% (44)      |
+| 60–70%   | 65.9% → 36.2% (69)      | 67.2% → 100% (48)       |
+| 70–80%   | 75.5% → 39.7% (58)      | 71.2% → 100% (2)        |
+| 80–90%   | 84.5% → 47.8% (69)      | –                       |
+| 90–100%  | 97.1% → 68.4% (323)     | –                       |
+
+Calibrator over time: intercept between −1.34 and −0.92, weight on the score's log-odds rising
+from 0.10–0.15 (2009–2011, learned on 2006–2009 with 2008 only) to 0.28–0.31 (2020 on). Every
+refit was calibrated (no fallback).
+
+`python -m pfe_drai --provider fred backtest`, same day:
+
+| model                       | detected | median lat. | all eps. | FP / yr | false alarm | switches / yr | Brier | ECE   | log loss |
+|-----------------------------|---------:|------------:|---------:|--------:|------------:|--------------:|------:|------:|---------:|
+| **combined (calibrated)**   | 11/11    | −3.0        | −3.0     | 1.26    | 4.9%        | 2.2           | 0.091 | 0.042 | 0.316    |
+| v2 (detector score)         | 11/11    | −3.0        | −3.0     | 1.26    | 4.9%        | 5.4           | 0.100 | 0.083 | 0.414    |
+| v1 (jump + gbm)             | 5/11     | 11.0        | 60.0     | 0.17    | 0.4%        | 3.1           | 0.110 | 0.108 | 0.601    |
+
+Check passed: `combined` and `v2` have the same detections, latencies (identical episode by
+episode to docs/DETECTION_V2.md), false positives and alarm time.
+
+**Decision: the calibrated probability is adopted.** Both pre-registered conditions hold: Brier
+0.091 < 0.100 and ECE 0.042 < 0.083. `stress_combination: calibrated` stays and becomes the daily
+publication.
+
+What the run also shows, said as plainly:
+
+- **v2 was overconfident at the top and underconfident at the bottom.** Its 323 days above 90%
+  saw stress 68% of the time; its 3,346 days under 10% saw it 5.7% of the time.
+- **The calibrated probability is now too cautious above 30%.** Days at 40–50% saw stress 73% of
+  the time, days at 50–70% saw it 89–100%. Those bins hold 200 days from a handful of crises, so
+  part of this is noise, but the direction is consistent: when the calibrated probability passes
+  40%, read it as "stress more likely than not". The calibrator learned from 2006–2009 first
+  (weight 0.10–0.15), and its weight has risen since (0.31 now), which is the fix happening on
+  its own as history accumulates. Nothing is retuned.
+- **The regime is calmer:** 2.2 switches a year against 5.4, with the same alarm days.
+- The alarm still fires about once a year in a false alarm (1.26 a year), unchanged from v2.
+
+Nothing was retuned after this run.
