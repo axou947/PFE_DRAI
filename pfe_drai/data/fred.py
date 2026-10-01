@@ -60,4 +60,6 @@ class FredProvider(DataProvider):
             fallback = get_provider({**self.settings, "data": {**self.settings["data"], "provider": fallback_name}})
             extra = fallback.fetch(start, end)
             data.update({name: extra[name] for name in missing})
+            # Partly simulated data is not live: it must not reach the track record.
+            self.is_live = fallback.is_live
         return data
