@@ -21,7 +21,7 @@ dimension scores. A high score means "more" of the dimension.
 
 ## 2. The rule that defines the four regimes
 
-> **v2.2 proposal (2026-10-01, [SLOWDOWN.md](SLOWDOWN.md)):** a real Slowdown regime. The growth
+> **v2.2 proposal (2026-10-01, pre-registered, not adopted yet, [SLOWDOWN.md](SLOWDOWN.md)):** a real Slowdown regime. The growth
 > score drops the curve slope, uses robust scaling and a 21-day average, and the Slowdown threshold
 > becomes 0 (growth below its own median). Pre-registered; adopted only if the real-data run passes.
 > The text below describes the rule as adopted on this page.

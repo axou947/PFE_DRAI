@@ -1,6 +1,6 @@
 # A real Slowdown regime: pre-registration
 
-**Status: pre-registered on 2026-10-01, not yet run on real data.** This page fixes what changes,
+**Status: pre-registered on 2026-10-01. Step 1 done; step 2 not yet run on the variant step 1 selected (see Results).** This page fixes what changes,
 how it was chosen (simulated data only), the holdout that picks the growth inputs and the rule
 that decides on real data. It is committed and pushed before Henry runs anything; the real results
 are added under "Results" as they come out, and nothing above that heading changes afterwards.
@@ -233,4 +233,73 @@ published then.
 
 ## Results
 
-Not run yet.
+### Step 1: growth holdout (real data, run once by Henry, 2026-10-01)
+
+`python -m pfe_drai --provider fred slowdown --holdout`, 1999-01-04 to 2009-04-02 (2,578 days),
+reference `CFNAIMA3 < 0` (below-trend growth on 50% of days).
+
+| # | candidate | balanced accuracy | days below | spells / yr | median spell |
+|---|---|---:|---:|---:|---:|
+| – | until v2.1 (comparison only) | 0.776 | 52% | 6.83 | 5 |
+| 1 | three inputs (no curve slope) | 0.745 | 72% | 1.37 | 37 |
+| 2 | four inputs (with curve slope) | **0.757** | 71% | 1.76 | 36 |
+| 3 | macro only (production, claims) | 0.743 | 69% | 1.46 | 33 |
+
+All three candidates qualify (at most 2 spells a year). Candidate 2 has the highest balanced
+accuracy and candidates 1 and 3 are within 0.014 of it, so **the rule selects candidate 2, four
+inputs, with the curve slope**. The simulated data had picked the opposite, which is the reason for
+holding the real holdout. v2.1's score is the most accurate here but flips 6.8 times a year with a
+5-day median spell, which fails the persistence limit by construction.
+
+### An unplanned run of step 2, on the wrong variant (2026-10-01)
+
+**Say it plainly:** the protocol said that if the winner is not candidate 1, its inputs go in the
+settings *before* step 2. Step 2 was run straight after step 1, on the **three-input** variant,
+which step 1 did not select. This is a departure from the pre-registered protocol, made while the
+instructions asked to paste step 1 first. It is published as it came out, as an **informative run
+that does not decide anything**:
+
+| | v2.1 | three inputs (not selected) |
+|---|---:|---:|
+| rule: days in Slowdown | 9.0% | 25.9% |
+| rule: Slowdown spells / yr (median spell, days) | 3.32 (3) | 2.06 (30) |
+| growth match with the reference (balanced accuracy) | 0.551 | 0.606 |
+| refits with a state named Slowdown, agreement ≥ 50% | 0% | 83% |
+| days shown as Slowdown | 6.7% | 15.1% |
+| displayed Slowdown vs reference (balanced accuracy) | 0.480 | 0.502 |
+| reference slowdown days found / shown days that are right | 4.9% / 39.2% | 15.4% / 54.8% |
+| reference: days of below-trend growth | 61.2% | 61.2% |
+| episodes detected, median latency | 11/11, −3 | 11/11, −3 |
+| false positives / yr, calm days in false alarm | 1.26, 4.9% | 1.20, 5.6% |
+| regime switches / yr | 2.2 | 3.7 |
+| Brier, ECE | 0.091, 0.042 | **0.092**, 0.042 |
+
+Every latency, episode by episode, is the same as v2.1's. Eight of the nine conditions hold. The
+ninth, **Brier not higher, fails by 0.001** (0.091 → 0.092). Under the rule this variant would not be
+adopted, but it is not the variant the rule selected.
+
+What the run shows, whichever variant is decided on:
+
+- **A Slowdown state now exists** (83% of refits against 0%), and it is a regime (30-day median
+  spell against 3). The states with fewer than half Slowdown days are the 2022-10 to 2025-04 refits,
+  with 43 to 46%, which is the period the problem was seen in.
+- **What the app displays is still close to chance.** Balanced accuracy against the reference goes
+  from 0.480 to 0.502 (0.5 is chance), and it finds 15% of the reference's slowdown days. Slowdown is
+  shown on 15% of days while CFNAI is below trend on 61% of them (as announced in "What this does not
+  claim", the index's long-run trend sits above the growth of the 2010s). The honest reading is that
+  the growth score is now a better measure of growth, but what is shown as Slowdown is not yet a
+  good match for the reference.
+- Detection is untouched; regime switches rise from 2.2 to 3.7 a year.
+
+### Step 2 on the selected variant: next
+
+The protocol is followed from here: the selected four-input variant is set in
+`validation.slowdown.tested` (`growth.inputs` = equity momentum, curve slope, production, claims;
+robust scaling; 21-day average; threshold 0) in the commit that adds this section, and
+`python -m pfe_drai --provider fred slowdown --tested` is run **once** by Henry. Its decision
+applies with the nine conditions above, unchanged. **That run is no longer blind:** the three-input
+run above has already shown the real out-of-sample period for a variant that differs only by the
+curve slope, so a pass on the four-input variant is weaker evidence than a pass on a first look.
+Both runs are published either way, and a failure ends v2.2: `features.growth` and the threshold
+stay as in v2.1 (this is the state of the branch now, `models.version` is `v2.1`), and any further
+change needs a v2.3 with its own pre-registration.

@@ -322,11 +322,14 @@ def cmd_slowdown(args):
 
     p = _pipeline(args)
     model = args.model or p.settings["models"]["default"]
-    before_cfg = p.settings["validation"]["slowdown"]["before"]
-    before = p.with_settings(
-        _deep_merge(p.settings, {"features": {"growth": before_cfg["growth"]}, "regimes": {"rule": before_cfg["rule"]}})
-    )
-    runs = {"before": before, "after": p}
+
+    def variant(name):
+        cfg = p.settings["validation"]["slowdown"][name]
+        return p.with_settings(_deep_merge(p.settings, {"features": {"growth": cfg["growth"]}, "regimes": {"rule": cfg["rule"]}}))
+
+    # --tested: the pre-registered v2.2 against the published v2.1; otherwise the current settings against v2.1.
+    runs = {"before": variant("before"), "after": variant("tested") if args.tested else p}
+    p = runs["after"]
     results = {name: {"slowdown": slowdown_report(q, model), "detection": q.evaluate(model)} for name, q in runs.items()}
     reference = results["after"]["slowdown"]["reference"]
     data = "real" if p.provider.is_live else "SIMULATED"
@@ -476,6 +479,9 @@ def main(argv=None):
             sp.add_argument("--out", help="write the pages (and a new backtest record) to this folder instead: a preview")
         if name == "slowdown":
             sp.add_argument("--holdout", action="store_true", help="growth score candidates on 1999-2009 (no model fitted)")
+            sp.add_argument(
+                "--tested", action="store_true", help="run the pre-registered v2.2 (the holdout's choice) as the 'after'"
+            )
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
             sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])

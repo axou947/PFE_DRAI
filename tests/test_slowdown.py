@@ -164,7 +164,7 @@ def test_cli_slowdown_runs_without_a_reference(capsys, tmp_path):
 
     s = load_settings(overrides={"data": {"start": "2004-01-01", "end": "2016-12-30", "cache_dir": str(tmp_path)}})
     config.write_text(yaml.safe_dump(s))
-    main(["--config", str(config), "slowdown", "--model", "jump"])
+    main(["--config", str(config), "slowdown", "--tested", "--model", "jump"])
     out = capsys.readouterr().out
     assert "before" in out and "refits with a state named Slowdown" in out and "simulated regimes" in out
 
@@ -205,7 +205,7 @@ def test_page_lists_every_backtest_record_and_marks_the_current_one(settings, tm
 
 
 def test_a_pipeline_with_other_growth_settings_reads_the_same_data(pipeline, settings):
-    before = settings["validation"]["slowdown"]["before"]
+    before = settings["validation"]["slowdown"]["tested"]
     other = pipeline.with_settings(
         _deep_merge(settings, {"features": {"growth": before["growth"]}, "regimes": {"rule": before["rule"]}})
     )
