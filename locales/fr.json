@@ -2,6 +2,7 @@
   "app.title": "Détection de régimes de marché",
   "app.subtitle": "Régime, scénarios de stress et note de comité des risques",
   "app.language": "Langue",
+  "app.dark_mode": "Mode sombre",
   "app.settings": "Réglages",
   "app.model": "Modèle",
   "app.as_of": "Date d'analyse",

@@ -20,6 +20,7 @@ from pfe_drai.pipeline import Pipeline  # noqa: E402
 from pfe_drai.publish.page import page_html  # noqa: E402
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf  # noqa: E402
 from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, rank_scenarios  # noqa: E402
+from pfe_drai.theme import css, get_theme, regime_colors, style_figure  # noqa: E402
 from pfe_drai.validation import evaluate  # noqa: E402
 from pfe_drai.validation.calibration import calibration_report  # noqa: E402
 from pfe_drai.world import (  # noqa: E402
@@ -41,20 +42,6 @@ from pfe_drai.world import (  # noqa: E402
 )
 
 st.set_page_config(page_title="PFE DRAI", page_icon="📈", layout="wide")
-
-TEXT, MUTED, GRID = "#0b0b0b", "#52514e", "#e8e7e3"
-DIM_COLORS = {"stress": "#2a78d6", "growth": "#eb6834", "inflation": "#1baf7a"}  # validated all-pairs trio
-
-st.markdown(
-    """<style>
-    .regime-card{border-left:6px solid var(--c);background:#f3f2ef;border-radius:6px;padding:14px 18px}
-    .regime-card .label{color:#52514e;font-size:0.85rem;margin:0}
-    .regime-card .name{font-size:1.7rem;font-weight:700;margin:2px 0}
-    .regime-card .desc{color:#52514e;margin:0}
-    .chip{display:inline-block;padding:1px 8px;border-radius:10px;border:1px solid #d6d5d0;font-size:0.8rem;margin-right:6px}
-    </style>""",
-    unsafe_allow_html=True,
-)
 
 
 # ---------------------------------------------------------------- data & cache
@@ -93,34 +80,27 @@ def get_world_link(provider: str):
 
 
 @st.cache_data(show_spinner=False)
-def get_track_record_page(provider: str, lang: str, files: tuple) -> str:
+def get_track_record_page(provider: str, lang: str, files: tuple, theme: str) -> str:
     """The public track-record page (docs/TRACK_RECORD.md), rebuilt when a file of track_record/ changes.
 
     Built on the configured settings, not on the sidebar threshold: the record is frozen.
     """
     frozen = get_pipeline(provider).with_settings(load_settings(overrides={"data": {"provider": provider}}))  # US record
-    return page_html(frozen, resolve(settings["publish"]["dir"]), lang)
+    return page_html(frozen, resolve(settings["publish"]["dir"]), lang, theme)
 
 
 def base_layout(fig: go.Figure, height: int = 320, **kw) -> go.Figure:
-    fig.update_layout(
-        template="plotly_white",
-        height=height,
-        margin=dict(l=10, r=10, t=30, b=10),
-        font=dict(color=TEXT, size=13),
-        legend=dict(orientation="h", y=-0.15),
-        hoverlabel=dict(font_size=13),
-        **kw,
-    )
-    fig.update_xaxes(gridcolor=GRID, zeroline=False)
-    fig.update_yaxes(gridcolor=GRID, zeroline=False)
-    return fig
+    return style_figure(fig, theme, height, **kw)
 
 
 # ---------------------------------------------------------------- sidebar
 settings = load_settings()
 lang_label = st.sidebar.radio("Langue / Language", ["Français", "English"], horizontal=True)
 lang = "fr" if lang_label == "Français" else "en"
+dark = st.sidebar.toggle(t("app.dark_mode", lang), key="dark_mode")  # kept for the session
+theme = get_theme(dark)
+TEXT, MUTED, GRID, DIM_COLORS = theme.text, theme.muted, theme.grid, theme.dims
+st.markdown(css(theme), unsafe_allow_html=True)
 
 st.sidebar.header(t("app.settings", lang))
 zone = st.sidebar.selectbox(t("app.region", lang), available_regions(), format_func=lambda r: t(f"region.{r}", lang))
@@ -166,7 +146,7 @@ with st.sidebar.expander(t("app.methodology", lang)):
 st.sidebar.caption(t("disclaimer", lang))
 
 regimes = settings["regimes"]["order"]
-colors = settings["regimes"]["colors"]
+colors = regime_colors(settings["regimes"]["colors"], theme)
 reg = lambda r: t(f"regime.{r}", lang)  # noqa: E731
 state = pipeline.state(model, as_of)
 
@@ -414,8 +394,8 @@ with tab_dash:
     )
 
 # ================================================================ WORLD MARKETS
-STATE_COLORS = {"calm": "#1baf7a", "elevated": "#eda100", "stress": "#d6453d", None: "#4a5363"}
-MAP_BG, MAP_LAND, MAP_BORDER, MAP_TEXT = "#0d1117", "#1c2330", "#2d3646", "#e6edf3"
+STATE_COLORS = theme.states
+MAP_BG, MAP_LAND, MAP_BORDER, MAP_TEXT = theme.map_bg, theme.map_land, theme.map_border, theme.map_text
 REGION_VIEW = {
     "world": dict(projection_type="natural earth", lataxis_range=[-58, 84], lonaxis_range=[-180, 180]),
     "europe": dict(projection_type="mercator", lataxis_range=[34, 70], lonaxis_range=[-28, 48]),
@@ -586,7 +566,7 @@ with tab_world:
                 z=z,
                 zmin=0,
                 zmax=1 if measure == "corr" else 1.5,
-                colorscale=[[0, "#2b3442"], [1, "#2a78d6"]],
+                colorscale=[[0, theme.map_neutral], [1, theme.accent]],
                 colorbar=dict(
                     title=dict(text=t(f"world.link.measure.{measure}", lang), font_color=MAP_TEXT),
                     tickfont_color=MAP_TEXT,
@@ -614,7 +594,7 @@ with tab_world:
                 z=z,
                 zmin=-lim,
                 zmax=lim,
-                colorscale=[[0, "#d6453d"], [0.5, "#2b3442"], [1, "#1baf7a"]],
+                colorscale=[[0, STATE_COLORS["stress"]], [0.5, theme.map_neutral], [1, STATE_COLORS["calm"]]],
                 colorbar=dict(title=dict(text="%", font_color=MAP_TEXT), tickfont_color=MAP_TEXT, len=0.6, thickness=12, x=0.99),
                 text=hover,
                 hovertemplate="%{text}<extra></extra>",
@@ -1048,7 +1028,7 @@ with tab_track:
         files = tuple(sorted((p.name, p.stat().st_mtime_ns) for p in records.rglob("*.json*")))
         try:
             with st.spinner(t("app.loading", lang)):
-                page = get_track_record_page(provider, lang, files)
+                page = get_track_record_page(provider, lang, files, theme.name)
         except Exception as exc:  # noqa: BLE001 - show the reason, keep the other tabs working
             st.error(f"{type(exc).__name__}: {exc}")
         else:

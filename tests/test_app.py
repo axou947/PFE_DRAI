@@ -34,3 +34,17 @@ def test_world_local_currency_and_link_views():
     control("Window").set_value(63).run()
     assert not at.exception
     assert any("not a cause" in c.value for c in at.caption)
+
+
+def test_dark_mode_switch_restyles_the_charts_and_both_languages_have_the_label():
+    at = AppTest.from_file(str(APP), default_timeout=900)
+    at.run()
+    toggle = next(c for c in at.sidebar.toggle if c.key == "dark_mode")
+    assert toggle.value is False
+    toggle.set_value(True).run()
+    assert not at.exception
+    assert at.session_state["dark_mode"] is True
+    assert any("background:#0d0d0d" in m.value for m in at.markdown)  # the dark page CSS is injected
+    toggle.set_value(False).run()
+    assert not at.exception
+    assert not any("background:#0d0d0d" in m.value for m in at.markdown)
