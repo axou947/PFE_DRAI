@@ -283,10 +283,20 @@ def test_rolling_beta_and_correlation_match_a_hand_computation():
     assert stats.beta[20]["XXX"].iloc[-1] == pytest.approx(np.cov(last["XXX"], last["USA"])[0, 1] / last["USA"].var())
     assert stats.corr[20]["USA"].iloc[-1] == pytest.approx(1.0) and stats.beta[20]["USA"].iloc[-1] == pytest.approx(1.0)
     assert stats.corr[20]["XXX"].iloc[:19].isna().all()  # a full window first
-    # 1-day lead/lag: today's market against yesterday's US, and yesterday's market against today's US.
-    win = r.iloc[-20:]
-    assert stats.follows[20]["XXX"].iloc[-1] == pytest.approx(np.corrcoef(win["XXX"], r["USA"].shift(1).iloc[-20:])[0, 1])
-    assert stats.leads[20]["XXX"].iloc[-1] == pytest.approx(np.corrcoef(r["XXX"].shift(1).iloc[-20:], win["USA"])[0, 1])
+
+    # 1-day lead/lag as partial correlations (same-day link removed), checked on a hand-built window.
+    def c(a, b):
+        return np.corrcoef(a, b)[0, 1]
+
+    m, u = r["XXX"], r["USA"]
+    m0, u0, u1, m1 = m.iloc[-20:], u.iloc[-20:], u.shift(1).iloc[-20:], m.shift(1).iloc[-20:]
+    same, u_auto, m_auto = c(m0, u0), c(u0, u1), c(m0, m1)
+    assert stats.follows[20]["XXX"].iloc[-1] == pytest.approx(
+        (c(m0, u1) - same * u_auto) / np.sqrt((1 - same**2) * (1 - u_auto**2))
+    )
+    assert stats.leads[20]["XXX"].iloc[-1] == pytest.approx(
+        (c(m1, u0) - m_auto * same) / np.sqrt((1 - m_auto**2) * (1 - same**2))
+    )
     assert stats.avg_corr[20].iloc[-1] == pytest.approx(stats.corr[20]["XXX"].iloc[-1])  # the US is not in its own average
 
 

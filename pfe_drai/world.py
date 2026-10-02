@@ -470,12 +470,21 @@ class LinkStats:
     corr: dict
     beta: dict
     corr_1d: dict
-    follows: dict  # corr(market today, US yesterday): the market follows the US with a day's delay
-    leads: dict  # corr(market yesterday, US today): the market moves a day before the US
+    follows: dict  # market today vs US yesterday, same-day link removed: the market follows the US a day later
+    leads: dict  # US today vs market yesterday, the market's own same-day link removed: it moves a day before
     corr_stress: pd.DataFrame
     corr_calm: pd.DataFrame
     stress_days: pd.DataFrame
     avg_corr: dict  # {window: mean correlation of the other markets with the US}
+
+
+def _partial(r_xz: pd.DataFrame, r_xy: pd.DataFrame, r_zy) -> pd.DataFrame:
+    """Correlation of x with z once y is taken out: (r_xz - r_xy r_zy) / sqrt((1 - r_xy^2)(1 - r_zy^2)).
+
+    r_xy may be a frame (one column per market); r_zy a frame or a series shared by all markets.
+    """
+    r_zy = r_zy if isinstance(r_zy, pd.DataFrame) else pd.DataFrame({c: r_zy for c in r_xz.columns})
+    return ((r_xz - r_xy * r_zy) / np.sqrt((1 - r_xy**2) * (1 - r_zy**2))).clip(-1, 1)
 
 
 def link_to_us(prices: pd.DataFrame, ind: dict, settings: dict) -> LinkStats:
@@ -499,8 +508,14 @@ def link_to_us(prices: pd.DataFrame, ind: dict, settings: dict) -> LinkStats:
         corr[w] = rk.rolling(w, min_periods=need(w)).corr(usk).clip(-1, 1)  # clip: float noise, e.g. 1.0000000002
         beta[w] = rk.rolling(w, min_periods=need(w)).cov(usk).div(usk.rolling(w, min_periods=need(w)).var(), axis=0)
         corr_1d[w] = r1.rolling(w, min_periods=need(w)).corr(us1).clip(-1, 1)
-        follows[w] = r1.rolling(w, min_periods=need(w)).corr(us1.shift(1)).clip(-1, 1)
-        leads[w] = r1.shift(1).rolling(w, min_periods=need(w)).corr(us1).clip(-1, 1)
+        # Lead/lag as partial correlations, with the same-day link taken out: in a crash daily returns
+        # reverse (negative autocorrelation), so a raw lag correlation is just same-day link x that reversal.
+        us_auto = us1.rolling(w, min_periods=need(w)).corr(us1.shift(1))
+        raw_follows = r1.rolling(w, min_periods=need(w)).corr(us1.shift(1))  # market today, US yesterday
+        follows[w] = _partial(raw_follows, corr_1d[w], us_auto)
+        own_auto = r1.rolling(w, min_periods=need(w)).corr(r1.shift(1))  # market today, market yesterday
+        raw_leads = r1.shift(1).rolling(w, min_periods=need(w)).corr(us1)  # market yesterday, US today
+        leads[w] = _partial(raw_leads, own_auto, corr_1d[w])
         mean = corr[w][others].mean(axis=1)
         avg[w] = mean.where(corr[w][others].notna().sum(axis=1) >= cfg["min_markets"])
 
