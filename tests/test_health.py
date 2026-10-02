@@ -204,6 +204,14 @@ def test_a_tampered_file_is_an_integrity_failure_and_is_never_repaired(tmp_path,
     assert {p.name: p.read_bytes() for p in folder.iterdir()} == before  # read-only
 
 
+def test_windows_line_endings_are_named_as_such_not_as_tampering(tmp_path, cfg):
+    folder = _entries(tmp_path, ["2026-10-01"])
+    target = folder / "2026-10-01.json"
+    target.write_bytes(target.read_bytes().replace(b"\n", b"\r\n"))
+    integrity = _status(health.check_record(folder, "2026-10-02T06:30:00Z", cfg), "record.integrity")
+    assert integrity.status == FAILURE and "line endings" in integrity.message and integrity.details["crlf"] == ["2026-10-01"]
+
+
 def test_a_broken_chain_link_is_an_integrity_failure(tmp_path, cfg):
     folder = _entries(tmp_path, ["2026-09-30", "2026-10-01"])
     rows = list(csv.reader((folder / "index.csv").open(encoding="utf-8")))

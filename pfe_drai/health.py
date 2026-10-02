@@ -19,6 +19,7 @@ fact. See docs/OPERATIONS.md.
 Constraints: dates and series names only (no market prices), and exception text is scrubbed of keys.
 """
 
+import hashlib
 import json
 import os
 import re
@@ -251,7 +252,28 @@ def _closures(after, until) -> list[str]:
     return out
 
 
-def check_integrity(live) -> Check:
+def _crlf_files(folder: Path, live) -> list[str]:
+    """Entries that only fail their hash because the file has Windows line endings (git core.autocrlf)."""
+    found = []
+    index = {e["date"]: e["sha256"] for e in live.entries}
+    for day, digest in index.items():
+        path = folder / f"{day}.json"
+        if path.exists() and hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            if hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest() == digest:
+                found.append(day)
+    return found
+
+
+def check_integrity(live, folder: Path | None = None) -> Check:
+    crlf = _crlf_files(folder, live) if folder is not None and not live.chain_ok else []
+    if crlf:
+        return Check(
+            "record.integrity",
+            FAILURE,
+            f"{_listed(crlf)}: the file differs from index.csv only by Windows line endings (git core.autocrlf), "
+            "not by content. Re-checkout the file with the .gitattributes of this repository (docs/OPERATIONS.md)",
+            {"crlf": crlf, "problems": live.problems},
+        )
     if live.chain_ok:
         return Check("record.integrity", OK, f"hash chain intact over {len(live.entries)} day(s)")
     return Check(
@@ -401,7 +423,7 @@ def check_record(folder: Path, now, settings: dict) -> list[Check]:
     live = read_live(folder)
     records = read_records(folder)
     return [
-        check_integrity(live),
+        check_integrity(live, folder),
         check_latest(live, records, now, settings),
         check_gaps(live, settings),
         check_timestamps(live, now, settings),
