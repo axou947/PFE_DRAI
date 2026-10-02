@@ -1,0 +1,81 @@
+# Daily job health: did the publication run, and is the record intact? (docs/OPERATIONS.md)
+#
+# Independent of publish.yml, so a broken publication cannot hide its own failure. Read-only on the
+# repository: it never writes to track_record/, never pushes, and needs no data API key (the record,
+# calendar and timestamp checks read only track_record/; the source checks were written there by the
+# publication job). It keeps ONE issue "Daily job health": opened or updated while something is wrong,
+# closed when everything is green. Exit codes of the check: 0 ok, 1 warning (issue only), 2 failure
+# (issue, and this run fails).
+name: Daily job health
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC, Tuesday to Saturday: after each Monday-Friday publication (22:30 UTC, often hours late).
+    # An entry counts as late 9 h after the US close, 06:00 UTC (health.due_after_close_hours).
+    - cron: "30 6 * * 2-6"
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+concurrency:
+  group: health
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: Check the record
+        id: check
+        run: |
+          set +e
+          python -m pfe_drai health --offline --markdown health.md
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Add the latest publication runs
+        # Where to look first when an entry is missing.
+        continue-on-error: true
+        run: |
+          {
+            echo
+            echo "Latest runs of the publication workflow:"
+            echo
+            gh run list --workflow publish.yml --limit 3 --json createdAt,event,status,conclusion,url \
+              --jq '.[] | "- \(.createdAt) (\(.event)): \(.status) \(.conclusion) \(.url)"'
+          } >> health.md
+      - name: Show the report
+        run: cat health.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open, update or close the issue
+        run: |
+          code="${{ steps.check.outputs.code }}"
+          number=$(gh issue list --state open --label job-health --json number --jq '.[0].number // empty')
+          if [ "$code" != "0" ]; then
+            gh label create job-health --color B60205 --description "Daily job health report" 2>/dev/null || true
+            if [ -n "$number" ]; then
+              old=$(gh issue view "$number" --json body --jq '.body' | grep -m1 '^## ' || true)
+              gh issue edit "$number" --body-file health.md
+              # An edit notifies nobody: a comment when the severity changed.
+              if [ "$old" != "$(grep -m1 '^## ' health.md)" ]; then
+                gh issue comment "$number" --body "Status changed, see the updated report above."
+              fi
+            else
+              gh issue create --title "Daily job health" --label job-health --body-file health.md
+            fi
+          elif [ -n "$number" ]; then
+            gh issue close "$number" --comment "Recovered: the daily job health check is green ($(date -u '+%F %H:%M UTC'))."
+          fi
+      - name: Fail on a failure
+        if: steps.check.outputs.code == '2'
+        run: |
+          echo "::error::The daily job health check found a failure: see the job summary and the 'Daily job health' issue."
+          exit 1

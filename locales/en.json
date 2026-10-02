@@ -395,5 +395,15 @@
   "world.link_lag": "Daily returns: same-day correlation {same}; extra link with the US of the previous day {follows}; extra link with the market's previous day {leads} (same-day link taken out, so crash-day reversals do not distort them). Stress column uses {days} US stress days of the last 5 years (blank under 20).",
   "world.avg_corr": "Average correlation with the US ({days} days)",
   "world.avg_corr_help": "Blue line: average correlation of the other markets with the US; red bands: the US market in stress. Correlations tend to rise in crises, which is when diversification helps least.",
-  "world.extras_method": "**Local currency and link to the US.** Local-currency returns use FRED H.10 exchange rates (weekly: the latest days are blank, never carried forward). Link to the US: rolling correlation and beta of each ETF's {days}-day returns against SPY over {windows} business days, fixed before looking at real numbers; the stress columns compare days when the US market is in stress with the others. Descriptive only."
+  "world.extras_method": "**Local currency and link to the US.** Local-currency returns use FRED H.10 exchange rates (weekly: the latest days are blank, never carried forward). Link to the US: rolling correlation and beta of each ETF's {days}-day returns against SPY over {windows} business days, fixed before looking at real numbers; the stress columns compare days when the US market is in stress with the others. Descriptive only.",
+  "tr.fresh.line": "Latest entry: {last} · last market day: {expected}",
+  "tr.fresh.ok": "Up to date.",
+  "tr.fresh.pending": "The entry for {expected} is due: the daily job usually publishes within a few hours of the US close.",
+  "tr.fresh.late": "Late: no entry for {expected}. The latest published day is {last}. A missed day stays missing: it counts as no alarm and is never back-filled.",
+  "tr.fresh.degraded": "Data warning on {date}: {what}. The entry was published as is and is labelled here.",
+  "tr.fresh.days_tag": "data warning",
+  "tr.fresh.no_js": "Turn on JavaScript to see whether the latest entry is up to date.",
+  "tr.fresh.stale": "stale series: {names}",
+  "tr.fresh.path": "a series did not come from its point-in-time source",
+  "tr.fresh.run": "the daily job found the source data behind the market day"
 }

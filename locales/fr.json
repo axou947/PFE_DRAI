@@ -395,5 +395,15 @@
   "world.link_lag": "Rendements quotidiens : corrélation du même jour {same} ; lien supplémentaire avec les États-Unis de la veille {follows} ; lien supplémentaire avec la veille du marché {leads} (lien du même jour retiré, donc les rebonds de jours de krach ne les faussent pas). La colonne stress s'appuie sur {days} jours de stress US des 5 dernières années (vide sous 20).",
   "world.avg_corr": "Corrélation moyenne avec les États-Unis ({days} jours)",
   "world.avg_corr_help": "Ligne bleue : corrélation moyenne des autres marchés avec les États-Unis ; bandes rouges : marché américain en stress. Les corrélations ont tendance à monter en crise, quand la diversification protège le moins.",
-  "world.extras_method": "**Devise locale et lien avec les États-Unis.** Les rendements en devise locale utilisent les taux de change H.10 de la Fed (FRED), publiés chaque semaine : les derniers jours restent vides, jamais reportés. Lien avec les États-Unis : corrélation et bêta glissants des rendements {days} jours de chaque ETF contre SPY sur {windows} jours ouvrés, fixés avant de regarder des chiffres réels ; les colonnes stress comparent les jours où le marché américain est en stress aux autres. Descriptif seulement."
+  "world.extras_method": "**Devise locale et lien avec les États-Unis.** Les rendements en devise locale utilisent les taux de change H.10 de la Fed (FRED), publiés chaque semaine : les derniers jours restent vides, jamais reportés. Lien avec les États-Unis : corrélation et bêta glissants des rendements {days} jours de chaque ETF contre SPY sur {windows} jours ouvrés, fixés avant de regarder des chiffres réels ; les colonnes stress comparent les jours où le marché américain est en stress aux autres. Descriptif seulement.",
+  "tr.fresh.line": "Dernière entrée : {last} · dernier jour de marché : {expected}",
+  "tr.fresh.ok": "À jour.",
+  "tr.fresh.pending": "L'entrée du {expected} est attendue : la publication quotidienne a lieu en général dans les heures qui suivent la clôture américaine.",
+  "tr.fresh.late": "En retard : pas d'entrée pour le {expected}. Le dernier jour publié est le {last}. Un jour manqué reste manquant : il compte comme sans alarme et n'est jamais rattrapé.",
+  "tr.fresh.degraded": "Alerte données le {date} : {what}. L'entrée a été publiée telle quelle et elle est signalée ici.",
+  "tr.fresh.days_tag": "alerte données",
+  "tr.fresh.no_js": "Activez JavaScript pour voir si la dernière entrée est à jour.",
+  "tr.fresh.stale": "séries en retard : {names}",
+  "tr.fresh.path": "une série ne vient pas de sa source à date de publication",
+  "tr.fresh.run": "la publication quotidienne a trouvé les données sources en retard sur le jour de marché"
 }

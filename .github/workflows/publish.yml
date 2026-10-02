@@ -31,6 +31,9 @@ jobs:
         # A fresh OpenTimestamps proof is only anchored in Bitcoin a few hours later.
         run: find track_record -name '*.ots' -print0 | xargs -0 -r -n1 ots upgrade || true
       - name: Publish today's regime
+        # On failure the error class and the failing series go to the job summary (no keys, no
+        # prices). On success the same step writes track_record/health/<day>.json: the data checks.
+        id: publish
         run: python -m pfe_drai --provider fred publish
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
@@ -57,6 +60,11 @@ jobs:
         run: |
           echo "::error::The track-record page did not build; today's entry was still committed."
           exit 1
+      - name: Report the data health
+        # After the commit, so a degraded source never costs the day's entry: the entry is committed
+        # labelled, and the run fails here when a source is stale (docs/OPERATIONS.md).
+        if: always() && steps.publish.outcome == 'success'
+        run: python -m pfe_drai health --run-summary
 
   # Public page on GitHub Pages. Off until an admin of the repository sets
   # Settings > Pages > Source to "GitHub Actions" (docs/TRACK_RECORD.md); until then this job

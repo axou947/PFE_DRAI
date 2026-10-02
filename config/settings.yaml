@@ -219,3 +219,28 @@ publish:
   # Public track-record page (track_record/index.html and fr.html, docs/TRACK_RECORD.md): links to the code.
   repository_url: https://github.com/axou947/PFE_DRAI
   pages_url: https://axou947.github.io/PFE_DRAI/   # once Settings > Pages > Source is GitHub Actions
+
+# Daily job health (docs/OPERATIONS.md). Outside features/regimes/models/validation: changing it never
+# changes the model's settings fingerprint or opens a new backtest record.
+health:
+  # A market day's entry is due this long after the US close (21:00 UTC). The 22:30 UTC cron often
+  # starts hours late (01:46 UTC on 2026-10-01), so 9 h = 06:00 UTC the next morning.
+  due_after_close_hours: 9
+  # An entry older than this many days must have its OpenTimestamps proof anchored in Bitcoin.
+  ots_upgrade_days: 3
+  # How old each series may be before a warning / a failure. Daily series: market days behind the last
+  # closed session (FRED posts a day late, so 1 is normal). Weekly and monthly: days since the release
+  # that made the latest value known (jobless claims every Thursday, CPI and industrial production
+  # mid-month, so a monthly series is not late between two releases).
+  freshness:
+    daily: {warn: 2, fail: 5}
+    weekly: {warn: 10, fail: 24}
+    monthly: {warn: 45, fail: 80}
+    overrides:             # ETF prices from Tiingo are posted the evening itself
+      equity: {warn: 1, fail: 3}
+      hy_bond: {warn: 1, fail: 3}
+      ig_bond: {warn: 1, fail: 3}
+      treasury: {warn: 1, fail: 3}
+  # Market days that were not published and stay missing, once understood: "YYYY-MM-DD": "why".
+  # They are listed, not hidden; an unlisted gap keeps the health issue open.
+  acknowledged_gaps: {}

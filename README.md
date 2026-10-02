@@ -48,6 +48,8 @@ python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix 
 python -m pfe_drai --provider fred slowdown     # Ralentissement : avant / après, contre l'indice d'activité de la Fed de Chicago
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
+python -m pfe_drai health --offline          # le job quotidien est-il en bonne santé ? jour manquant, intégrité, horodatage (docs/OPERATIONS.md)
+python -m pfe_drai --provider fred health     # + fraîcheur de chaque série de données (clés requises)
 python -m pfe_drai --provider fred track-record --out preview  # aperçu de la page publique du track record (docs/TRACK_RECORD.md)
 python -m pfe_drai --provider fred world --date 2020-03-16   # marchés mondiaux : performance et état de stress (docs/WORLD.md)
 python -m pfe_drai thesis --lang fr --format html --out thesis  # rapport méthode et résultats (docs/thesis/), chiffres lus dans les enregistrements
@@ -138,6 +140,8 @@ pfe_drai/
   thesis/      rapport méthode et résultats FR/EN assemblé depuis docs/thesis/ et les enregistrements
   publish/     publication quotidienne horodatée, page publique du track record
   alerts.py    règles d'alerte
+  health.py    santé du job quotidien : jour manquant, intégrité, fraîcheur des sources (docs/OPERATIONS.md)
+  nyse.py      calendrier de la Bourse de New York (jours fériés, jour attendu)
   world.py     marchés mondiaux : prix des ETF pays, état de stress par pays, diffusion
   pipeline.py  enchaîne tout ; utilisé par l'app, l'API, la CLI et les tests
   i18n/        t(clé, langue) ; textes dans locales/fr.json et locales/en.json
