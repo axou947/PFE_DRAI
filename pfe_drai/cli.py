@@ -5,6 +5,7 @@ backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
 publish    write today's track record entry (real data only) and its data-health record
 health     is the daily job healthy? record, calendar, timestamps, source freshness (live data); exit 0 ok, 1 warning, 2 failure
+notify     message when the published alarm or regime changed; --dry-run prints it, --test sends a test (docs/ALERTS.md)
 track-record  build the public track-record page (track_record/index.html, fr.html); --out for a preview
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
@@ -220,6 +221,18 @@ def cmd_health(args):
         Path(args.markdown).write_text(report.to_markdown(), encoding="utf-8")
     print(json.dumps(report.to_dict(), indent=1, ensure_ascii=False) if args.json else report.to_text())
     sys.exit(report.exit_code)
+
+
+def cmd_notify(args):
+    from . import notify
+    from .config import resolve
+
+    settings = load_settings(args.config)
+    lang = args.language or settings["alerts"].get("notify", {}).get("language", "both")
+    if args.test:
+        sys.exit(notify.send_test(settings, lang))
+    folder = resolve(args.folder or settings["publish"]["dir"])
+    sys.exit(notify.run(folder, settings, lang, dry_run=args.dry_run, force=args.force))
 
 
 def cmd_track_record(args):
@@ -600,6 +613,7 @@ def main(argv=None):
         ("report", cmd_report),
         ("publish", cmd_publish),
         ("health", cmd_health),
+        ("notify", cmd_notify),
         ("track-record", cmd_track_record),
         ("episodes", cmd_episodes),
         ("states", cmd_states),
@@ -629,6 +643,12 @@ def main(argv=None):
             sp.add_argument(
                 "--run-summary", action="store_true", help="end of the publish workflow: annotate the record the job just wrote"
             )
+        if name == "notify":
+            sp.add_argument("--dry-run", action="store_true", help="print the exact message, send nothing (no network)")
+            sp.add_argument("--test", action="store_true", help="send a clearly labelled test message through the channels")
+            sp.add_argument("--language", choices=["fr", "en", "both"], help="message language (default: alerts.notify.language)")
+            sp.add_argument("--force", action="store_true", help="send again although this day was already sent")
+            sp.add_argument("--folder", help="track record folder (default: publish.dir)")
         if name == "track-record":
             sp.add_argument("--out", help="write the pages (and a new backtest record) to this folder instead: a preview")
         if name == "slowdown":

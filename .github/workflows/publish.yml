@@ -48,13 +48,44 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
       - name: Commit
+        id: commit
         run: |
           git config user.name "regime-bot"
           git config user.email "regime-bot@users.noreply.github.com"
           git add track_record
-          git commit -m "Track record $(date -u +%F)" || { echo "nothing to publish"; exit 0; }
+          git commit -m "Track record $(date -u +%F)" || { echo "nothing to publish"; echo "new=false" >> "$GITHUB_OUTPUT"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
+          echo "new=true" >> "$GITHUB_OUTPUT"
+      - name: Send alerts
+        # After the commit and only when this run pushed a new day, so a re-run on a holiday or the
+        # same day sends nothing. A mail failure never fails or reorders the daily record
+        # (docs/ALERTS.md). Without ALERT_* secrets it prints "no channel configured" and succeeds.
+        id: alerts
+        if: steps.commit.outputs.new == 'true' && steps.publish.outcome == 'success'
+        continue-on-error: true
+        run: python -m pfe_drai notify
+        env:
+          ALERT_SMTP_HOST: ${{ secrets.ALERT_SMTP_HOST }}
+          ALERT_SMTP_PORT: ${{ secrets.ALERT_SMTP_PORT }}
+          ALERT_SMTP_USER: ${{ secrets.ALERT_SMTP_USER }}
+          ALERT_SMTP_PASSWORD: ${{ secrets.ALERT_SMTP_PASSWORD }}
+          ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+      - name: Record what was sent
+        # track_record/alerts/<day>.json lists event and channel names only (no address, no URL):
+        # it is what stops a manual re-run from sending the same transition twice.
+        if: steps.alerts.outcome != 'skipped'
+        continue-on-error: true
+        run: |
+          git add track_record/alerts
+          git commit -m "Alerts sent $(date -u +%F)" || { echo "no alert sent"; exit 0; }
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push
+      - name: Report an alert failure
+        if: steps.alerts.outcome == 'failure'
+        run: echo "::warning::An alert channel failed (class name in the Send alerts log). The day's entry is committed; see docs/ALERTS.md to resend."
       - name: Report a page failure
         if: steps.page.outcome == 'failure'
         run: |
