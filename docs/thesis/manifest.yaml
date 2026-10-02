@@ -1,0 +1,51 @@
+# The thesis report: chapter order, titles, and which docs each chapter quotes (python -m pfe_drai thesis).
+#
+# One file per chapter and language: <file>.fr.md and <file>.en.md. The first line of each is "# <title>",
+# the same as the title here (the builder checks it). Numbers are {{placeholders}} read from the backtest
+# record, config/settings.yaml or the live record; {{table:...}}, {{figure:...}} and {{quote:Doc.md#Section}}
+# are generated blocks. A chapter may quote only the docs listed under its `sources`.
+title:
+  fr: "Détection de régimes de marché : méthode, validation et résultats"
+  en: "Market regime detection: method, validation and results"
+subtitle:
+  fr: "Projet de fin d'études, rapport méthodologique généré à partir du dépôt PFE_DRAI"
+  en: "End-of-studies project, methods and results report generated from the PFE_DRAI repository"
+
+chapters:
+  - {id: introduction, file: 01-introduction, title: {fr: "Introduction", en: "Introduction"}, sources: []}
+  - {id: data, file: 02-data, title: {fr: "Données et discipline point-in-time", en: "Data and point-in-time discipline"}, sources: [ARCHITECTURE.md]}
+  - {id: regimes, file: 03-regimes, title: {fr: "Les régimes sur trois dimensions", en: "Regimes on three dimensions"}, sources: [REGIMES.md]}
+  - {id: validation, file: 04-validation, title: {fr: "Cadre de validation", en: "Validation framework"}, sources: [ARCHITECTURE.md]}
+  - {id: detection, file: 05-detection, title: {fr: "Détecter le stress : de la v1 à la v2", en: "Detecting stress: from v1 to v2"}, sources: [DETECTION.md, DETECTION_V2.md]}
+  - {id: calibration, file: 06-calibration, title: {fr: "Calibration de la probabilité de stress", en: "Calibrating the stress probability"}, sources: [CALIBRATION.md]}
+  - {id: slowdown, file: 07-slowdown, title: {fr: "Le cas du Ralentissement : un résultat en partie négatif", en: "The Slowdown case: a partly negative result"}, sources: [SLOWDOWN.md]}
+  - {id: euro, file: 08-euro, title: {fr: "La zone euro : un échec pré-enregistré", en: "The euro area: a pre-registered failure"}, sources: [EURO.md]}
+  - {id: world, file: 09-world, title: {fr: "Les marchés mondiaux", en: "World markets"}, sources: [WORLD.md]}
+  - {id: live, file: 10-live-record, title: {fr: "Le suivi en conditions réelles et l'horodatage", en: "The live record and timestamping"}, sources: [TRACK_RECORD.md]}
+  - {id: limitations, file: 11-limitations, title: {fr: "Limites", en: "Limitations"}, sources: []}
+  - {id: reproducibility, file: 90-reproducibility, kind: appendix, title: {fr: "Reproductibilité", en: "Reproducibility"}, sources: []}
+  - {id: references, file: 91-references, kind: appendix, title: {fr: "Références", en: "References"}, sources: []}
+
+# Consistency checks (python -m pfe_drai thesis --check): numbers a doc prints in its Results, compared with the
+# backtest record of the same model version, to the precision the doc printed. Docs are never edited; a
+# disagreement is listed. A check that cannot run (missing record, section or column) is a failure.
+checks:
+  # docs/SLOWDOWN.md, step 2 on the adopted variant: the v2.2 column is the model of the record `v2.2`.
+  - id: slowdown-v2.2
+    doc: SLOWDOWN.md
+    section: "Results > Step 2 on the selected variant (run once by Henry, 2026-10-01)"
+    version: v2.2
+    column: v2.2
+    rows:
+      "episodes detected, median latency": [metrics.detected, metrics.n_episodes, metrics.median_latency]
+      "false positives / yr": [metrics.false_positives_per_year, metrics.false_alarm_share]
+      "regime switches / yr": [metrics.switches_per_year]
+      "Brier, ECE": [metrics.brier, metrics.ece]
+  # docs/DETECTION_V2.md, the 11 real episodes. The doc says the v2 latencies are the ones of every later version
+  # (docs/CALIBRATION.md and docs/SLOWDOWN.md: "identical episode by episode"), so the v2.2 record must agree.
+  - id: detection-v2-episodes
+    doc: DETECTION_V2.md
+    section: "Results > Step 2: the 11 real episodes (run once by Henry, 2026-10-01)"
+    version: v2.2
+    table: 1            # the second table of the section: one row per episode
+    episodes: {start: start, drawdown: max drawdown, latency: v2}

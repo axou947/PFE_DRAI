@@ -1,0 +1,31 @@
+# Builds the thesis report (French and English: Markdown, HTML, PDF) from docs/, docs/thesis/ and the records,
+# checks that the docs agree with the backtest records, and uploads the result as an artifact.
+# Manual only: it publishes nothing and writes nothing to the repository. Needs no secret and no network.
+name: Thesis report
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  thesis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # quoted results carry the commit that last changed their doc
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: Docs agree with the backtest records
+        run: python -m pfe_drai thesis --check
+      - name: Build the report
+        run: python -m pfe_drai thesis --lang both --format all --out thesis
+      - uses: actions/upload-artifact@v4
+        with:
+          name: thesis-report
+          path: thesis

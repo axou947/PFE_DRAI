@@ -12,6 +12,7 @@ calibration  is P(stress) a probability? v2 against the calibrated version (docs
 slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
 data       history covered by each series and where the backtest starts
 world      country equity markets: return and market stress state on a date (docs/WORLD.md)
+thesis     methods and results document built from docs/ and the records (docs/thesis/); --check compares docs and records
 app        start the Streamlit dashboard
 api        start the FastAPI server
 """
@@ -498,6 +499,28 @@ def cmd_world(args):
             print(f"\nAverage correlation of the other markets with the US: {avg.iloc[-1]:.2f}")
 
 
+def cmd_thesis(args):
+    from .thesis import ThesisError, build
+    from .thesis.build import main_check
+
+    if args.check:
+        return main_check(args)
+    langs = ["fr", "en"] if args.thesis_lang == "both" else [args.thesis_lang or args.lang]
+    formats = ("md", "html", "pdf") if args.format == "all" else (args.format,)
+    for lang in langs:
+        try:
+            written, warnings = build(
+                lang=lang, formats=formats, out=args.out, records_dir=Path(args.records) if args.records else None
+            )
+        except ThesisError as exc:
+            print(f"The {lang} report cannot be built:\n{exc}", file=sys.stderr)
+            sys.exit(1)
+        for warning in warnings:
+            print(f"warning: {warning}")
+        for kind, path in written.items():
+            print(f"{kind}: {path}")
+
+
 def cmd_app(args):
     env = {**os.environ, **({"PFE_DRAI_PROVIDER": args.provider} if args.provider else {})}
     try:
@@ -533,6 +556,7 @@ def main(argv=None):
         ("slowdown", cmd_slowdown),
         ("data", cmd_data),
         ("world", cmd_world),
+        ("thesis", cmd_thesis),
         ("app", cmd_app),
         ("api", cmd_api),
     ]:
@@ -548,6 +572,18 @@ def main(argv=None):
             sp.add_argument("--holdout", action="store_true", help="growth score candidates on 1999-2009 (no model fitted)")
             sp.add_argument(
                 "--tested", action="store_true", help="run the pre-registered v2.2 (the holdout's choice) as the 'after'"
+            )
+        if name == "thesis":
+            sp.add_argument(
+                "--lang", dest="thesis_lang", choices=["fr", "en", "both"], help="language of the report (default: --lang)"
+            )
+            sp.add_argument(
+                "--format", default="html", choices=["md", "html", "pdf", "all"], help="pdf needs Edge, Chrome or Chromium"
+            )
+            sp.add_argument("--out", default="thesis", help="output folder (default: thesis/, not committed)")
+            sp.add_argument("--records", help="folder holding backtest/ records (default: track_record/)")
+            sp.add_argument(
+                "--check", action="store_true", help="check the docs' printed results against the records; no output files"
             )
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")

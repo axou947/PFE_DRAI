@@ -50,6 +50,8 @@ python -m pfe_drai --provider fred data       # historique couvert par chaque s�
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai --provider fred track-record --out preview  # aperçu de la page publique du track record (docs/TRACK_RECORD.md)
 python -m pfe_drai --provider fred world --date 2020-03-16   # marchés mondiaux : performance et état de stress (docs/WORLD.md)
+python -m pfe_drai thesis --lang fr --format html --out thesis  # rapport méthode et résultats (docs/thesis/), chiffres lus dans les enregistrements
+python -m pfe_drai thesis --check             # les résultats imprimés dans docs/ concordent-ils avec les enregistrements de backtest ?
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
@@ -97,6 +99,12 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
   (`track_record/index.html`, `fr.html`) : chaque alarme et chaque délai, en réel puis en backtest,
   publiable sur GitHub Pages. Voir [docs/TRACK_RECORD.md](docs/TRACK_RECORD.md).
 
+- **Rapport méthode et résultats** : `python -m pfe_drai thesis` assemble un document FR/EN (Markdown, HTML, PDF) à partir de
+  `docs/thesis/`. Les chiffres ne sont pas recopiés : ce sont des repères `{{...}}` lus dans les enregistrements de backtest, les
+  réglages et le suivi réel ; les résultats qui n'existent que dans les pré-enregistrements sont cités textuellement, avec leur commit ;
+  `--check` fait échouer la commande si un document imprime un chiffre que l'enregistrement de la même version ne reproduit pas.
+  Voir [docs/thesis/README.md](docs/thesis/README.md).
+
 Détails : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Brancher une vraie source de données
@@ -127,6 +135,7 @@ pfe_drai/
   validation/  walk-forward, datation des épisodes, latence, fausses alertes, calibration
   scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds
   reporting/   note de comité FR/EN (Markdown, HTML, PDF)
+  thesis/      rapport méthode et résultats FR/EN assemblé depuis docs/thesis/ et les enregistrements
   publish/     publication quotidienne horodatée, page publique du track record
   alerts.py    règles d'alerte
   world.py     marchés mondiaux : prix des ETF pays, état de stress par pays, diffusion
@@ -134,6 +143,7 @@ pfe_drai/
   i18n/        t(clé, langue) ; textes dans locales/fr.json et locales/en.json
 app/           tableau de bord Streamlit
 api/           API FastAPI
+docs/thesis/   chapitres du rapport (un fichier par chapitre et langue), manifest.yaml, références à compléter
 track_record/  publications quotidiennes, backtest gelé (backtest/) et page publique (index.html, fr.html)
 tests/         pytest
 ```

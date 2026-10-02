@@ -9,3 +9,6 @@ data_cache/
 *.parquet
 *.duckdb
 .env
+
+# Thesis report output (python -m pfe_drai thesis); docs/thesis/ is source and stays tracked
+/thesis/
