@@ -39,3 +39,6 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.ruff.lint.per-file-ignores]
+"pfe_drai/theme.py" = ["E501"]  # one CSS rule per line

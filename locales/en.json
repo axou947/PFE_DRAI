@@ -2,6 +2,7 @@
   "app.title": "Market regime detection",
   "app.subtitle": "Regime, stress scenarios and risk committee note",
   "app.language": "Language",
+  "app.dark_mode": "Dark mode",
   "app.settings": "Settings",
   "app.model": "Model",
   "app.as_of": "Analysis date",

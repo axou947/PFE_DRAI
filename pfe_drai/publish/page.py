@@ -689,8 +689,10 @@ def render(
     lang: str,
     switch: bool = True,
     versions: list[dict] | None = None,
+    theme: str | None = None,
 ) -> str:
     """The whole page in `lang` (fr or en). `switch`: link to the other language's page (not inside the app).
+    `theme`: "light" or "dark" to force it (the app); None follows the reader's system.
 
     `versions`: every backtest record (list_backtests), shown with the days the published model changed.
     """
@@ -710,8 +712,9 @@ def render(
         f'<h2>{_e(t("tr.method.title", lang))}</h2><div class="card">{_method(settings, repo, lang)}</div>',
         f"<footer>{t('tr.footer', lang, repo=repo)}</footer>",
     ]
+    forced = f' data-theme="{theme}"' if theme in ("light", "dark") else ""
     return (
-        f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
+        f'<!doctype html><html lang="{lang}"{forced}><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         f"<title>{_e(t('tr.page_title', lang))}</title>"
         f'<meta name="description" content="{_e(t("tr.subtitle", lang))}">'
@@ -768,7 +771,7 @@ def build_site(pipeline, records_dir: Path, out_dir: Path | None = None) -> dict
     return {"backtest": path, "backtest_written": written, "pages": pages, "live": live, "score": score}
 
 
-def page_html(pipeline, records_dir: Path, lang: str) -> str:
+def page_html(pipeline, records_dir: Path, lang: str, theme: str | None = None) -> str:
     """The page for the app, written nowhere: the recorded backtest of this configuration, or one computed now."""
     found = find_backtest(records_dir, pipeline.settings)
     if found:
@@ -776,7 +779,8 @@ def page_html(pipeline, records_dir: Path, lang: str) -> str:
     else:
         bt, meta = backtest_record(pipeline), {"file": None, "sha256": None, "ots": "missing"}
     live = read_live(records_dir)
-    return render(live, _score(pipeline, live), bt, meta, pipeline.settings, lang, switch=False, versions=_versions(records_dir))
+    versions = _versions(records_dir)
+    return render(live, _score(pipeline, live), bt, meta, pipeline.settings, lang, switch=False, versions=versions, theme=theme)
 
 
 def _versions(records_dir: Path, out_dir: Path | None = None) -> list[dict]:
