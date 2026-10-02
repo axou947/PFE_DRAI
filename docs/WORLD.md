@@ -161,6 +161,15 @@ Run once on real data (Tiingo ETFs, FRED H.10), settings unchanged:
 - Link, 63-day window on 2020-03-16: average correlation of the other 19 markets with the US **0.91**.
   Correlation ranges from 0.77 (China) to 0.97 (Switzerland, Australia); correlation when the US is in stress
   is higher than on other days for every market (for example Brazil 0.89 vs 0.45, Saudi Arabia 0.86 vs 0.35).
-  The 2019 comparison point is not recorded yet.
+  On 2019-09-30 (calm, 0 of 20 in stress except India elevated) the same average is **0.73**: correlations
+  rose from 0.73 to 0.91 between a calm autumn 2019 and the Covid crash, the usual "correlations rise in crises".
+  Single markets move a lot (Switzerland 0.55 to 0.97, Saudi Arabia 0.21 to 0.79), and India's correlation on
+  US-stress days in 2019 is -0.29: with few US stress days in the 5-year window, the stress column is noisy and
+  is not read market by market.
 - That run printed the first version of the lead/lag columns (raw correlations, all between -0.2 and -0.5).
   They were replaced by partial correlations, as described above; the other columns are unchanged.
+- Partial lead/lag, 63-day window, run once on 2026-10-02: calm period (2019-09-30) values are small
+  (mostly between -0.2 and +0.2); Australia stands out with follows +0.40 and leads -0.36, as expected for an ETF
+  that tracks a session closed hours before New York. In March 2020 the European markets show follows +0.3 to
+  +0.4 and leads -0.4 to -0.6: crash days are too violent for a 63-day daily estimate to separate timing
+  from reversals, so these two columns are read in calm periods and between markets, not as a crisis measure.
