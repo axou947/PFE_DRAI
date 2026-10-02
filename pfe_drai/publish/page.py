@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .. import health as _health
+from .. import nyse
 from ..i18n import fmt_date, fmt_pct, t
 from .record import (
     LiveRecord,
@@ -70,6 +72,7 @@ pre{background:var(--chip);padding:10px 12px;border-radius:8px;overflow-x:auto;f
 .tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;
 padding:8px 10px;font-size:.8rem;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;min-width:170px}
 .tip b{font-variant-numeric:tabular-nums}
+.warnmark{background:var(--warn-bg);color:var(--warn-ink);border-radius:4px;padding:0 5px;font-size:.75rem;margin-left:6px}
 details{margin:8px 0}summary{cursor:pointer;color:var(--ink2)}
 footer{margin-top:48px;color:var(--ink2);font-size:.82rem;border-top:1px solid var(--grid);padding-top:12px}
 """
@@ -103,6 +106,24 @@ document.querySelectorAll('.chart[data-series]').forEach(function(box){
   function hide(){tip.style.display='none';line.style.display='none'}
   svg.addEventListener('pointermove',show);svg.addEventListener('pointerleave',hide);
 });
+(function(){
+  /* Is the latest entry up to date? Answered in the reader's browser, from the NYSE closures embedded in the page:
+     a page built by a job that has stopped must still say that it is late. */
+  var box=document.getElementById('freshness');if(!box)return;
+  var c=JSON.parse(box.dataset.cfg),hol={};c.holidays.forEach(function(d){hol[d]=1});
+  function iso(d){return d.toISOString().slice(0,10)}
+  function isOpen(d){var w=d.getUTCDay();return w>0&&w<6&&!hol[iso(d)]}
+  var now=Date.now(),day=new Date(now);day=new Date(Date.UTC(day.getUTCFullYear(),day.getUTCMonth(),day.getUTCDate()));
+  for(var n=0;n<14&&!(isOpen(day)&&now>=day.getTime()+c.closeHour*36e5);n++)day=new Date(day.getTime()-864e5);
+  var exp=iso(day),late=c.last<exp,due=now>=day.getTime()+(c.closeHour+c.graceHours)*36e5;
+  var state=!late?'ok':due?'late':'pending';
+  function f(s){return c.fr?s.split('-').reverse().join('/'):s}
+  function fill(s){return s.split('{expected}').join(f(exp)).split('{last}').join(f(c.last))}
+  box.textContent='';
+  var a=document.createElement('p');a.className='small muted';a.textContent=fill(c.labels.line);box.appendChild(a);
+  var b=document.createElement('div');b.className=state==='late'?'notice':'small muted';b.textContent=fill(c.labels[state]);
+  box.appendChild(b);
+})();
 """
 
 
@@ -360,7 +381,61 @@ def _alarm_table(alarms: list[dict], lang: str) -> str:
     return _table(headers, rows)
 
 
-def _live_section(live: LiveRecord, score: dict, threshold: float, lang: str) -> str:
+def _freshness(live: LiveRecord, settings: dict, lang: str) -> str:
+    """Latest entry against the last market day, checked by the reader's browser (see SCRIPT).
+
+    The page holds no build time, so what is rendered here depends on the records only: the holidays
+    from the first entry to two years after the last one, and the labels in the page's language.
+    """
+    last = live.last["date"]
+    cfg = {
+        "last": last,
+        "fr": lang == "fr",
+        "closeHour": nyse.CLOSE_UTC.hour,
+        "graceHours": settings["health"]["due_after_close_hours"],
+        "holidays": nyse.holiday_dates(f"{live.first[:4]}-01-01", f"{int(last[:4]) + 2}-12-31"),
+        "labels": {
+            "line": t("tr.fresh.line", lang, expected="{expected}", last="{last}"),
+            "ok": t("tr.fresh.ok", lang),
+            "pending": t("tr.fresh.pending", lang, expected="{expected}"),
+            "late": t("tr.fresh.late", lang, expected="{expected}", last="{last}"),
+        },
+    }
+    return (
+        f'<div id="freshness" data-cfg="{_e(json.dumps(cfg, separators=(",", ":"), ensure_ascii=False))}">'
+        f'<p class="small muted">{_e(t("tr.fresh.no_js", lang))}</p></div>'
+    )
+
+
+def _degraded(live: LiveRecord, health: dict, lang: str) -> str:
+    """A notice for every recent entry published on degraded data (labelled, never hidden)."""
+    rows = []
+    for entry in live.entries[-5:]:
+        what = _degraded_what(health.get(entry["date"]), lang)
+        if what:
+            rows.append(_e(t("tr.fresh.degraded", lang, date=_date(entry["date"], lang), what=what)))
+    return f'<div class="notice">{"<br>".join(rows)}</div>' if rows else ""
+
+
+def _degraded_what(record: dict | None, lang: str) -> str:
+    """What was wrong with the data behind a day, in the page's language ('' when nothing was)."""
+    parts = []
+    for check in (record or {}).get("checks", []):
+        if check["status"] == _health.OK:
+            continue
+        if check["name"] == "sources.freshness":
+            names = ", ".join(
+                f"{r['name']} ({_date(r['last'], lang)})" for r in check["details"]["series"] if r["status"] != _health.OK
+            )
+            parts.append(t("tr.fresh.stale", lang, names=names))
+        elif check["name"] == "sources.path":
+            parts.append(t("tr.fresh.path", lang))
+        elif check["name"] == "run.entry":
+            parts.append(t("tr.fresh.run", lang))
+    return "; ".join(parts)
+
+
+def _live_section(live: LiveRecord, score: dict, threshold: float, lang: str, settings: dict, health: dict) -> str:
     out = [f'<h2><span class="badge live">{_e(t("tr.badge.live", lang))}</span>{_e(t("tr.live.title", lang))}</h2>']
     out.append(f'<p class="muted">{t("tr.live.intro", lang)}</p>')
     if not live.entries:
@@ -399,6 +474,8 @@ def _live_section(live: LiveRecord, score: dict, threshold: float, lang: str) ->
     out.append("</div>")
     if live.problems:
         out.append('<div class="notice">' + "<br>".join(_e(p) for p in live.problems) + "</div>")
+    out.append(_freshness(live, settings, lang))
+    out.append(_degraded(live, health, lang))
     if score.get("missing_days"):
         out.append(f'<p class="small muted">{_e(t("tr.live.missing", lang, n=score["missing_days"]))}</p>')
 
@@ -414,7 +491,7 @@ def _live_section(live: LiveRecord, score: dict, threshold: float, lang: str) ->
     out.append(f"<h3>{_e(t('tr.live.crises', lang))}</h3>")
     if score.get("unscored"):
         out.append(_note(t("tr.live.unscored", lang), "card"))
-        return "".join(out) + _days_table(live, lang)
+        return "".join(out) + _days_table(live, lang, health)
     out.append(f'<p class="small muted">{_e(t("tr.live.crises_help", lang))}</p>')
     if score.get("episodes"):
         out.append(_table(_episode_headers(lang), _episode_rows(score["episodes"], lang, live=True)))
@@ -428,10 +505,16 @@ def _live_section(live: LiveRecord, score: dict, threshold: float, lang: str) ->
     else:
         out.append(f'<div class="card">{_e(t("tr.live.no_alarm", lang, date=_date(live.first, lang)))}</div>')
 
-    return "".join(out) + _days_table(live, lang)
+    return "".join(out) + _days_table(live, lang, health)
 
 
-def _days_table(live: LiveRecord, lang: str) -> str:
+def _day_tag(record: dict | None, lang: str) -> str:
+    if not record or record.get("status", _health.OK) == _health.OK:
+        return ""
+    return f'<span class="warnmark" title="{_e(_degraded_what(record, lang))}">{_e(t("tr.fresh.days_tag", lang))}</span>'
+
+
+def _days_table(live: LiveRecord, lang: str, health: dict) -> str:
     ots_label = {k: t(f"tr.ots.{k}", lang) for k in ("bitcoin", "pending", "missing")}
     rows = []
     for e in reversed(live.entries):
@@ -440,7 +523,7 @@ def _days_table(live: LiveRecord, lang: str) -> str:
         )
         rows.append(
             [
-                _e(_date(e["date"], lang)),
+                _e(_date(e["date"], lang)) + _day_tag(health.get(e["date"]), lang),
                 _e(t(f"regime.{e['regime']}", lang) if e.get("regime") else "–"),
                 _e(_pct(e.get("p_stress"), lang)),
                 f'<span class="alarm-on">{_e(t("tr.on", lang))}</span>' if e.get("alarm_on") else _e(t("tr.off", lang)),
@@ -690,6 +773,7 @@ def render(
     switch: bool = True,
     versions: list[dict] | None = None,
     theme: str | None = None,
+    health: dict | None = None,
 ) -> str:
     """The whole page in `lang` (fr or en). `switch`: link to the other language's page (not inside the app).
     `theme`: "light" or "dark" to force it (the app); None follows the reader's system.
@@ -705,7 +789,7 @@ def render(
         + "</div>"
         f'<p class="muted">{_e(t("tr.subtitle", lang))}</p>'
         f'<p class="small muted">{_e(t("disclaimer", lang))} {_e(t("tr.no_signal", lang))}</p></header>',
-        _live_section(live, score, settings["validation"]["stress_probability_threshold"], lang),
+        _live_section(live, score, settings["validation"]["stress_probability_threshold"], lang, settings, health or {}),
         _verify_section(live, lang),
         _backtest_section(bt, bt_meta, repo, lang),
         _versions_section(versions or [], bt["config_sha256"] if bt else None, live, repo, lang),
@@ -730,12 +814,13 @@ def write_pages(
     bt_meta: dict,
     settings: dict,
     versions: list[dict] | None = None,
+    health: dict | None = None,
 ) -> list[Path]:
     folder.mkdir(parents=True, exist_ok=True)
     paths = []
     for lang, name in LANGS.items():
         path = folder / name
-        path.write_text(render(live, score, bt, bt_meta, settings, lang, versions=versions), encoding="utf-8")
+        path.write_text(render(live, score, bt, bt_meta, settings, lang, versions=versions, health=health), encoding="utf-8")
         paths.append(path)
     return paths
 
@@ -767,7 +852,9 @@ def build_site(pipeline, records_dir: Path, out_dir: Path | None = None) -> dict
     live = read_live(records_dir)
     score = _score(pipeline, live)
     versions = _versions(records_dir, out_dir)
-    pages = write_pages(out_dir, live, score, bt, _meta(path, base), pipeline.settings, versions)
+    pages = write_pages(
+        out_dir, live, score, bt, _meta(path, base), pipeline.settings, versions, _health.read_records(records_dir)
+    )
     return {"backtest": path, "backtest_written": written, "pages": pages, "live": live, "score": score}
 
 
@@ -780,7 +867,18 @@ def page_html(pipeline, records_dir: Path, lang: str, theme: str | None = None) 
         bt, meta = backtest_record(pipeline), {"file": None, "sha256": None, "ots": "missing"}
     live = read_live(records_dir)
     versions = _versions(records_dir)
-    return render(live, _score(pipeline, live), bt, meta, pipeline.settings, lang, switch=False, versions=versions, theme=theme)
+    return render(
+        live,
+        _score(pipeline, live),
+        bt,
+        meta,
+        pipeline.settings,
+        lang,
+        switch=False,
+        versions=versions,
+        theme=theme,
+        health=_health.read_records(records_dir),
+    )
 
 
 def _versions(records_dir: Path, out_dir: Path | None = None) -> list[dict]:

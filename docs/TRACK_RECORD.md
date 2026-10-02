@@ -66,6 +66,15 @@ start of the next run, which adds the Bitcoin attestation. The page reads each p
 "anchored in Bitcoin", "pending" or "none". Nothing had been published before this page was
 added: the first stamped day is the first scheduled run.
 
+## Health of the job
+
+The page says whether the latest entry is up to date: "Latest entry / last market day", checked in
+the reader's browser from the NYSE closures embedded in the page, so a page built by a job that
+has stopped still says "late". A missed day stays missing and counts as no alarm, never
+back-filled. A day published on stale or degraded data is marked "data warning" in the table and
+in a notice, from `track_record/health/<day>.json` (written by the job next to the entry, outside
+the hash chain). How it is watched, and what to do: [OPERATIONS.md](OPERATIONS.md).
+
 ## Model versions
 
 Every configuration has a name (`models.version` in `config/settings.yaml`: v2.1 = detection v2

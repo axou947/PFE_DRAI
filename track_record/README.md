@@ -14,3 +14,6 @@ Also here, built by the same daily job (docs/TRACK_RECORD.md):
   Settings > Pages > Source to "GitHub Actions".
 - `backtest/<last day>.json` (+ `.ots`): the out-of-sample backtest of a configuration, written once
   the first time the job runs with it, never rewritten.
+- `health/<day>.json`: the data checks of the run that published `<day>` (freshness of each series,
+  which source each came from), with the entry's SHA-256. Written next to the entry, outside
+  `index.csv` and its hash chain, so a published day is never altered. See docs/OPERATIONS.md.

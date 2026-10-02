@@ -3,7 +3,8 @@
 status     current regime and probabilities
 backtest   walk-forward metrics for every model
 report     committee note (md, html or pdf)
-publish    write today's track record entry (real data only)
+publish    write today's track record entry (real data only) and its data-health record
+health     is the daily job healthy? record, calendar, timestamps, source freshness (live data); exit 0 ok, 1 warning, 2 failure
 track-record  build the public track-record page (track_record/index.html, fr.html); --out for a preview
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
@@ -161,14 +162,64 @@ def cmd_report(args):
 
 
 def cmd_publish(args):
+    from . import health
     from .publish import publish
     from .publish.snapshot import NotEnabledError
 
+    p = _pipeline(args)
     try:
-        path = publish(_pipeline(args), args.model)
+        path = publish(p, args.model)
     except NotEnabledError as exc:
         raise SystemExit(str(exc)) from exc
+    except Exception as exc:
+        health.report_failure(exc)  # error class and failing series in the job summary, then fail as before
+        raise
     print(path or "Already published for the latest market day: nothing to do.")
+    try:
+        report = health.record_run(p, path)
+    except Exception as exc:  # noqa: BLE001 - the health record must never cost the day's entry
+        print(f"Data-health record not written: {type(exc).__name__}: {health.scrub(exc)}", file=sys.stderr)
+        return
+    print(report.to_text())
+    health.annotate(report)
+
+
+def cmd_health(args):
+    from . import health
+    from .config import resolve
+    from .data import get_provider
+
+    p = _pipeline(args)
+    settings = p.settings
+    folder = resolve(args.folder or settings["publish"]["dir"])
+    now = args.now  # None = now
+    if args.run_summary:
+        # End of the publish workflow: show what the job just recorded, fail only on a failure.
+        report = health.run_summary(folder, now)
+        if report is None:
+            print("No data-health record written by this run.")
+            return
+        health.annotate(report)
+        print(report.to_text())
+        if report.status == health.FAILURE:
+            sys.exit(1)
+        return
+    sources = None
+    if not args.offline:
+        if get_provider(settings).is_live:
+            sources = health.check_sources(p.raw, p.provider, settings, now)
+        else:
+            name = settings["data"]["provider"]
+            sources = [
+                health.Check(
+                    "sources", health.OK, f"not checked: provider '{name}' is simulated (use --provider fred, with the keys)"
+                )
+            ]
+    report = health.build_report(folder, settings, now, sources)
+    if args.markdown:
+        Path(args.markdown).write_text(report.to_markdown(), encoding="utf-8")
+    print(json.dumps(report.to_dict(), indent=1, ensure_ascii=False) if args.json else report.to_text())
+    sys.exit(report.exit_code)
 
 
 def cmd_track_record(args):
@@ -548,6 +599,7 @@ def main(argv=None):
         ("backtest", cmd_backtest),
         ("report", cmd_report),
         ("publish", cmd_publish),
+        ("health", cmd_health),
         ("track-record", cmd_track_record),
         ("episodes", cmd_episodes),
         ("states", cmd_states),
@@ -566,6 +618,17 @@ def main(argv=None):
         if name == "report":
             sp.add_argument("--format", default="md", choices=["md", "html", "pdf"])
             sp.add_argument("--out")
+        if name == "health":
+            sp.add_argument("--json", action="store_true", help="the report as JSON")
+            sp.add_argument(
+                "--offline", action="store_true", help="record and calendar checks only: no data fetched, no keys needed"
+            )
+            sp.add_argument("--now", help="check as of this moment (UTC, e.g. 2026-11-27T06:30), for tests and what-ifs")
+            sp.add_argument("--markdown", help="also write the report as Markdown to this file (the issue body)")
+            sp.add_argument("--folder", help="track record folder (default: publish.dir)")
+            sp.add_argument(
+                "--run-summary", action="store_true", help="end of the publish workflow: annotate the record the job just wrote"
+            )
         if name == "track-record":
             sp.add_argument("--out", help="write the pages (and a new backtest record) to this folder instead: a preview")
         if name == "slowdown":
