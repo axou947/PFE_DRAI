@@ -65,13 +65,41 @@ def world_data():
     return prices, indicators(prices, settings), errors
 
 
+@lru_cache
+def world_fx():
+    from pfe_drai.world import fetch_fx, fx_rates, load_markets
+
+    settings = pipeline().settings
+    prices = world_data()[0]
+    fx, errors = fetch_fx(settings)
+    rates = fx_rates(fx, load_markets(settings), prices.index, settings["world"]["fx_fill_days"])
+    last = max((c.last_valid_index() for _, c in fx.items() if c.notna().any()), default=None)
+    return rates, errors, last
+
+
+@lru_cache
+def world_link():
+    from pfe_drai.world import link_to_us
+
+    prices, ind, _ = world_data()
+    return link_to_us(prices, ind, pipeline().settings)
+
+
 @app.get("/world")
-def world(date: str | None = None, horizon: Literal["1D", "1W", "1M", "3M", "YTD", "1Y"] = "1M", lang: Lang = "fr"):
+def world(
+    date: str | None = None,
+    horizon: Literal["1D", "1W", "1M", "3M", "YTD", "1Y"] = "1M",
+    lang: Lang = "fr",
+    currency: Literal["usd", "local"] = "usd",
+):
     """Country equity markets (country ETFs as proxies): return over `horizon` and market stress state.
 
     The state is market-only (own volatility and drawdown, docs/WORLD.md), not the US macro regime.
+    `currency=local` adds, per market, `return_local`, `currency` (USD return minus local return),
+    `vol_local` and `fx_status` (ok, usd, pending: rate not yet published, missing); `return`
+    and the state stay in USD. Exchange rates are never carried past their last published date.
     """
-    from pfe_drai.world import breadth, load_markets, snapshot
+    from pfe_drai.world import breadth, load_markets, local_view, snapshot
 
     prices, ind, errors = world_data()
     settings = pipeline().settings
@@ -79,26 +107,75 @@ def world(date: str | None = None, horizon: Literal["1D", "1W", "1M", "3M", "YTD
     markets = load_markets(settings)
     names = {m.id: m.name[lang] for m in markets}
     snap = snapshot(prices, ind, markets, day, horizon, settings["world"]["stale_days"])
+    extra = []
+    if currency == "local":
+        rates, fx_errors, fx_last = world_fx()
+        snap = snap.join(local_view(prices, rates, markets, day, horizon, settings["world"]["vol_window"]))
+        extra = ["return_local", "currency", "vol_local"]
     rows = []
     for i, r in snap.iterrows():
-        rows.append(
-            {
-                "id": i,
-                "name": names[i],
-                "ticker": r["ticker"],
-                "state": r["state"],
-                "since": r["since"].date().isoformat() if r["since"] is not None else None,
-                **{k: None if r[k] != r[k] else round(float(r[k]), 4) for k in ["close", "return", "vol", "vol_pct", "drawdown"]},
-            }
-        )
+        row = {
+            "id": i,
+            "name": names[i],
+            "ticker": r["ticker"],
+            "state": r["state"],
+            "since": r["since"].date().isoformat() if r["since"] is not None else None,
+            **{k: None if r[k] != r[k] else round(float(r[k]), 4) for k in ["close", "return", "vol", "vol_pct", "drawdown"]},
+        }
+        if currency == "local":
+            row.update({k: None if r[k] != r[k] else round(float(r[k]), 4) for k in extra}, fx_status=r["fx_status"])
+        rows.append(row)
     b = breadth(ind["state"]).loc[:day].iloc[-1]
-    return {
+    body = {
         "date": day.date().isoformat(),
         "horizon": horizon,
         "share_stress": round(float(b["stress"]), 4),
         "share_elevated": round(float(b["elevated"]), 4),
         "markets": rows,
         "not_loaded": errors,
+    }
+    if currency == "local":
+        body.update(
+            currency="local",
+            fx_last_published=fx_last.date().isoformat() if fx_last is not None else None,
+            fx_not_loaded=fx_errors,
+        )
+    return body
+
+
+@app.get("/world/link")
+def world_link_view(date: str | None = None, window: int = 252, lang: Lang = "fr"):
+    """How closely each market moves with the US (SPY): rolling correlation and beta on 5-day returns.
+
+    `window` is one of world.link.windows (business days). Also the same measures on days the US market
+    is in stress or not, the 1-day lead/lag, and the average correlation of the other markets.
+    Descriptive ("moves with"), not causal, not a forecast; Asian ETFs are biased by trading hours.
+    """
+    from pfe_drai.world import link_snapshot, load_markets
+
+    prices = world_data()[0]
+    settings = pipeline().settings
+    windows = settings["world"]["link"]["windows"]
+    if window not in windows:
+        raise HTTPException(400, f"window must be one of {windows}")
+    stats = world_link()
+    day = prices.index[prices.index.searchsorted(pd.Timestamp(date or prices.index[-1]), side="right") - 1]
+    markets = load_markets(settings)
+    snap = link_snapshot(stats, markets, prices, day, window, settings["world"]["stale_days"])
+    rows = [
+        {
+            "id": i,
+            "name": next(m.name[lang] for m in markets if m.id == i),
+            **{k: None if v != v else round(float(v), 4) for k, v in r.items()},
+        }
+        for i, r in snap.iterrows()
+    ]
+    avg = stats.avg_corr[window].loc[:day].dropna()
+    return {
+        "date": day.date().isoformat(),
+        "window_days": window,
+        "average_correlation": round(float(avg.iloc[-1]), 4) if len(avg) else None,
+        "markets": rows,
     }
 
 

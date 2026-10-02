@@ -1,9 +1,10 @@
 # World markets tab
 
-The **World markets** tab (`Marchés mondiaux`) shows 20 equity markets on a world map, in two views:
+The **World markets** tab (`Marchés mondiaux`) shows 20 equity markets on a world map, in three views:
 
-- **Returns**: close-to-close return over 1D, 1W, 1M, 3M, YTD or 1Y.
+- **Returns**: close-to-close return over 1D, 1W, 1M, 3M, YTD or 1Y, in USD or in local currency.
 - **Market stress**: a Calm / Elevated / Stress state for each country, computed from its own prices.
+- **Link to the US**: how closely each market moves with the US (rolling correlation or beta against SPY).
 
 Controls: region zoom (World, Europe, Americas, Asia-Pacific), any date since the data starts, and a
 list of past episodes to replay (`replay` in `config/markets.yaml`). Clicking a country (or picking it
@@ -15,7 +16,9 @@ The same numbers are available from the command line and the API:
 
 ```
 python -m pfe_drai --provider fred world --date 2020-03-16 --horizon 1M
-GET /world?date=2020-03-16&horizon=1M&lang=en
+python -m pfe_drai --provider fred world --date 2020-03-16 --horizon 1M --currency local --link --window 63
+GET /world?date=2020-03-16&horizon=1M&lang=en           (add &currency=local for local currency)
+GET /world/link?date=2020-03-16&window=252&lang=en
 ```
 
 ## Data: country ETFs, not index levels
@@ -72,10 +75,63 @@ signal.
 
 ## What it does not do yet
 
-- Returns in local currency (removing the USD effect with FRED daily exchange rates).
-- How closely each market moves with the US (rolling correlation, contagion).
 - Full macro regimes outside the US: the euro area would need ECB / Eurostat data with release dates
   (point-in-time), the UK ONS data, and the same validation as the US model.
+
+## Local-currency returns (display only)
+
+Toggle **Currency: USD / Local currency** on the Returns view (default USD, unchanged), `--currency local`
+on the CLI, `GET /world?currency=local` on the API (adds `return_local`, `currency`, `vol_local`,
+`fx_status` per market; `return` and the state stay in USD).
+
+- **Source**: FRED H.10 daily exchange rates, a Federal Reserve release (free; cite the source; the
+  usual FRED notice applies). Series per market are in `config/markets.yaml` (`fx:`), including the
+  quote direction (`per_usd` or `usd_per`; GBP, EUR and AUD are quoted as USD per unit and inverted).
+  The five euro markets share `DEXUSEU`. The Saudi riyal is pegged (3.75 per USD): no currency effect.
+  Needs `FRED_API_KEY`; downloaded once a day into `data_cache/world/`, one request per series.
+- **Maths**: local price = USD price x local per USD on the same date, so
+  `local return = (1 + USD return) x rate(last close) / rate(base close) - 1` and
+  `currency effect = USD return - local return`, exactly. The tab also shows 21-day volatility in local
+  currency. These are display values: the stress state keeps its USD definition (changing it would be a rule change).
+- **Timing approximation**: H.10 rates are noon buying rates in New York, the ETF closes at 16:00 New York time.
+  Close enough for a 1-day to 1-year return, but not an exact close-to-close conversion.
+- **Freshness trap**: the Fed publishes H.10 **weekly**, so the latest days have no rate. They are shown
+  blank ("FX rates not yet published"), **never forward-filled**. Only a gap of at most `world.fx_fill_days`
+  (2) trading days inside the series is carried (Fed holidays that are not NYSE holidays, such as Columbus Day).
+- **Before the first real run**: the series ids were written from the H.10 release table without being able
+  to query FRED from the build environment. Any id FRED rejects is reported as "FX not loaded" for its
+  markets (the rest still work), so the first run checks them. Euro-only alternative later: ECB euro
+  reference rates (daily); its terms of use would need checking first.
+- Synthetic mode simulates one random-walk currency per series (volatility in `fx.vol`), independent of the
+  simulated equities, labelled simulated like the rest.
+
+## Link to the US ("moves with")
+
+Windows and rules were fixed on **2026-10-02, before any real number was looked at**, in `world.link`:
+
+| Setting | Value |
+|---|---|
+| Headline return | overlapping **5-day** log returns (ETFs of Asia and Australia track a session already closed) |
+| Windows | **63** (about a quarter) and **252** business days (a year), selectable on the tab |
+| Valid window | at least 90% of it holds a return pair |
+| Stress vs other days | over the last **1260** days (5 years), split by the **US market stress state** (SPY, the same rule as every country); needs **20** US stress days or the value is blank |
+| Average line | mean correlation of the 19 other markets with the US, at least 5 markets |
+
+- Measures per market: correlation, beta (covariance with SPY over the variance of SPY), the same two in
+  US-stress days and in other days, and on **daily** returns the same-day correlation, the correlation of
+  the market with the US of the previous day ("follows the US by a day") and with the US of the next day
+  ("moves a day before"). Those two lag values include the same-day link times the US's own
+  autocorrelation, so read them as a comparison between markets, not as a causal delay.
+- Everything uses returns up to the day shown only (`tests/test_world.py::test_link_has_no_look_ahead`).
+  The US row shows correlation 1 and beta 1; it is left out of the average.
+- Overlapping 5-day returns make neighbouring days correlated: the numbers are descriptive, and their
+  usual standard errors would be too small. No significance claim is made.
+- Wording is "moves with", never "is driven by"; nothing here is a forecast, a signal or a causal claim.
+  The chart extends the breadth chart with the average correlation and shades the US stress periods:
+  correlations tend to rise in crises. Any lead-lag between breadth and the US stress probability is
+  not in the app (it would be exploratory, and would need its own note with the number of observations).
+- **Real values to record after the first real run**: average correlation of the 19 markets with the US in
+  2019 versus March 2020 (63-day window). Not run yet.
 
 ## Real-data check (2026-10-01)
 
