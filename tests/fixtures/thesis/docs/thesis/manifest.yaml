@@ -1,0 +1,33 @@
+title: {fr: "Titre", en: "Title"}
+subtitle: {fr: "Sous-titre", en: "Subtitle"}
+chapters:
+  - {id: one, file: 01-one, title: {fr: "Un", en: "One"}, sources: [FIXTURE.md]}
+  - {id: refs, file: 91-references, kind: appendix, title: {fr: "Références", en: "References"}, sources: []}
+checks:
+  - id: fixture-latency
+    doc: FIXTURE.md
+    section: "Results > Run one"
+    version: v-test
+    column: median lat.
+    rows:
+      "v-test": [metrics.median_latency]
+  - id: fixture-brier
+    doc: FIXTURE.md
+    section: "Results > Run one"
+    version: v-test
+    column: Brier
+    rows:
+      "v-test": [metrics.brier]
+  - id: fixture-metrics
+    doc: FIXTURE.md
+    section: "Results > Run one"
+    version: v-test
+    column: detected
+    rows:
+      "v-test": [metrics.detected, metrics.n_episodes]
+  - id: fixture-episodes
+    doc: FIXTURE.md
+    section: "Results > Run one"
+    version: v-test
+    table: 1
+    episodes: {start: start, drawdown: max drawdown, latency: v-test}
