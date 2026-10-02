@@ -195,6 +195,17 @@ world:
   elevated: {vol_percentile: 0.80}                    # vol alone
   confirm_days: 3             # a new state counts once it has held 3 days in a row
   stale_days: 5               # a market with no close in the last 5 days shows as no data
+  # Local-currency display values (docs/WORLD.md): FRED H.10 rates are weekly, so the latest days are
+  # missing. A rate is carried at most this many trading days over a gap, never past its last date.
+  fx_fill_days: 2
+  # Link to the US: fixed on 2026-10-02 before any real number was looked at, not tuned.
+  link:
+    return_days: 5            # headline on overlapping 5-day log returns (Asia/Australia timing)
+    windows: [63, 252]        # business days: about a quarter and a year
+    min_share: 0.9            # a window counts once 90% of it holds a return pair
+    min_markets: 5            # average correlation needs at least 5 markets
+    stress_window: 1260       # "in US stress" vs "other days" correlation over 5 years...
+    min_stress_days: 20       # ...and only with at least 20 US stress days in it
 
 scenarios:
   library: config/scenarios.yaml

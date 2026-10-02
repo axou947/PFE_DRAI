@@ -23,14 +23,20 @@ from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, ran
 from pfe_drai.validation import evaluate  # noqa: E402
 from pfe_drai.validation.calibration import calibration_report  # noqa: E402
 from pfe_drai.world import (  # noqa: E402
+    CURRENCIES,
     HORIZONS,
     REGIONS,
     STATES,
     breadth,
+    fetch_fx,
     fetch_prices,
+    fx_rates,
     indicators,
+    link_snapshot,
+    link_to_us,
     load_markets,
     load_replay,
+    local_view,
     snapshot,
 )
 
@@ -67,6 +73,23 @@ def get_world(provider: str):
     settings = load_settings()
     prices, errors = fetch_prices(settings, provider)
     return prices, indicators(prices, settings), errors
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def get_world_fx(provider: str):
+    """Local per USD on the ETFs' trading days, the load errors, and the latest published rate."""
+    settings = load_settings()
+    prices = get_world(provider)[0]
+    fx, errors = fetch_fx(settings, provider)
+    rates = fx_rates(fx, load_markets(settings), prices.index, settings["world"]["fx_fill_days"])
+    last = max((c.last_valid_index() for _, c in fx.items() if c.notna().any()), default=None)
+    return rates, errors, last
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def get_world_link(provider: str):
+    prices, ind, _ = get_world(provider)
+    return link_to_us(prices, ind, load_settings())
 
 
 @st.cache_data(show_spinner=False)
@@ -408,6 +431,21 @@ def fmt_ret(value: float, lang: str) -> str:
     return f"{text.replace('.', ',')} %" if lang == "fr" else f"{text}%"
 
 
+def fmt_c(value: float, lang: str) -> str:
+    """A correlation or beta, two decimals, no sign."""
+    if value != value:
+        return "–"
+    return f"{value:.2f}".replace(".", ",") if lang == "fr" else f"{value:.2f}"
+
+
+def fmt_pts(value: float, lang: str) -> str:
+    """A difference of returns, in percentage points."""
+    if value != value:
+        return "–"
+    text = f"{value * 100:+.1f}"
+    return f"{text.replace('.', ',')} pt" if lang == "fr" else f"{text} pt"
+
+
 def state_chip(code, lang: str) -> str:
     label = t(f"world.state.{code or 'none'}", lang)
     color = STATE_COLORS[code]
@@ -436,14 +474,17 @@ with tab_world:
             if pick is not None:
                 st.session_state["world_date"] = pick
 
-        c = st.columns([2.3, 2.6, 1.1, 1.1, 1.6])
+        c = st.columns([2.9, 3.0, 1.0, 1.1, 1.5])
         mode = (
             c[0].segmented_control(
-                t("world.mode", lang), ["stress", "returns"], default="stress", format_func=lambda x: t(f"world.mode.{x}", lang)
+                t("world.mode", lang),
+                ["stress", "returns", "link"],
+                default="stress",
+                format_func=lambda x: t(f"world.mode.{x}", lang),
             )
             or "stress"
         )
-        horizon = c[1].segmented_control(t("world.horizon", lang), HORIZONS, default="1M") or "1M"
+        horizon = (c[1].segmented_control(t("world.horizon", lang), HORIZONS, default="1M") or "1M") if mode != "link" else "1M"
         region = c[2].selectbox(t("world.region", lang), REGIONS, format_func=lambda x: t(f"world.region.{x}", lang))
         c[3].date_input(t("world.date", lang), min_value=first_day, max_value=last_day, key="world_date")
         c[4].selectbox(
@@ -453,16 +494,67 @@ with tab_world:
             key="world_replay",
             on_change=_replay,
         )
+        link_cfg = w_cfg["link"]
+        currency, measure, window = "usd", "corr", link_cfg["windows"][-1]
+        if mode == "returns":
+            currency = (
+                st.segmented_control(
+                    t("world.currency", lang), CURRENCIES, default="usd", format_func=lambda x: t(f"world.currency.{x}", lang)
+                )
+                or "usd"
+            )
+        elif mode == "link":
+            x = st.columns([2, 2, 6])
+            measure = (
+                x[0].segmented_control(
+                    t("world.link.measure", lang),
+                    ["corr", "beta"],
+                    default="corr",
+                    format_func=lambda v: t(f"world.link.measure.{v}", lang),
+                )
+                or "corr"
+            )
+            window = (
+                x[1].segmented_control(
+                    t("world.link.window", lang),
+                    link_cfg["windows"],
+                    default=link_cfg["windows"][-1],
+                    format_func=lambda d: t("world.link.days", lang, days=d),
+                )
+                or link_cfg["windows"][-1]
+            )
         day = w_prices.index[w_prices.index.searchsorted(pd.Timestamp(st.session_state["world_date"]), side="right") - 1]
         snap = snapshot(w_prices, w_ind, markets, day, horizon, w_cfg["stale_days"])
         names = {m.id: m.name[lang] for m in markets}
+
+        # Display extras, joined to the snapshot only in their own view (the default table is unchanged).
+        local, fx_last = currency == "local", None
+        if local:
+            try:
+                w_rates, fx_errors, fx_last = get_world_fx(provider)
+                snap = snap.join(local_view(w_prices, w_rates, markets, day, horizon, w_cfg["vol_window"]))
+                if fx_errors:
+                    st.warning(t("world.errors", lang, markets=", ".join(fx_errors.values())))
+            except Exception as exc:  # noqa: BLE001 - say why, fall back to USD
+                st.error(f"{type(exc).__name__}: {exc}")
+                local = False
+        ret_col = "return_local" if local else "return"
+        shown = snap[ret_col]
+        link_stats = None
+        if mode == "link":
+            link_stats = get_world_link(provider)
+            snap = snap.join(link_snapshot(link_stats, markets, w_prices, day, window, w_cfg["stale_days"]))
 
         # ---- headline numbers
         known = snap["state"].notna().sum()
         m = st.columns(4)
         m[0].metric(t("world.in_stress", lang), f"{(snap['state'] == 'stress').sum()} / {known}")
         m[1].metric(t("world.in_elevated", lang), f"{(snap['state'] == 'elevated').sum()} / {known}")
-        m[2].metric(t("world.median_return", lang, horizon=horizon), fmt_ret(snap["return"].median(), lang))
+        if mode == "link":
+            avg = link_stats.avg_corr[window].loc[:day].dropna()
+            m[2].metric(t("world.avg_corr", lang, days=window), fmt_c(float(avg.iloc[-1]), lang) if len(avg) else "–")
+        else:
+            m[2].metric(t("world.median_return", lang, horizon=horizon), fmt_ret(shown.median(), lang))
         if probs.index[0] <= day:
             m[3].metric(t("world.us_regime", lang), reg(probs.loc[:day].iloc[-1].idxmax()))
         else:
@@ -473,12 +565,49 @@ with tab_world:
         state_label = {code: t(f"world.state.{code or 'none'}", lang) for code in [*STATES, None]}
         hover = [
             f"<b>{names[i]}</b> · {r['ticker']}<br>{state_label[r['state']]}"
-            f"<br>{horizon}: {fmt_ret(r['return'], lang)}<br>{t('world.drawdown', lang)}: {fmt_ret(r['drawdown'], lang)}"
+            f"<br>{horizon}: {fmt_ret(r[ret_col], lang)}"
+            + (f"<br>{t('world.fx_effect', lang)}: {fmt_pts(r['currency'], lang)}" if local else "")
+            + f"<br>{t('world.drawdown', lang)}: {fmt_ret(r['drawdown'], lang)}"
             for i, r in snap.iterrows()
         ]
+        if mode == "link":
+            hover = [
+                f"<b>{names[i]}</b> · {r['ticker']}<br>{t('world.col.corr', lang)}: {fmt_c(r['corr'], lang)}"
+                f"<br>{t('world.col.beta', lang)}: {fmt_c(r['beta'], lang)}"
+                f"<br>{t('world.col.corr_stress', lang)}: {fmt_c(r['corr_stress'], lang)}"
+                f"<br>{t('world.col.corr_calm', lang)}: {fmt_c(r['corr_calm'], lang)}"
+                for i, r in snap.iterrows()
+            ]
         fig = go.Figure()
-        if mode == "returns":
-            z = snap["return"] * 100
+        if mode == "link":
+            z = snap[measure]
+            fig.add_choropleth(
+                locations=ids,
+                z=z,
+                zmin=0,
+                zmax=1 if measure == "corr" else 1.5,
+                colorscale=[[0, "#2b3442"], [1, "#2a78d6"]],
+                colorbar=dict(
+                    title=dict(text=t(f"world.link.measure.{measure}", lang), font_color=MAP_TEXT),
+                    tickfont_color=MAP_TEXT,
+                    len=0.6,
+                    thickness=12,
+                    x=0.99,
+                ),
+                text=hover,
+                hovertemplate="%{text}<extra></extra>",
+                marker_line_color=MAP_BG,
+                marker_line_width=0.6,
+            )
+            title = t(
+                "world.map_title_link",
+                lang,
+                measure=t(f"world.link.measure.{measure}", lang),
+                days=window,
+                date=fmt_date(day, lang),
+            )
+        elif mode == "returns":
+            z = shown * 100
             lim = max(1.0, float(z.abs().quantile(0.9))) if z.notna().any() else 1.0
             fig.add_choropleth(
                 locations=ids,
@@ -492,7 +621,12 @@ with tab_world:
                 marker_line_color=MAP_BG,
                 marker_line_width=0.6,
             )
-            title = t("world.map_title_returns", lang, horizon=horizon, date=fmt_date(day, lang))
+            title = t(
+                "world.map_title_returns_local" if local else "world.map_title_returns",
+                lang,
+                horizon=horizon,
+                date=fmt_date(day, lang),
+            )
         else:
             code = snap["state"].map({"calm": 0, "elevated": 1, "stress": 2}).fillna(3)
             steps = [STATE_COLORS[s] for s in [*STATES, None]]
@@ -511,11 +645,18 @@ with tab_world:
             title = t("world.map_title_stress", lang, date=fmt_date(day, lang))
         # Labels: tickers (and returns); small European and Asian markets only when zoomed in.
         small = {i for i in ids if by_market[i].region == "europe"} | {"KOR", "TWN"}
-        shown = [i for i in ids if region != "world" or i not in small]
+        label_ids = [i for i in ids if region != "world" or i not in small]
         fig.add_scattergeo(
-            locations=shown,
+            locations=label_ids,
             text=[
-                snap.loc[i, "ticker"] + (f" {fmt_ret(snap.loc[i, 'return'], lang)}" if mode == "returns" else "") for i in shown
+                snap.loc[i, "ticker"]
+                + (f" {fmt_ret(snap.loc[i, ret_col], lang)}" if mode == "returns" else "")
+                + (
+                    f" {fmt_c(snap.loc[i, measure], lang)}"
+                    if mode == "link" and snap.loc[i, measure] == snap.loc[i, measure]
+                    else ""
+                )
+                for i in label_ids
             ],
             mode="text",
             textfont=dict(color="#ffffff", size=11, family="Arial Black, Arial"),
@@ -562,6 +703,13 @@ with tab_world:
         if mode == "stress":
             st.markdown(" ".join(state_chip(s, lang) for s in [*STATES, None]), unsafe_allow_html=True)
         st.caption(t("world.data_note", lang))
+        if local:
+            pending = int((snap["fx_status"] == "pending").sum())
+            st.caption(t("world.fx_note", lang))
+            if pending:
+                st.warning(t("world.fx_pending", lang, n=pending, date=fmt_date(fx_last, lang) if fx_last is not None else "–"))
+        if mode == "link":
+            st.caption(t("world.link_note", lang, days=link_cfg["return_days"]))
         if w_errors:
             st.warning(t("world.errors", lang, markets=", ".join(w_errors.values())))
 
@@ -581,11 +729,36 @@ with tab_world:
             st.caption(t("world.proxy", lang, ticker=mk.ticker, tracks=mk.tracks, benchmark=mk.benchmark))
             k = st.columns(4)
             k[0].metric(t("world.close", lang), "–" if row["close"] != row["close"] else f"{row['close']:,.2f}".replace(",", " "))
-            k[1].metric(t("world.return", lang, horizon=horizon), fmt_ret(row["return"], lang))
+            k[1].metric(t("world.return", lang, horizon=horizon), fmt_ret(row[ret_col], lang))
             k[2].metric(t("world.vol", lang), "–" if row["vol"] != row["vol"] else fmt_pct(row["vol"], lang))
             k[3].metric(t("world.drawdown", lang), fmt_ret(row["drawdown"], lang))
             if row["vol_pct"] == row["vol_pct"]:
                 st.caption(f"{t('world.vol_pct', lang)} : {fmt_pct(row['vol_pct'], lang)}")
+            if local:
+                if row["fx_status"] == "pending":
+                    st.caption(t("world.fx_pending_one", lang))
+                else:
+                    vol_local = "–" if row["vol_local"] != row["vol_local"] else fmt_pct(row["vol_local"], lang)
+                    st.caption(
+                        f"{t('world.fx_effect', lang)} : {fmt_pts(row['currency'], lang)} · "
+                        f"{t('world.vol_local', lang)} : {vol_local}"
+                    )
+            if mode == "link" and sel != "USA":
+                q = st.columns(4)
+                q[0].metric(t("world.col.corr", lang), fmt_c(row["corr"], lang))
+                q[1].metric(t("world.col.beta", lang), fmt_c(row["beta"], lang))
+                q[2].metric(t("world.col.corr_stress", lang), fmt_c(row["corr_stress"], lang))
+                q[3].metric(t("world.col.corr_calm", lang), fmt_c(row["corr_calm"], lang))
+                st.caption(
+                    t(
+                        "world.link_lag",
+                        lang,
+                        same=fmt_c(row["corr_1d"], lang),
+                        follows=fmt_c(row["follows"], lang),
+                        leads=fmt_c(row["leads"], lang),
+                        days=int(row["stress_days"]) if row["stress_days"] == row["stress_days"] else 0,
+                    )
+                )
             price = w_prices[sel].loc[day - pd.DateOffset(years=3) : day].dropna()
             path = w_ind["state"][sel].reindex(price.index)
             fig = go.Figure()
@@ -632,21 +805,44 @@ with tab_world:
                 line=dict(color=TEXT, width=1.2),
                 hovertemplate=f"{t('world.us_stress_prob', lang)}: %{{y:.0%}}<extra></extra>",
             )
-            fig.update_yaxes(range=[0, 1], tickformat=".0%")
+            if mode == "link":
+                # The usual "correlations rise in crises" picture, on the breadth chart's own 0-1 scale.
+                avg = link_stats.avg_corr[window].loc[:day].dropna()
+                us_stress = (w_ind["state"]["USA"] == 2).loc[:day]
+                for _, seg in us_stress.groupby((us_stress != us_stress.shift()).cumsum()):
+                    if seg.iloc[0]:
+                        fig.add_vrect(
+                            x0=seg.index[0],
+                            x1=seg.index[-1] + pd.Timedelta(days=1),
+                            fillcolor=STATE_COLORS["stress"],
+                            opacity=0.12,
+                            line_width=0,
+                            layer="below",
+                        )
+                fig.add_scatter(
+                    x=avg.index,
+                    y=avg.values,
+                    name=t("world.avg_corr", lang, days=window),
+                    line=dict(color=DIM_COLORS["stress"], width=2.2),
+                    hovertemplate=f"{t('world.avg_corr', lang, days=window)}: %{{y:.2f}}<extra></extra>",
+                )
+            fig.update_yaxes(range=[0, 1], tickformat=".0%" if mode != "link" else ".1f")
             fig.update_xaxes(type="date", range=[day - pd.DateOffset(years=5), day])
             fig.update_layout(title=dict(text=t("world.breadth", lang), font_size=14))
             st.plotly_chart(base_layout(fig, 420, hovermode="x unified"), width="stretch")
             st.caption(t("world.breadth_help", lang))
+            if mode == "link":
+                st.caption(t("world.avg_corr_help", lang))
 
         # ---- every market
         st.subheader(t("world.table", lang))
-        order = snap.assign(_s=snap["state"].map({"stress": 0, "elevated": 1, "calm": 2}).fillna(3)).sort_values(["_s", "return"])
+        order = snap.assign(_s=snap["state"].map({"stress": 0, "elevated": 1, "calm": 2}).fillna(3)).sort_values(["_s", ret_col])
         table = pd.DataFrame(
             {
                 t("world.col.market", lang): [names[i] for i in order.index],
                 t("world.col.ticker", lang): order["ticker"],
                 t("world.state", lang): order["state"].map(lambda s: t(f"world.state.{s or 'none'}", lang)),
-                t("world.return", lang, horizon=horizon): order["return"] * 100,
+                t("world.return", lang, horizon=horizon): order[ret_col] * 100,
                 t("world.vol", lang): order["vol"] * 100,
                 t("world.vol_pct", lang): order["vol_pct"] * 100,
                 t("world.drawdown", lang): order["drawdown"] * 100,
@@ -654,12 +850,26 @@ with tab_world:
             }
         )
         pct = st.column_config.NumberColumn(format="%.1f %%")
+        config = {col: pct for col in table.columns[3:7]}
+        if local:
+            table[t("world.fx_effect", lang)] = order["currency"] * 100
+            table[t("world.vol_local", lang)] = order["vol_local"] * 100
+            config |= {
+                t("world.fx_effect", lang): st.column_config.NumberColumn(format="%+.1f pt"),
+                t("world.vol_local", lang): pct,
+            }
+        if mode == "link":
+            two = st.column_config.NumberColumn(format="%.2f")
+            for key in ["corr", "beta", "corr_stress", "corr_calm", "follows", "leads"]:
+                table[t(f"world.col.{key}", lang)] = order[key]
+                config[t(f"world.col.{key}", lang)] = two
+            table[t("world.col.stress_days", lang)] = order["stress_days"]
         st.dataframe(
             table,
             hide_index=True,
             width="stretch",
             height=36 * (len(table) + 1) + 3,
-            column_config={col: pct for col in table.columns[3:7]},
+            column_config=config,
         )
         st.download_button(
             t("world.download", lang),
@@ -677,6 +887,9 @@ with tab_world:
                     dd=fmt_pct(w_cfg["stress"]["drawdown"], lang),
                     days=w_cfg["confirm_days"],
                 )
+            )
+            st.markdown(
+                t("world.extras_method", lang, windows=" / ".join(map(str, link_cfg["windows"])), days=link_cfg["return_days"])
             )
 
 # ================================================================ HISTORY

@@ -422,7 +422,18 @@ def cmd_data(args):
 def cmd_world(args):
     import pandas as pd
 
-    from .world import breadth, fetch_prices, indicators, load_markets, snapshot
+    from .world import (
+        breadth,
+        fetch_fx,
+        fetch_prices,
+        fx_rates,
+        indicators,
+        link_snapshot,
+        link_to_us,
+        load_markets,
+        local_view,
+        snapshot,
+    )
 
     settings = load_settings(args.config, {"data": {"provider": args.provider}} if args.provider else None)
     prices, errors = fetch_prices(settings)
@@ -432,18 +443,59 @@ def cmd_world(args):
     snap = snapshot(prices, ind, markets, day, args.horizon, settings["world"]["stale_days"])
     data = "SIMULATED" if settings["data"]["provider"] == "synthetic" else "country ETFs, USD"
     print(f"World markets on {day.date()} ({data}; provider {settings['data']['provider']}). See docs/WORLD.md.")
-    print(f"\n{'market':<16} {'etf':<5} {'state':<9} {args.horizon:>7} {'vol 21d':>8} {'vol rank':>9} {'drawdown':>9}  since")
     names = {m.id: m.name["en"] for m in markets}
+    local = args.currency == "local"
+    if local:
+        fx, fx_errors = fetch_fx(settings)
+        rates = fx_rates(fx, markets, prices.index, settings["world"]["fx_fill_days"])
+        snap = snap.join(local_view(prices, rates, markets, day, args.horizon, settings["world"]["vol_window"]))
+        last = max((c.last_valid_index() for _, c in fx.items() if c.notna().any()), default=None)
+        print(
+            f"Local currency: FRED H.10 rates, latest published {last.date() if last is not None else 'none'};"
+            " n/a = not published yet."
+        )
+    head = f"\n{'market':<16} {'etf':<5} {'state':<9} {args.horizon:>7} {'vol 21d':>8} {'vol rank':>9} {'drawdown':>9}  since"
+    print(head + (f"  {'local':>7} {'currency':>9} {'vol local':>10}" if local else ""))
     for i, r in snap.iterrows():
         since = r["since"].date() if r["since"] is not None else "-"
-        print(
+        line = (
             f"{names[i]:<16} {r['ticker']:<5} {r['state'] or 'no data':<9} {r['return']:>7.1%} {r['vol']:>8.1%} "
             f"{r['vol_pct']:>9.0%} {r['drawdown']:>9.1%}  {since}"
         )
+        if local:
+            blank = "n/a" if r["fx_status"] == "pending" else "-"
+            cells = [r["return_local"], r["currency"], r["vol_local"]]
+            line += (
+                "  " + f"{blank:>7} {blank:>9} {blank:>10}"
+                if r["return_local"] != r["return_local"]
+                else (f"  {cells[0]:>7.1%} {cells[1] * 100:>+8.1f}p {cells[2]:>10.1%}")
+            )
+        print(line)
     b = breadth(ind["state"]).loc[:day].iloc[-1]
     print(f"\nIn stress: {b['stress']:.0%} of {int(b['markets'])} markets; elevated: {b['elevated']:.0%}.")
     for market, error in errors.items():
         print(f"Not loaded: {market} ({error})")
+    if local:
+        for market, error in fx_errors.items():
+            print(f"FX not loaded: {market} ({error})")
+    if args.link:
+        window = args.window
+        stats = link_to_us(prices, ind, settings)
+        if window not in stats.corr:
+            sys.exit(f"--window must be one of {sorted(stats.corr)}")
+        lk = link_snapshot(stats, markets, prices, day, window, settings["world"]["stale_days"])
+        avg = stats.avg_corr[window].loc[:day].dropna()
+        print(f"\nLink to the US (SPY), 5-day returns, {window}-day window; moves with, not caused by. See docs/WORLD.md.")
+        print(f"{'market':<16} {'corr':>5} {'beta':>5} {'US stress':>10} {'other days':>11} {'follows 1d':>11} {'leads 1d':>9}")
+        for i, r in lk.iterrows():
+            if i == "USA":
+                continue
+            print(
+                f"{names[i]:<16} {r['corr']:>5.2f} {r['beta']:>5.2f} {r['corr_stress']:>10.2f} {r['corr_calm']:>11.2f} "
+                f"{r['follows']:>11.2f} {r['leads']:>9.2f}"
+            )
+        if len(avg):
+            print(f"\nAverage correlation of the other markets with the US: {avg.iloc[-1]:.2f}")
 
 
 def cmd_app(args):
@@ -500,6 +552,11 @@ def main(argv=None):
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
             sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])
+            sp.add_argument(
+                "--currency", default="usd", choices=["usd", "local"], help="local adds returns in local currency (FRED H.10)"
+            )
+            sp.add_argument("--link", action="store_true", help="add the link to the US table (correlation and beta vs SPY)")
+            sp.add_argument("--window", type=int, default=252, help="window of --link in business days (63 or 252)")
     args = parser.parse_args(argv)
     args.func(args)
 

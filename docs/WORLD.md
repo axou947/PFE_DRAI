@@ -1,9 +1,10 @@
 # World markets tab
 
-The **World markets** tab (`Marchés mondiaux`) shows 20 equity markets on a world map, in two views:
+The **World markets** tab (`Marchés mondiaux`) shows 20 equity markets on a world map, in three views:
 
-- **Returns**: close-to-close return over 1D, 1W, 1M, 3M, YTD or 1Y.
+- **Returns**: close-to-close return over 1D, 1W, 1M, 3M, YTD or 1Y, in USD or in local currency.
 - **Market stress**: a Calm / Elevated / Stress state for each country, computed from its own prices.
+- **Link to the US**: how closely each market moves with the US (rolling correlation or beta against SPY).
 
 Controls: region zoom (World, Europe, Americas, Asia-Pacific), any date since the data starts, and a
 list of past episodes to replay (`replay` in `config/markets.yaml`). Clicking a country (or picking it
@@ -15,7 +16,9 @@ The same numbers are available from the command line and the API:
 
 ```
 python -m pfe_drai --provider fred world --date 2020-03-16 --horizon 1M
-GET /world?date=2020-03-16&horizon=1M&lang=en
+python -m pfe_drai --provider fred world --date 2020-03-16 --horizon 1M --currency local --link --window 63
+GET /world?date=2020-03-16&horizon=1M&lang=en           (add &currency=local for local currency)
+GET /world/link?date=2020-03-16&window=252&lang=en
 ```
 
 ## Data: country ETFs, not index levels
@@ -72,10 +75,64 @@ signal.
 
 ## What it does not do yet
 
-- Returns in local currency (removing the USD effect with FRED daily exchange rates).
-- How closely each market moves with the US (rolling correlation, contagion).
 - Full macro regimes outside the US: the euro area would need ECB / Eurostat data with release dates
   (point-in-time), the UK ONS data, and the same validation as the US model.
+
+## Local-currency returns (display only)
+
+Toggle **Currency: USD / Local currency** on the Returns view (default USD, unchanged), `--currency local`
+on the CLI, `GET /world?currency=local` on the API (adds `return_local`, `currency`, `vol_local`,
+`fx_status` per market; `return` and the state stay in USD).
+
+- **Source**: FRED H.10 daily exchange rates, a Federal Reserve release (free; cite the source; the
+  usual FRED notice applies). Series per market are in `config/markets.yaml` (`fx:`), including the
+  quote direction (`per_usd` or `usd_per`; GBP, EUR and AUD are quoted as USD per unit and inverted).
+  The five euro markets share `DEXUSEU`. The Saudi riyal is pegged (3.75 per USD): no currency effect.
+  Needs `FRED_API_KEY`; downloaded once a day into `data_cache/world/`, one request per series.
+- **Maths**: local price = USD price x local per USD on the same date, so
+  `local return = (1 + USD return) x rate(last close) / rate(base close) - 1` and
+  `currency effect = USD return - local return`, exactly. The tab also shows 21-day volatility in local
+  currency. These are display values: the stress state keeps its USD definition (changing it would be a rule change).
+- **Timing approximation**: H.10 rates are noon buying rates in New York, the ETF closes at 16:00 New York time.
+  Close enough for a 1-day to 1-year return, but not an exact close-to-close conversion.
+- **Freshness trap**: the Fed publishes H.10 **weekly**, so the latest days have no rate. They are shown
+  blank ("FX rates not yet published"), **never forward-filled**. Only a gap of at most `world.fx_fill_days`
+  (2) trading days inside the series is carried (Fed holidays that are not NYSE holidays, such as Columbus Day).
+- **Before the first real run**: the series ids were written from the H.10 release table without being able
+  to query FRED from the build environment. Any id FRED rejects is reported as "FX not loaded" for its
+  markets (the rest still work), so the first run checks them. Euro-only alternative later: ECB euro
+  reference rates (daily); its terms of use would need checking first.
+- Synthetic mode simulates one random-walk currency per series (volatility in `fx.vol`), independent of the
+  simulated equities, labelled simulated like the rest.
+
+## Link to the US ("moves with")
+
+Windows and rules were fixed on **2026-10-02, before any real number was looked at**, in `world.link`:
+
+| Setting | Value |
+|---|---|
+| Headline return | overlapping **5-day** log returns (ETFs of Asia and Australia track a session already closed) |
+| Windows | **63** (about a quarter) and **252** business days (a year), selectable on the tab |
+| Valid window | at least 90% of it holds a return pair |
+| Stress vs other days | over the last **1260** days (5 years), split by the **US market stress state** (SPY, the same rule as every country); needs **20** US stress days or the value is blank |
+| Average line | mean correlation of the 19 other markets with the US, at least 5 markets |
+
+- Measures per market: correlation, beta (covariance with SPY over the variance of SPY), the same two in
+  US-stress days and in other days, and on **daily** returns the same-day correlation, the correlation of
+  the market with the US of the previous day ("follows the US by a day") and the US with the market of the
+  previous day ("moves a day before"). The two lag values are **partial correlations**: the same-day link is
+  taken out. (A first version used raw lag correlations; on the real 2020-03-16 run every one came out between
+  -0.2 and -0.5, because daily returns reverse in a crash and a raw lag correlation is just the same-day
+  link times that reversal.)
+- Everything uses returns up to the day shown only (`tests/test_world.py::test_link_has_no_look_ahead`).
+  The US row shows correlation 1 and beta 1; it is left out of the average.
+- Overlapping 5-day returns make neighbouring days correlated: the numbers are descriptive, and their
+  usual standard errors would be too small. No significance claim is made.
+- Wording is "moves with", never "is driven by"; nothing here is a forecast, a signal or a causal claim.
+  The chart extends the breadth chart with the average correlation and shades the US stress periods:
+  correlations tend to rise in crises. Any lead-lag between breadth and the US stress probability is
+  not in the app (it would be exploratory, and would need its own note with the number of observations).
+- Real values: see "Real-data check (2026-10-02)" below.
 
 ## Real-data check (2026-10-01)
 
@@ -88,3 +145,31 @@ Run once on real data (Tiingo, all 20 ETFs loaded), thresholds unchanged:
 - The states began between 2020-02-26 (South Korea, the first market hit by Covid) and 2020-03-16
   (China). The US entered Stress on 2020-03-09.
 - Brazil (vol 144%) and Australia (109%) show how much the USD amplifies local moves.
+
+## Real-data check (2026-10-02): local currency and link to the US
+
+Run once on real data (Tiingo ETFs, FRED H.10), settings unchanged:
+`python -m pfe_drai --provider fred world --date 2020-03-16 --horizon 1M --currency local --link --window 63`.
+
+- All FRED series loaded (no "FX not loaded"). Latest published rate: **2026-09-25** (the run was on 2026-10-02).
+  The same command for the latest close (2026-10-01) gives local figures only for the United States and Saudi
+  Arabia (no conversion needed): the other 18 show n/a, as designed.
+- 2020-03-16, 1M, USD vs local: Brazil -49.0% vs -41.0% (currency -7.9 points), Mexico -39.0% vs -25.7%
+  (-13.3), Australia -37.2% vs -31.2% (-6.0), South Africa -37.6% vs -30.8% (-6.8); Japan -26.1% vs -28.8% (+2.8, the
+  yen rose), France -36.1% vs -37.8% (+1.7, the euro rose). Both sanity checks hold. Stress states are unchanged
+  (all 20 in Stress, as in the 2026-10-01 check).
+- Link, 63-day window on 2020-03-16: average correlation of the other 19 markets with the US **0.91**.
+  Correlation ranges from 0.77 (China) to 0.97 (Switzerland, Australia); correlation when the US is in stress
+  is higher than on other days for every market (for example Brazil 0.89 vs 0.45, Saudi Arabia 0.86 vs 0.35).
+  On 2019-09-30 (calm, 0 of 20 in stress except India elevated) the same average is **0.73**: correlations
+  rose from 0.73 to 0.91 between a calm autumn 2019 and the Covid crash, the usual "correlations rise in crises".
+  Single markets move a lot (Switzerland 0.55 to 0.97, Saudi Arabia 0.21 to 0.79), and India's correlation on
+  US-stress days in 2019 is -0.29: with few US stress days in the 5-year window, the stress column is noisy and
+  is not read market by market.
+- That run printed the first version of the lead/lag columns (raw correlations, all between -0.2 and -0.5).
+  They were replaced by partial correlations, as described above; the other columns are unchanged.
+- Partial lead/lag, 63-day window, run once on 2026-10-02: calm period (2019-09-30) values are small
+  (mostly between -0.2 and +0.2); Australia stands out with follows +0.40 and leads -0.36, as expected for an ETF
+  that tracks a session closed hours before New York. In March 2020 the European markets show follows +0.3 to
+  +0.4 and leads -0.4 to -0.6: crash days are too violent for a 63-day daily estimate to separate timing
+  from reversals, so these two columns are read in calm periods and between markets, not as a crisis measure.

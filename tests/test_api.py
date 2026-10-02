@@ -42,6 +42,37 @@ def test_world(client):
     assert france["name"] == "France" and france["ticker"] == "EWQ" and france["state"] in ("calm", "elevated", "stress")
 
 
+def test_world_default_output_is_unchanged(client):
+    # The currency toggle must not alter the default (USD) response: compared with a fixture from before it.
+    from pathlib import Path
+
+    expected = (Path(__file__).parent / "fixtures" / "world_api_default.json").read_text()
+    params = {"date": "2020-04-01", "horizon": "1W", "lang": "en"}
+    assert client.get("/world", params=params).text == expected
+    assert client.get("/world", params={**params, "currency": "usd"}).text == expected
+
+
+def test_world_local_currency(client):
+    params = {"date": "2020-04-01", "horizon": "1M", "lang": "en"}
+    usd = client.get("/world", params=params).json()
+    local = client.get("/world", params={**params, "currency": "local"}).json()
+    assert local["currency"] == "local" and local["fx_last_published"]
+    for u, m in zip(usd["markets"], local["markets"], strict=True):
+        assert m["return"] == u["return"] and m["state"] == u["state"]  # USD figures and states unchanged
+        assert abs((m["return"] - m["return_local"]) - m["currency"]) < 2e-4  # rounded to 4 decimals
+    usa = next(m for m in local["markets"] if m["id"] == "USA")
+    assert usa["fx_status"] == "usd" and usa["currency"] == 0
+    assert client.get("/world", params={**params, "currency": "eur"}).status_code == 422
+
+
+def test_world_link(client):
+    body = client.get("/world/link", params={"date": "2020-04-01", "window": 63, "lang": "en"}).json()
+    assert body["window_days"] == 63 and len(body["markets"]) == 20 and 0 < body["average_correlation"] <= 1
+    usa = next(m for m in body["markets"] if m["id"] == "USA")
+    assert usa["corr"] == 1 and usa["follows"] is None
+    assert client.get("/world/link", params={"window": 10}).status_code == 400
+
+
 def test_calibration(client):
     body = client.get("/calibration", params={"model": "combined"}).json()
     assert body["probability"]["ece"] < body["detector_score"]["ece"]
