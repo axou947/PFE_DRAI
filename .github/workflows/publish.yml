@@ -60,9 +60,10 @@ jobs:
       - name: Send alerts
         # After the commit and only when this run pushed a new day, so a re-run on a holiday or the
         # same day sends nothing. A mail failure never fails or reorders the daily record
-        # (docs/ALERTS.md). Without ALERT_* secrets it prints "no channel configured" and succeeds.
+        # (docs/ALERTS.md). Off unless the repository variable ALERTS_ENABLED is 'true' (and alerts.enabled
+        # is true in the settings). Without ALERT_* secrets it prints "no channel configured" and succeeds.
         id: alerts
-        if: steps.commit.outputs.new == 'true' && steps.publish.outcome == 'success'
+        if: vars.ALERTS_ENABLED == 'true' && steps.commit.outputs.new == 'true' && steps.publish.outcome == 'success'
         continue-on-error: true
         run: python -m pfe_drai notify
         env:

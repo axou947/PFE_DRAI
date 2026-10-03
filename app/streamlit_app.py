@@ -1052,15 +1052,16 @@ with tab_alerts:
             ]
         )
     )
-    st.caption(t("alerts.channels", lang, channels=", ".join(a.get("channels") or []) or "-"))
-    from pfe_drai import notify
+    if a.get("enabled", False):
+        st.caption(t("alerts.channels", lang, channels=", ".join(a.get("channels") or []) or "-"))
+        from pfe_drai import notify
 
-    st.markdown(f"**{t('alerts.preview', lang)}**")
-    message = notify.preview(resolve(settings["publish"]["dir"]), settings, lang)
-    if message is None:
-        st.caption(t("alerts.preview.none", lang))
-    else:
-        st.text(f"{message[0]}\n\n{message[1]}")
+        st.markdown(f"**{t('alerts.preview', lang)}**")
+        message = notify.preview(resolve(settings["publish"]["dir"]), settings, lang)
+        if message is None:
+            st.caption(t("alerts.preview.none", lang))
+        else:
+            st.text(f"{message[0]}\n\n{message[1]}")
 
     st.subheader(t("alerts.title", lang))
     types = ["regime_change", "stress_probability", "early_warning", "score_jump"]

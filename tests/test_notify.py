@@ -24,7 +24,9 @@ SECRETS = {
 
 @pytest.fixture(scope="module")
 def cfg():
-    return load_settings()
+    settings = load_settings()
+    settings["alerts"]["enabled"] = True  # the shipped default is off: tests switch it on
+    return settings
 
 
 def _entry(day, alarm, regime="expansion", since=None):
@@ -284,3 +286,14 @@ def test_email_failure_names_the_step_and_class_only(monkeypatch):
 
     monkeypatch.setattr(smtplib, "SMTP", cut)
     assert notify.deliver("s", "t", "h", ["email"], SECRETS) == {"email": "SMTPServerDisconnected at connect"}
+
+
+def test_shipped_default_is_off_and_nothing_is_sent(tmp_path, smtp):
+    settings = load_settings()
+    assert settings["alerts"]["enabled"] is False
+    folder = _folder(tmp_path, [(False, "expansion"), (True, "stress")])
+    lines = []
+    assert notify.run(folder, settings, "en", False, False, env=SECRETS, out=lines.append) == 0
+    assert "switched off" in lines[0] and not smtp.log and not (folder / "alerts").exists()
+    notify.run(folder, settings, "en", True, False, env=SECRETS, out=lines.append)  # a manual dry run still previews
+    assert "Stress alarm ON" in "\n".join(lines)

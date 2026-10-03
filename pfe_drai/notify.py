@@ -229,6 +229,9 @@ def pending_events(folder: Path, settings: dict) -> tuple[list[Event], str | Non
 def run(folder: Path, settings: dict, lang: str, dry_run: bool, force: bool, env=None, client=None, out=print) -> int:
     """Send the latest day's events. Returns 0 (also when nothing is due), 1 when a configured channel failed."""
     env = os.environ if env is None else env
+    if not dry_run and not settings["alerts"].get("enabled", False):
+        out("alerts are switched off (alerts.enabled: false in config/settings.yaml): nothing sent")
+        return 0
     events, why_not = pending_events(folder, settings)
     if why_not:
         out(why_not)

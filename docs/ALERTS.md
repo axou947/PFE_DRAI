@@ -5,6 +5,14 @@ built from two entries of `track_record/` (the day and the one before), never fr
 so it says exactly what the public page says. It does not touch the daily record, the backtest record,
 the page or the settings fingerprint.
 
+## Status: built, switched off
+
+The code is kept and tested but **never called**: `alerts.enabled` is `false` in `config/settings.yaml`, the
+daily workflow's alert steps run only when the repository variable `ALERTS_ENABLED` is `true`, and the app's
+Alerts tab shows no channel text or preview. `notify --dry-run` and `--test` still work by hand. To switch on
+once the app and its UX are settled: set `alerts.enabled: true`, add the repository variable
+(Settings > Secrets and variables > Actions > Variables > `ALERTS_ENABLED` = `true`) and the secrets below.
+
 ## What is sent, and when
 
 | Event | When |

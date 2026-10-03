@@ -182,6 +182,9 @@ alerts:
   score_jump: 1.0                 # 5-day move of a dimension score
   # Messages when the published alarm switches (docs/ALERTS.md). A channel only sends when its
   # ALERT_* environment variables are set (GitHub secrets); addresses and URLs are never in this file.
+  # OFF for now: the code is kept and tested but never called (daily job, app) until the app's UX is settled.
+  # To switch on: enabled: true here AND the repository variable ALERTS_ENABLED=true (docs/ALERTS.md).
+  enabled: false
   channels: [email, webhook]
   notify:
     events: [alarm_on, alarm_off, regime_change]
