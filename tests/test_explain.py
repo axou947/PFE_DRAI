@@ -140,8 +140,19 @@ def test_explaining_changes_nothing_published(pipeline):
         explain(pipeline, model)
     explain(pipeline, "combined", "2020-03-16")
     assert _published(pipeline) == before
-    # ...and identical to the same outputs computed before explain.py existed.
-    assert before == FIXTURE.read_text()
+    # ...and the same outputs as computed on main before explain.py existed. Another machine's CPU and
+    # libraries can change the last of 17 digits (summation order), so this check reads 12 significant digits.
+    assert _digits(json.loads(before)) == _digits(json.loads(FIXTURE.read_text()))
+
+
+def _digits(value, significant=12):
+    if isinstance(value, float):
+        return float(f"{value:.{significant}g}")
+    if isinstance(value, dict):
+        return {k: _digits(v, significant) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_digits(v, significant) for v in value]
+    return value
 
 
 def test_works_on_a_region_with_dropped_inputs(settings):
