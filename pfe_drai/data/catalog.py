@@ -42,11 +42,15 @@ CATALOG: dict[str, Series] = {
 
 REQUIRED = list(CATALOG)
 
-# Series read only by a pre-registered test, never by the published model: providers do not have to return them
-# and the daily job does not fetch them. Sahm rule (docs/SAHM_HY.md): the unemployment rate, first releases.
+# Series read only by a pre-registered test or a challenger, never by the published model: providers do not have
+# to return them and the published model never fetches them. Sahm rule (docs/SAHM_HY.md): the unemployment rate,
+# first releases. Challengers (docs/CHALLENGERS.md): the 3-month VIX and a high-yield fund against a Treasury fund.
 TESTED: dict[str, Series] = {
     s.name: s
     for s in [
         Series("unrate", "Unemployment rate (%)", "monthly", "growth", {"fred": "UNRATE"}, "commercial", revised=True),
+        Series("vix3m", "3-month implied volatility index", "daily", "stress", {"fred": "VXVCLS"}, "check"),
+        Series("hy_fund", "High-yield bond mutual fund (price)", "daily", "stress", {"tiingo": "VWEHX"}, "commercial"),
+        Series("treasury_fund", "Treasury mutual fund (price)", "daily", "stress", {"tiingo": "VFITX"}, "commercial"),
     ]
 }

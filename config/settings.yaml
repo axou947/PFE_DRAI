@@ -217,6 +217,27 @@ sahm:
         growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims, unemployment_gap], scaling: robust, smooth_days: 21}
         rule: {growth_threshold: 0.0}
 
+# Challenger track record (docs/CHALLENGERS.md): candidate models published live every market day next to the
+# published model, each in its own hash-chained folder, scored only on what happens after its first day.
+# Outside features/models/validation: the published model's fingerprint and entries never change because of it.
+# Fixed on 2026-10-03 before any challenger was published; a challenger is never retuned while it runs.
+challengers:
+  dir: track_record/challengers
+  models:
+    vix_term:
+      label: "v2.2 + VIX term structure"
+      # VIX over the 3-month VIX (FRED VXVCLS, from Dec 2007) and its 5-day change, read by the onset detector.
+      series: [vix3m]
+      settings: {models: {onset: {inputs: market_vix_term}}}
+    hy_credit:
+      label: "v2.2 + high-yield credit"
+      # High-yield fund (VWEHX) against a Treasury fund (VFITX), 5 and 21 days, read by the onset detector.
+      series: [hy_fund, treasury_fund]
+      settings: {models: {onset: {inputs: market_hy_fund}}}
+  # When a challenger may be put forward for a pre-registered adoption run (docs/CHALLENGERS.md).
+  review:
+    min_live_episodes: 3
+
 alerts:
   stress_probability: 0.5
   early_warning_probability: 0.4  # gbm probability of stress in one week

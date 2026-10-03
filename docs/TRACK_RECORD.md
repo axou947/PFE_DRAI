@@ -103,3 +103,10 @@ source. To serve the page as a website, an **admin of the repository** sets once
 The `pages` job of the same workflow then deploys `track_record/` after each daily run (or run
 "Publish regime" by hand from the Actions tab). Address: https://axou947.github.io/PFE_DRAI/
 (French: `fr.html`). Until it is switched on, the job prints a notice and does nothing.
+
+## Challengers
+
+Candidate models (v2.2 with one change) are published every market day next to it in
+`track_record/challengers/<name>/`, with their own hash chain and timestamps, and compared in
+`track_record/challengers/scorecard.md`. They never change what is published for v2.2. See
+[CHALLENGERS.md](CHALLENGERS.md).

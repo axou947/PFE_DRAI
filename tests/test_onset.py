@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from pfe_drai.config import _deep_merge
-from pfe_drai.features.market import INPUT_SETS, market_inputs
+from pfe_drai.features.market import EXTRA, INPUT_SETS, market_inputs
 from pfe_drai.models import get_model
 from pfe_drai.models.combined import combine
 from pfe_drai.validation import episode_mask, find_episodes, onset_target, walk_forward
@@ -17,7 +17,7 @@ def test_market_inputs_are_causal(pipeline, settings):
     cut = 3000
     part = market_inputs(prices.iloc[:cut], settings)
     pd.testing.assert_frame_equal(full.iloc[:cut], part)
-    assert list(full.columns) == INPUT_SETS["market_credit"]
+    assert list(full.columns) == INPUT_SETS["market_credit"] + EXTRA  # EXTRA: challengers only (docs/CHALLENGERS.md)
 
 
 @pytest.mark.parametrize("after_start_days", [None, 21])
