@@ -41,3 +41,12 @@ CATALOG: dict[str, Series] = {
 }
 
 REQUIRED = list(CATALOG)
+
+# Series read only by a pre-registered test, never by the published model: providers do not have to return them
+# and the daily job does not fetch them. Sahm rule (docs/SAHM_HY.md): the unemployment rate, first releases.
+TESTED: dict[str, Series] = {
+    s.name: s
+    for s in [
+        Series("unrate", "Unemployment rate (%)", "monthly", "growth", {"fred": "UNRATE"}, "commercial", revised=True),
+    ]
+}

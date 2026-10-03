@@ -14,6 +14,7 @@ holdout    pre-registered holdout of the onset detector, before the out-of-sampl
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
 slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
 overheating  inflation score, one vote per input against one vote per source, against core PCE (docs/INFLATION.md)
+sahm       Sahm rule test, step 1: growth score with and without the Sahm gap on 1999-2009 (docs/SAHM_HY.md)
 data       history covered by each series and where the backtest starts
 world      country equity markets: return and market stress state on a date (docs/WORLD.md)
 thesis     methods and results document built from docs/ and the records (docs/thesis/); --check compares docs and records
@@ -464,6 +465,31 @@ def cmd_overheating(args):
     print(f"Decision: {verdict}.")
 
 
+def cmd_sahm(args):
+    """Step 1 of the pre-registered Sahm rule test (docs/SAHM_HY.md): growth score holdout, no model fitted."""
+    from .validation.slowdown import sahm_holdout
+
+    settings = load_settings(args.config, {"data": {"provider": args.provider}} if args.provider else None)
+    res = sahm_holdout(settings)
+    data = "real" if res["is_live"] else "SIMULATED"
+    print(
+        f"Sahm rule, step 1: growth score holdout ({data} data, provider {res['provider']}), {res['first_day'].date()} to "
+        f"{res['last_day'].date()}. Reference: {res['reference']} (below-trend growth on {res['reference_share']:.0%} of "
+        "days). See docs/SAHM_HY.md."
+    )
+    print(f"\n{'candidate':<20} {'days':>5} {'bal. acc.':>10} {'below':>6} {'spells/yr':>10} {'median spell':>13}")
+    for _, r in res["rows"].iterrows():
+        print(
+            f"{r['candidate']:<20} {r['days']:>5} {r['balanced_accuracy']:>10.3f} {r['below_share']:>6.0%} "
+            f"{r['spells_per_year']:>10.2f} {r['median_spell']:>13.0f}"
+        )
+    print("\nPre-registered rule:")
+    for label, ok in res["checks"].items():
+        print(f"  [{'x' if ok else ' '}] {label}")
+    verdict = "PASSED: step 2 (one run on the out-of-sample period) comes next" if res["passed"] else "FAILED: v2.2 stays"
+    print(f"Step 1 {verdict}.")
+
+
 def cmd_slowdown(args):
     import pandas as pd
 
@@ -721,6 +747,7 @@ def main(argv=None):
         ("calibration", cmd_calibration),
         ("slowdown", cmd_slowdown),
         ("overheating", cmd_overheating),
+        ("sahm", cmd_sahm),
         ("data", cmd_data),
         ("world", cmd_world),
         ("thesis", cmd_thesis),

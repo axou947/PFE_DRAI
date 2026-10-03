@@ -17,7 +17,7 @@ import httpx
 import pandas as pd
 
 from .base import DataProvider, get_provider, register
-from .catalog import CATALOG
+from .catalog import CATALOG, TESTED
 
 URL = "https://api.stlouisfed.org/fred/series/observations"
 # ALFRED's whole real-time range: every vintage ever published.
@@ -116,7 +116,7 @@ class FredProvider(DataProvider):
         data = {}
         missing = []
         for name in names:
-            series = CATALOG[name]
+            series = CATALOG[name] if name in CATALOG else TESTED[name]
             if "fred" not in series.source_ids:
                 missing.append(name)
             elif series.revised and point_in_time:

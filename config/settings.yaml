@@ -200,6 +200,22 @@ overheating:
         breakeven: [breakeven_level, breakeven_change]
         short_rate: [short_rate_change]
 
+# Sahm rule in the growth score (docs/SAHM_HY.md): the pre-registered test, not the model. Kept outside
+# features/models/validation on purpose, so the published model's settings fingerprint does not change.
+sahm:
+  series: unrate                  # unemployment rate, FRED UNRATE as first releases (ALFRED)
+  publication_lag_days: 7         # employment report: the first Friday after the month (other providers)
+  # Step 1 passes only on a gain, not on noise: the same margin as the displayed Overheating (docs/INFLATION.md).
+  min_gain: {balanced_accuracy: 0.02}
+  holdout:
+    candidates:
+      - name: "v2.2 (published)"
+        growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims], scaling: robust, smooth_days: 21}
+        rule: {growth_threshold: 0.0}
+      - name: "v2.2 + Sahm gap"
+        growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims, unemployment_gap], scaling: robust, smooth_days: 21}
+        rule: {growth_threshold: 0.0}
+
 alerts:
   stress_probability: 0.5
   early_warning_probability: 0.4  # gbm probability of stress in one week

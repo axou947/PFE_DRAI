@@ -139,13 +139,17 @@ def slowdown_report(pipeline, model: str | None = None) -> dict:
 GROWTH_SERIES = ["equity", "us10y", "us2y", "indpro", "claims"]
 
 
-def growth_holdout(settings: dict) -> dict:
+def growth_holdout(settings: dict, candidates: list[dict] | None = None, extra: dict | None = None) -> dict:
     """Pre-registered holdout of the growth score candidates (docs/SLOWDOWN.md).
 
     US data before the real out-of-sample period (validation.holdout: SPY from 1993 to 2009-04-02),
     the growth score of each candidate in `validation.slowdown.holdout.candidates`, compared with the
     activity index from `evaluate_from` on. Only the growth score is involved: no model is fitted, and
     the stress and inflation series mostly start in 2002-2003.
+
+    `candidates` (default: the slowdown holdout's) and `extra` ({series name: publication lag in days},
+    series of the TESTED catalog) let another pre-registered test reuse it (docs/SAHM_HY.md); then the
+    v2.1 comparison row and the slowdown selection rule are left out.
     """
     from ..config import _deep_merge
     from ..data import get_provider
@@ -155,12 +159,14 @@ def growth_holdout(settings: dict) -> dict:
     cfg = settings["validation"]["slowdown"]["holdout"]
     start, end = pd.Timestamp(window["start"]), pd.Timestamp(window["end"])
     provider = get_provider(settings)
-    raw = provider.fetch_subset(GROWTH_SERIES, start, end)
-    missing = [name for name in GROWTH_SERIES if name not in raw or raw[name].empty]
+    names = GROWTH_SERIES + list(extra or {})
+    raw = provider.fetch_subset(names, start, end)
+    missing = [name for name in names if name not in raw or raw[name].empty]
     if missing:
         raise ValueError(f"The growth holdout needs {', '.join(missing)} from provider '{provider.name}'")
     raw = {name: series.loc[:end] for name, series in raw.items()}
-    prices = align(raw, settings["data"].get("publication_lag_days", {}), provider.release_dated)
+    lags = {**settings["data"].get("publication_lag_days", {}), **(extra or {})}
+    prices = align(raw, lags, provider.release_dated)
     feats = growth_features(prices)
     index = prices.index[prices.index >= pd.Timestamp(cfg["evaluate_from"])]
     truth = provider.truth()
@@ -178,7 +184,8 @@ def growth_holdout(settings: dict) -> dict:
     rows = []
     # The growth score until v2.1 is shown for comparison; it is not a candidate.
     before = {"name": "until v2.1 (comparison only)", **settings["validation"]["slowdown"]["before"]}
-    for i, candidate in [(None, before), *enumerate(cfg["candidates"])]:
+    listed = [*enumerate(candidates)] if candidates is not None else [(None, before), *enumerate(cfg["candidates"])]
+    for i, candidate in listed:
         s = _deep_merge(settings, {"features": {"growth": candidate["growth"]}, "regimes": {"rule": candidate["rule"]}})
         growth = growth_score(growth_zscores(feats, s), s).reindex(index)
         low = (growth < s["regimes"]["rule"]["growth_threshold"]).where(growth.notna())
@@ -203,8 +210,27 @@ def growth_holdout(settings: dict) -> dict:
         "reference": source,
         "reference_share": float(below.dropna().astype(bool).mean()),
         "rows": table,
-        "chosen": select_growth(table, settings),
+        "chosen": select_growth(table, settings) if candidates is None else None,
     }
+
+
+def sahm_holdout(settings: dict) -> dict:
+    """Step 1 of the Sahm rule test (docs/SAHM_HY.md): v2.2's growth score against v2.2 + the Sahm gap, same window
+    and reference as the growth holdout. Passes when the Sahm candidate changes at most `max_spells_per_year` times a
+    year and its balanced accuracy beats v2.2's by at least `min_gain`."""
+    cfg = settings["sahm"]
+    res = growth_holdout(settings, cfg["holdout"]["candidates"], {cfg["series"]: cfg["publication_lag_days"]})
+    rows = res["rows"]
+    base, sahm = rows.iloc[0], rows.iloc[1]
+    gain = float(sahm["balanced_accuracy"] - base["balanced_accuracy"])
+    limit = settings["validation"]["slowdown"]["holdout"]["max_spells_per_year"]
+    res["checks"] = {
+        f"balanced accuracy at least {cfg['min_gain']['balanced_accuracy']:g} above v2.2's (gain {gain:+.3f})": gain
+        >= cfg["min_gain"]["balanced_accuracy"] - 1e-12,
+        f"Slowdown changes at most {limit:g} times a year": bool(sahm["spells_per_year"] <= limit),
+    }
+    res["passed"] = all(res["checks"].values())
+    return res
 
 
 def select_growth(rows: pd.DataFrame, settings: dict):
