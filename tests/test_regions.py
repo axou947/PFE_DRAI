@@ -3,6 +3,7 @@
 Everything runs offline on small recorded payloads and simulated data.
 """
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +14,7 @@ from pfe_drai.config import available_regions, load_settings
 from pfe_drai.data import get_provider, official, regional
 from pfe_drai.features.build import FEATURES
 from pfe_drai.pipeline import Pipeline
-from pfe_drai.publish.snapshot import NotEnabledError, config_fingerprint, publish
+from pfe_drai.publish.snapshot import config_fingerprint, publish
 from pfe_drai.validation import rule_fingerprint
 from pfe_drai.validation.holdout import run_holdout
 
@@ -37,7 +38,7 @@ def test_regions_are_listed_and_the_us_is_untouched():
 def test_overlay(region):
     settings = load_settings(region=region)
     assert settings["region"] == region and settings["data"]["provider"] == "regional"
-    assert settings["publish"] == {**settings["publish"], "dir": f"track_record/{region}", "enabled": False}
+    assert settings["publish"] == {**settings["publish"], "dir": f"track_record/{region}", "enabled": True}
     assert settings["models"]["version"] == f"{region}-v1"
     assert config_fingerprint(settings) != US_CONFIG_SHA256
     # The US rule, unchanged and frozen on its own; the US onset detector, without a holdout selection.
@@ -224,6 +225,28 @@ def test_local_currency(patched_sources, sim):
     assert np.allclose(data["equity"], sim["equity"].loc["2004-01-01":] * 1.3)  # dollars * yen per dollar
 
 
+def test_latest_days_use_tiingo_fx_after_h10(patched_sources, sim, monkeypatch):
+    days = sim["equity"].loc["2026-06-01":].index
+    h10 = pd.Series(1.25, index=sim["equity"].index[sim["equity"].index < days[10]])  # H.10 stops 10 days early
+    asked = []
+
+    def fake_fx(pair, key, start, end):
+        asked.append((pair, pd.Timestamp(start)))
+        return pd.Series(1.5, index=sim["equity"].index[sim["equity"].index >= days[5]])  # overlaps H.10
+
+    monkeypatch.setattr(regional, "fetch_fred", lambda sid, key, start, end: h10)
+    monkeypatch.setattr(regional, "fetch_tiingo_fx", fake_fx)
+    provider = get_provider(_settings("uk"))
+    data = provider.fetch_subset(["equity"], pd.Timestamp("2004-01-01"), pd.Timestamp("2026-06-30"))
+    equity, prices = data["equity"], sim["equity"]
+    assert asked == [("gbpusd", h10.index[-1] + pd.Timedelta(days=1))]
+    assert equity.index[-1] == prices.index[-1]  # converted up to the last close
+    # H.10 days keep the H.10 rate (never overwritten by Tiingo); only the later days use Tiingo.
+    assert np.allclose(equity.loc[: h10.index[-1]], prices.loc["2004-01-01" : h10.index[-1]] / 1.25)
+    assert np.allclose(equity.loc[days[10] :], prices.loc[days[10] :] / 1.5)
+    assert "then Tiingo gbpusd" in provider.details["equity"]
+
+
 def test_fetch_subset_reads_only_what_is_asked(patched_sources):
     data = get_provider(_settings("em")).fetch_subset(["vix"], pd.Timestamp("2004-01-01"), pd.Timestamp("2026-06-30"))
     assert list(data) == ["vix"] and patched_sources == [("tiingo", "EEM")]
@@ -249,11 +272,14 @@ def test_missing_keys_are_named(monkeypatch):
 
 
 @pytest.mark.parametrize("region", REGIONS)
-def test_pipeline_runs(patched_sources, region):
+def test_pipeline_runs_and_publishes(patched_sources, region, tmp_path):
     p = Pipeline(_settings(region), use_cache=False)
     assert set(FEATURES) - set(p.features.columns) == DROPPED[region]
     assert list(p.scores.columns) == ["stress", "growth", "inflation"] and not p.scores.isna().any().any()
     state = p.state()
     assert state.regime in ("expansion", "overheating", "slowdown", "stress") and state.is_live_data
-    with pytest.raises(NotEnabledError, match="decision rule"):
-        publish(p)
+    # Passed its rule on 2026-10-03 (docs/REGIONS.md): published in its own folder, labelled with its region.
+    path = publish(p, out_dir=tmp_path)
+    entry = json.loads(path.read_text(encoding="utf-8"))
+    assert entry["region"] == region and entry["model_version"] == f"{region}-v1" and entry["previous_sha256"] == ""
+    assert (tmp_path / "index.csv").exists()

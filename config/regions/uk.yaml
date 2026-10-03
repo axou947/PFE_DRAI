@@ -12,7 +12,8 @@ data:
         source: tiingo
         ticker: EWU             # iShares MSCI United Kingdom ETF: stands in for the licensed index levels
         # In pounds (the euro lesson, docs/EURO.md): the dollar price divided by dollars per pound.
-        fx: {fred: DEXUSUK, quote: usd_per_local}
+        fx: {fred: DEXUSUK, quote: usd_per_local, tiingo: gbpusd}
+        # tiingo: the days after the last weekly H.10 release only (added for the daily publication, docs/REGIONS.md)
         licence: tiingo (as the US ETFs); FRED H.10 exchange rate
         vintage: "n/a (market price)"
         meaning: UK equity ETF in pounds
@@ -96,4 +97,4 @@ validation:
 
 publish:
   dir: track_record/uk      # its own folder and hash chain, never mixed into the US index.csv
-  enabled: false            # true only once the pre-registered decision rule is passed (docs/REGIONS.md)
+  enabled: true            # the pre-registered decision rule was passed on 2026-10-03 (docs/REGIONS.md)

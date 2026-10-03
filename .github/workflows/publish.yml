@@ -1,5 +1,6 @@
 # Daily publication of the regime to track_record/, on real data only, and of the public
 # track-record page built from it (track_record/index.html and fr.html, docs/TRACK_RECORD.md).
+# The UK, Japan and emerging markets are published next to it in track_record/<region>/ (docs/REGIONS.md).
 # Needs two repository secrets: FRED_API_KEY and TIINGO_API_KEY
 # (Settings > Secrets and variables > Actions). Without them the run fails
 # instead of publishing simulated data.
@@ -47,6 +48,22 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+      - name: Publish the regions
+        # UK, Japan and emerging markets each passed their pre-registered rule (docs/REGIONS.md). Each has
+        # its own folder and hash chain in track_record/<region>/. A regional failure never costs the US
+        # day: the other regions still run, everything is committed, and the run ends with a warning.
+        id: regions
+        continue-on-error: true
+        run: |
+          failed=""
+          for region in uk japan em; do
+            python -m pfe_drai --region "$region" publish || failed="$failed $region"
+          done
+          echo "failed=${failed# }" >> "$GITHUB_OUTPUT"
+          test -z "$failed"
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
       - name: Commit
         id: commit
         run: |
@@ -87,6 +104,9 @@ jobs:
       - name: Report an alert failure
         if: steps.alerts.outcome == 'failure'
         run: echo "::warning::An alert channel failed (class name in the Send alerts log). The day's entry is committed; see docs/ALERTS.md to resend."
+      - name: Report a region failure
+        if: steps.regions.outcome == 'failure'
+        run: echo "::warning::Regional publication failed for ${{ steps.regions.outputs.failed }} (log of 'Publish the regions'). The US entry is committed."
       - name: Report a page failure
         if: steps.page.outcome == 'failure'
         run: |

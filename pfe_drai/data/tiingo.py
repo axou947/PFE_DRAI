@@ -17,6 +17,7 @@ from .base import DataProvider, register
 from .catalog import CATALOG
 
 URL = "https://api.tiingo.com/tiingo/daily/{ticker}/prices"
+FX_URL = "https://api.tiingo.com/tiingo/fx/{pair}/prices"
 
 
 def fetch_tiingo(ticker: str, api_key: str, start, end) -> pd.Series:
@@ -31,6 +32,21 @@ def fetch_tiingo(ticker: str, api_key: str, start, end) -> pd.Series:
     response.raise_for_status()
     rows = response.json()
     values = pd.Series({r["date"][:10]: r["adjClose"] for r in rows}, dtype=float)
+    values.index = pd.to_datetime(values.index)
+    return values.dropna().sort_index()
+
+
+def fetch_tiingo_fx(pair: str, api_key: str, start, end) -> pd.Series:
+    """Daily closes of a currency pair (e.g. gbpusd = dollars per pound, usdjpy = yen per dollar)."""
+    params = {
+        "startDate": str(pd.Timestamp(start).date()),
+        "endDate": str(pd.Timestamp(end).date()),
+        "resampleFreq": "1day",
+    }
+    headers = {"Authorization": f"Token {api_key}", "Content-Type": "application/json"}
+    response = httpx.get(FX_URL.format(pair=pair.lower()), params=params, headers=headers, timeout=30)
+    response.raise_for_status()
+    values = pd.Series({r["date"][:10]: r["close"] for r in response.json()}, dtype=float)
     values.index = pd.to_datetime(values.index)
     return values.dropna().sort_index()
 

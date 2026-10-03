@@ -1,6 +1,6 @@
 # UK, Japan and emerging markets: data decisions and pre-registration
 
-**Status: pre-registered on 2026-10-03, then RUN once the same day: the UK, Japan and emerging markets all PASS the seven conditions (Japan narrowly, see Results).** They stay unpublished until a separate PR switches `publish.enabled` on, as fixed below.
+**Status: pre-registered on 2026-10-03, then RUN once the same day: the UK, Japan and emerging markets all PASS the seven conditions (Japan narrowly, see Results).** They are published daily since a separate PR (see "Daily publication" at the end).
 
 Three experimental regions are added the way the euro area was ([EURO.md](EURO.md)): `--region uk`, `--region japan` and
 `--region em`, each an overlay of `config/settings.yaml` in `config/regions/<region>.yaml`. The US model (v2.2), its frozen
@@ -280,3 +280,18 @@ separate PR that switches its `publish.enabled` and adds a `continue-on-error` s
   own pre-registration. Emerging markets also hold condition 6 in dollars, which fits currency moves being part of what
   emerging-market stress is.
 - The real episodes of the three regions are now seen. Any retuning needs its own pre-registration with a reason written beforehand.
+
+## Daily publication (decided by Henry on 2026-10-03, after the results)
+
+As the decision rule allows for a pass, the three regions are published every business day next to the US record:
+`publish.enabled: true` in each overlay, and a "Publish the regions" step in `.github/workflows/publish.yml` that runs
+`python -m pfe_drai --region <region> publish` for `uk`, `japan` and `em`. Each region writes `track_record/<region>/` with its own
+`index.csv` hash chain, OpenTimestamps proofs and `health/` records; nothing is mixed into the US files, and a regional failure is
+reported as a warning without costing the US day. The app's Track record tab shows each region's published days.
+
+One data change came with it, for the latest days only. The H.10 exchange rate that converts EWU and EWJ to pounds and yen is
+published once a week, so the converted price stopped up to a week before the last close: a daily record would have had one
+entry a week. The overlays now name the same pair at Tiingo (`fx.tiingo`: `gbpusd`, `usdjpy`, the same quote convention as
+DEXUSUK and DEXJPUS), used **only for the days after the last H.10 observation**. Every day the backtest above read keeps its H.10
+rate, so the results do not change; a published day converted with a Tiingo close is not revised when the H.10 rate arrives. This
+changes the UK and Japan settings fingerprints, which each published entry records.
