@@ -1021,7 +1021,12 @@ with tab_hist:
 
 # ================================================================ TRACK RECORD
 with tab_track:
-    if zone != "us":
+    region_index = resolve(load_settings(region=zone)["publish"]["dir"]) / "index.csv"
+    if zone != "us" and region_index.exists():
+        # A region that passed its rule (docs/REGIONS.md): its own hash-chained days, newest first.
+        st.caption(t("region.record", lang))
+        st.dataframe(pd.read_csv(region_index).iloc[::-1], hide_index=True, width="stretch")
+    elif zone != "us":
         st.info(t("region.no_record", lang))
     else:
         records = resolve(settings["publish"]["dir"])

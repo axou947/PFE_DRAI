@@ -109,4 +109,4 @@ validation:
 
 publish:
   dir: track_record/em      # its own folder and hash chain, never mixed into the US index.csv
-  enabled: false            # true only once the pre-registered decision rule is passed (docs/REGIONS.md)
+  enabled: true            # the pre-registered decision rule was passed on 2026-10-03 (docs/REGIONS.md)

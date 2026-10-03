@@ -24,6 +24,7 @@ month plus a conservative `lag_days` (not fully point-in-time for revised series
 
 import os
 
+import httpx
 import numpy as np
 import pandas as pd
 
@@ -31,7 +32,7 @@ from .base import DataProvider, register
 from .dating import check_fresh, realised_vol_percent, release_dated
 from .fred import fetch_fred
 from .official import fetch_bis, fetch_boe, fetch_mof, fetch_oecd
-from .tiingo import fetch_tiingo
+from .tiingo import fetch_tiingo, fetch_tiingo_fx
 
 MARKET_SOURCES = {"tiingo", "realised_vol"}  # market prices: dated on their own day, never stale-checked here
 STALE_DAYS = {"monthly": 150, "daily": 30}
@@ -117,8 +118,7 @@ class RegionalProvider(DataProvider):
             prices = fetch_tiingo(spec["ticker"], key, start, end)
             self.details[name] = f"tiingo {spec['ticker']}"
             if "fx" in spec:
-                prices = self._local_currency(prices, spec["fx"], start, end)
-                self.details[name] += f" in local currency (FRED {spec['fx']['fred']})"
+                prices = self._local_currency(name, prices, spec["fx"], start, end)
             return prices
         if source == "realised_vol":
             self.details[name] = "realised volatility of equity"
@@ -136,10 +136,26 @@ class RegionalProvider(DataProvider):
             return self._sdmx(name, spec, start)
         raise ValueError(f"Series '{name}': unknown source '{source}'")
 
-    def _local_currency(self, prices: pd.Series, fx: dict, start, end) -> pd.Series:
-        """A dollar ETF price in local currency: the region's market without the dollar's moves (docs/REGIONS.md)."""
+    def _local_currency(self, name: str, prices: pd.Series, fx: dict, start, end) -> pd.Series:
+        """A dollar ETF price in local currency: the region's market without the dollar's moves (docs/REGIONS.md).
+
+        History is the FRED H.10 noon rate. H.10 is published once a week, so its last days are missing until
+        then: with `fx.tiingo`, only the days after its last observation are filled with Tiingo's daily close of
+        the same pair, so the latest closes are converted too. Earlier days are never touched.
+        """
         key = self._key("fred_api_key_env", f"the exchange rate {fx['fred']} comes from FRED")
         rate = fetch_fred(fx["fred"], key, start, end)
+        self.details[name] += f" in local currency (FRED {fx['fred']}"
+        last = rate.index.max() if len(rate) else None
+        if "tiingo" in fx and last is not None and last < pd.Timestamp(end):
+            try:
+                tiingo_key = self._key("tiingo_api_key_env", "the latest exchange rates come from Tiingo")
+                recent = fetch_tiingo_fx(fx["tiingo"], tiingo_key, last + pd.Timedelta(days=1), end)
+                rate = pd.concat([rate, recent[recent.index > last]])
+                self.details[name] += f", then Tiingo {fx['tiingo']} after {last.date()}"
+            except httpx.HTTPError as exc:  # the H.10 history still stands: the series just ends earlier
+                self.details[name] += f"; Tiingo {fx['tiingo']} unavailable: {type(exc).__name__}"
+        self.details[name] += ")"
         both = pd.concat({"price": prices, "rate": rate}, axis=1, join="inner").dropna()
         if fx["quote"] == "usd_per_local":  # e.g. DEXUSUK, dollars per pound
             return both["price"] / both["rate"]
