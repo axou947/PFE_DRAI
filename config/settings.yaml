@@ -218,7 +218,7 @@ sahm:
         rule: {growth_threshold: 0.0}
 
 # Displayed Slowdown v2.3 (docs/SLOWDOWN_V23.md): the pre-registered test, not the model. Fixed on 2026-10-03 before any
-# real run. Kept outside features/models/validation on purpose: the published model's settings fingerprint does not
+# real run. NOT ADOPTED 2026-10-03: the one real run selected no candidate on 2009-2017 (best +0.003 vs 0.02). Kept outside features/models/validation on purpose: the published model's settings fingerprint does not
 # change. If adopted, models.combined.calm is set to the selected display and models.version to v2.3.
 slowdown_v23:
   baseline: jump                  # v2.2: the calm share split in the jump model's proportions
