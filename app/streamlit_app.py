@@ -113,7 +113,7 @@ else:
     # A region has its own data source (config/regions/<region>.yaml): the choice is not offered.
     provider = load_settings(region=zone)["data"]["provider"]
     st.sidebar.caption(f"{t('app.data_source', lang)}: {provider}")
-    st.warning(t("region.experimental", lang))
+    st.warning(t(f"region.experimental.{zone}", lang))
 models = available_models()
 model = st.sidebar.selectbox(
     t("app.model", lang), models, index=models.index(settings["models"]["default"]), format_func=lambda m: t(f"model.{m}", lang)

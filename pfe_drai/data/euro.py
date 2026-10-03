@@ -24,6 +24,7 @@ import httpx
 import pandas as pd
 
 from .base import DataProvider, register
+from .dating import check_fresh, realised_vol_percent, release_dated
 from .tiingo import fetch_tiingo
 
 ECB_URL = "https://data-api.ecb.europa.eu/service/data/{dataset}/{key}"
@@ -135,31 +136,6 @@ def fetch_eurostat_any(spec: dict, start) -> tuple[pd.Series, dict]:
         except NoDataError as exc:
             errors.append(str(exc))
     raise NoDataError(" | ".join(errors))
-
-
-def realised_vol_percent(equity: pd.Series, window: int = 21) -> pd.Series:
-    """Annualised realised volatility of daily log returns, in % (the euro stand-in for the VIX level)."""
-    import numpy as np
-
-    return (np.log(equity).diff().rolling(window).std() * np.sqrt(252) * 100).dropna()
-
-
-def check_fresh(name: str, series: pd.Series, end, max_stale_days: int) -> None:
-    """Refuse a series that stopped updating: a stale last value would be carried forward as if it were current.
-
-    Eurostat re-bases and replaces datasets (HICP moved to a new classification in 2026), so an old code can
-    keep answering with a series that ends months ago.
-    """
-    if series.empty or (pd.Timestamp(end) - series.index[-1]).days > max_stale_days:
-        last = series.index[-1].date() if len(series) else "no data"
-        raise ValueError(f"Series '{name}' is stale: its last reference period is {last}. Its source code needs updating.")
-
-
-def release_dated(series: pd.Series, lag_days: int, monthly: bool) -> pd.Series:
-    """Date a series by the day it was public: end of its period (months) plus a conservative lag."""
-    out = series.copy()
-    out.index = (out.index + pd.offsets.MonthEnd(0) if monthly else out.index) + pd.Timedelta(days=lag_days)
-    return out[~out.index.duplicated(keep="last")].sort_index()
 
 
 @register

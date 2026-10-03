@@ -47,6 +47,7 @@ python -m pfe_drai --provider fred calibration  # la probabilité de stress est-
 python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix des indicateurs de croissance, 1999-2009 (docs/SLOWDOWN.md)
 python -m pfe_drai --provider fred slowdown     # Ralentissement : avant / après, contre l'indice d'activité de la Fed de Chicago
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
+python -m pfe_drai --region uk data          # même chose pour une autre zone : euro, uk, japan, em (docs/REGIONS.md)
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai health --offline          # le job quotidien est-il en bonne santé ? jour manquant, intégrité, horodatage (docs/OPERATIONS.md)
 python -m pfe_drai --provider fred health     # + fraîcheur de chaque série de données (clés requises)
@@ -106,6 +107,11 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
   réglages et le suivi réel ; les résultats qui n'existent que dans les pré-enregistrements sont cités textuellement, avec leur commit ;
   `--check` fait échouer la commande si un document imprime un chiffre que l'enregistrement de la même version ne reproduit pas.
   Voir [docs/thesis/README.md](docs/thesis/README.md).
+
+- **Autres zones (expérimentales)** : `--region euro`, `uk`, `japan` ou `em` applique le même modèle aux données de la zone
+  (BCE/Eurostat ; Banque d'Angleterre, ministère des Finances japonais, OCDE, BRI : aucune nouvelle clé). Chaque zone a sa règle
+  de décision pré-enregistrée et n'est publiée que si elle la passe ; la zone euro ne l'a pas passée.
+  Voir [docs/EURO.md](docs/EURO.md) et [docs/REGIONS.md](docs/REGIONS.md).
 
 Détails : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

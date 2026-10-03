@@ -1,0 +1,108 @@
+# Emerging markets region (docs/REGIONS.md): deep-merged over settings.yaml by `--region em`. The US model
+# (settings.yaml alone) is not touched. Everything below was fixed before any real emerging-market run.
+#
+# One aggregate, as investors hold it (the MSCI Emerging Markets index through EEM), with macro composites of
+# the six largest economies of that index that publish free monthly data. Weights (`areas`) are the index's
+# country weights, rounded, as of mid-2025: China 30, India 17, Korea 11, Brazil 4, South Africa 3, Mexico 2.
+# Taiwan (about 18) has no free monthly series in these sources and is left out. The weights are fixed and
+# never updated; a composite counts a month only when its reporting areas carry half of its weight.
+
+data:
+  provider: regional
+  start: "2003-04-14"       # EEM trades from April 2003
+  regional:
+    series:
+      equity:
+        source: tiingo
+        ticker: EEM             # iShares MSCI Emerging Markets ETF
+        # In dollars on purpose (docs/REGIONS.md): emerging-market stress is largely currency stress, and
+        # there is no single local currency to convert to.
+        licence: tiingo (as the US ETFs)
+        vintage: "n/a (market price)"
+        meaning: emerging-market equity ETF, USD
+      vix:
+        source: realised_vol
+        licence: derived from the ETF price (Cboe's VXEEM starts in 2011 only)
+        vintage: "n/a"
+        meaning: 21-day realised volatility of EEM, annualised, in %
+      hy_bond:
+        source: tiingo
+        ticker: EMB             # iShares J.P. Morgan USD Emerging Markets Bond ETF (from December 2007)
+        licence: tiingo (as the US ETFs)
+        vintage: "n/a (market price)"
+        meaning: emerging-market sovereign bonds in dollars (EMB lagging Treasuries reads as stress)
+      treasury:
+        source: tiingo
+        ticker: IEF
+        licence: tiingo (as the US ETFs)
+        vintage: "n/a (market price)"
+        meaning: 7-10 year US Treasury ETF, the credit series' benchmark
+      us10y:
+        source: oecd
+        flow: "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0"
+        key: "{area}.M.IRLT.PA._Z._Z._Z"   # long-term government bond yields, monthly average
+        areas: {CHN: 30, IND: 17, KOR: 11, BRA: 4, ZAF: 3, MEX: 2}
+        kind: rate
+        frequency: monthly
+        lag_days: 35
+        licence: OECD data (CC BY 4.0)
+        vintage: "no (market yields, not revised)"
+        meaning: long-term government yield, weighted composite of six economies
+      us2y:
+        source: bis
+        flow: WS_CBPOL
+        key: "D.{area}"         # central bank policy rates, daily
+        areas: {CN: 30, IN: 17, KR: 11, BR: 4, ZA: 3, MX: 2}
+        kind: rate
+        frequency: daily
+        lag_days: 1
+        licence: BIS statistics (source acknowledged)
+        vintage: "no (policy decisions, not revised)"
+        meaning: policy rate, weighted composite of six economies (stands in for the 2-year yield)
+      cpi:
+        source: bis
+        flow: WS_LONG_CPI
+        key: "M.{area}.628"     # consumer prices, index 2010 = 100
+        areas: {CN: 30, IN: 17, KR: 11, BR: 4, ZA: 3, MX: 2}
+        frequency: monthly
+        lag_days: 45
+        licence: BIS statistics (source acknowledged), from the national statistical offices
+        vintage: "no public vintages; CPIs are rarely revised"
+        meaning: consumer prices, weighted composite of six economies
+      indpro:
+        source: oecd
+        flow: "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0"
+        key: "{area}.M.PRVM.IX.BTE.Y._Z"   # China and South Africa publish no index here: four economies
+        areas: {IND: 17, KOR: 11, BRA: 4, MEX: 2}
+        frequency: monthly
+        lag_days: 60
+        licence: OECD data (CC BY 4.0), from the national statistical offices
+        vintage: "no public vintages; revised: backtest not fully point-in-time"
+        meaning: industrial production, weighted composite of India, Korea, Brazil and Mexico
+
+features:
+  # No emerging-market unemployment series (China, India and Brazil have none here for the whole period)
+  # and no breakeven (docs/REGIONS.md). The growth score averages the three growth inputs that exist.
+  drop: [jobless_claims, breakeven_level, breakeven_change]
+  growth:
+    inputs: [equity_momentum, curve_slope, industrial_production]
+
+models:
+  version: "em-v1"          # a separate model on separate data; the US model is v2.2
+  # The US onset detector, unchanged (docs/REGIONS.md): no holdout selection, so no degree of freedom.
+  onset: {learner: gbm, inputs: market}
+
+validation:
+  episodes:
+    # The US rule's parameters, unchanged, on EEM: same sha256 as the US one, frozen here on its own so the
+    # emerging-market rule cannot change without a new hash, a date and a public reason.
+    frozen:
+      sha256: 6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a
+      date: "2026-10-03"
+  holdout: null             # no selection on real data: the onset detector is the US one
+  slowdown:
+    reference: null         # no outside reference series for emerging-market growth is registered
+
+publish:
+  dir: track_record/em      # its own folder and hash chain, never mixed into the US index.csv
+  enabled: false            # true only once the pre-registered decision rule is passed (docs/REGIONS.md)

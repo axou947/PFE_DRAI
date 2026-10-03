@@ -1,0 +1,92 @@
+# Japan region (docs/REGIONS.md): deep-merged over settings.yaml by `--region japan`. The US model
+# (settings.yaml alone) is not touched. Everything below was fixed before any real Japan run.
+
+data:
+  provider: regional
+  start: "1996-04-01"       # EWJ trades from March 1996
+  # What each series is, where it comes from, when it is public (docs/REGIONS.md, "Japan").
+  # lag_days: conservative release lag (no source exposes first releases: not fully point-in-time).
+  regional:
+    series:
+      equity:
+        source: tiingo
+        ticker: EWJ             # iShares MSCI Japan ETF: stands in for the licensed index levels
+        # In yen (the euro lesson, docs/EURO.md): the dollar price times yen per dollar.
+        fx: {fred: DEXJPUS, quote: local_per_usd}
+        licence: tiingo (as the US ETFs); FRED H.10 exchange rate
+        vintage: "n/a (market price)"
+        meaning: Japan equity ETF in yen
+      vix:
+        source: realised_vol
+        licence: derived from the ETF price (the Nikkei VI is licensed and not used)
+        vintage: "n/a"
+        meaning: 21-day realised volatility of the Japan equity series, annualised, in %
+      us10y:
+        source: mof
+        column: 10Y             # JGB benchmark yield, 10 years, daily
+        lag_days: 1
+        licence: Ministry of Finance Japan (Public Data License 1.0, source acknowledged)
+        vintage: "no (end-of-day yields, not revised)"
+        meaning: 10-year JGB yield
+      us2y:
+        source: mof
+        column: 2Y
+        lag_days: 1
+        licence: Ministry of Finance Japan (Public Data License 1.0, source acknowledged)
+        vintage: "no (end-of-day yields, not revised)"
+        meaning: 2-year JGB yield
+      cpi:
+        source: bis
+        flow: WS_LONG_CPI
+        key: "M.{area}.628"     # consumer prices, index 2010 = 100
+        areas: {JP: 1.0}
+        frequency: monthly
+        lag_days: 45            # the Statistics Bureau publishes about 3 weeks after the month; the BIS copies it later
+        licence: BIS statistics (source acknowledged), from the Statistics Bureau of Japan
+        vintage: "no public vintages; CPI is not revised (re-based every 5 years)"
+        meaning: consumer price index, Japan
+      indpro:
+        source: oecd
+        flow: "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0"
+        key: "{area}.M.PRVM.IX.BTE.Y._Z"   # production volume, industry excluding construction, s.a. index
+        areas: {JPN: 1.0}
+        frequency: monthly
+        lag_days: 60            # METI publishes a preliminary index at the end of M+1; the OECD copies it later; revised
+        licence: OECD data (CC BY 4.0), from METI
+        vintage: "no public vintages; revised: backtest not fully point-in-time"
+        meaning: industrial production, Japan
+      claims:
+        source: oecd
+        flow: "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0"
+        key: "{area}.M.UNEMP.PT_LF._T.Y._Z"   # unemployment rate, % of the labour force, s.a.
+        areas: {JPN: 1.0}
+        frequency: monthly
+        lag_days: 60            # the Statistics Bureau publishes at the end of M+1
+        licence: OECD data (CC BY 4.0), from the Statistics Bureau of Japan
+        vintage: "no public vintages; revised slightly: backtest not fully point-in-time"
+        meaning: unemployment rate, Japan (stands in for jobless claims)
+
+features:
+  # No free daily Japan credit spread and no free daily breakeven (docs/REGIONS.md): the stress score reads
+  # volatility and drawdown, the inflation score CPI and the 2-year yield.
+  drop: [credit_stress, breakeven_level, breakeven_change]
+
+models:
+  version: "japan-v1"       # a separate model on separate data; the US model is v2.2
+  # The US onset detector, unchanged (docs/REGIONS.md): no holdout selection, so no degree of freedom.
+  onset: {learner: gbm, inputs: market}
+
+validation:
+  episodes:
+    # The US rule's parameters, unchanged, on the Japan equity series in yen: same sha256 as the US one,
+    # frozen here on its own so the Japan rule cannot change without a new hash, a date and a public reason.
+    frozen:
+      sha256: 6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a
+      date: "2026-10-03"
+  holdout: null             # no selection on real data: the onset detector is the US one
+  slowdown:
+    reference: null         # no outside reference series for Japan growth is registered
+
+publish:
+  dir: track_record/japan   # its own folder and hash chain, never mixed into the US index.csv
+  enabled: false            # true only once the pre-registered decision rule is passed (docs/REGIONS.md)

@@ -464,17 +464,21 @@ def cmd_slowdown(args):
 
 def cmd_data(args):
     p = _pipeline(args)
-    euro = p.settings.get("region") == "euro"
-    lags = p.settings["data"].get("euro", {}).get("series", {})
-    print(f"{'series':<14} {'first':<12} {'last':<12} dated by" + ("" if not euro else "  (lag, vintage, licence)"))
+    region = p.settings.get("region")
+    # A region overlay describes each series (data.<provider>.series): lag, vintage, licence (docs/EURO.md, docs/REGIONS.md).
+    specs = p.settings["data"].get(p.provider.name, {}).get("series", {}) if region else {}
+    print(f"{'series':<14} {'first':<12} {'last':<12} dated by" + ("  (lag, vintage, licence)" if region else ""))
     for name, series in p.raw.items():
-        if euro:
-            spec = lags.get(name, {})
-            lag = spec.get("lag_days", "")
-            used = p.provider.used_filters.get(name)
+        if region:
+            spec = specs.get(name, {})
+            lag = spec.get("lag_days", 0)
             dated = f"release day, lag {lag} d  |  {spec.get('vintage')}  |  {spec.get('licence')}"
+            used = getattr(p.provider, "used_filters", {}).get(name)
             if used:
                 dated += f"  |  eurostat {spec['dataset']} {used}"
+            detail = getattr(p.provider, "details", {}).get(name)
+            if detail:
+                dated += f"  |  {detail}"
         else:
             dated = "release day (ALFRED)" if name in p.provider.release_dated else "reference period"
         print(f"{name:<14} {series.index.min().date()!s:<12} {series.index.max().date()!s:<12} {dated}")
@@ -604,7 +608,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="pfe_drai", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", help="path to a settings.yaml")
     parser.add_argument("--provider", help="override data.provider (synthetic, csv, fred, tiingo, yahoo)")
-    parser.add_argument("--region", default="us", help="us (default, the published model) or euro (experimental, docs/EURO.md)")
+    parser.add_argument(
+        "--region",
+        default="us",
+        help="us (default, the published model); experimental: euro (docs/EURO.md), uk, japan, em (docs/REGIONS.md)",
+    )
     parser.add_argument("--lang", default="fr", choices=["fr", "en"])
     sub = parser.add_subparsers(dest="command", required=True)
     for name, func in [
