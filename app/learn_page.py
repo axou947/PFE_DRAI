@@ -17,6 +17,16 @@ from pfe_drai.i18n import fmt_date, fmt_pct, t
 from pfe_drai.learn.cards import REGIME_CARD, THEMES, leads_from, load_cards, load_episodes, load_glossary, search
 from pfe_drai.learn.data import compute_all, fetch, load_indicators, series_catalog, target_range
 from pfe_drai.learn.fed import OUTCOMES, outlook, taylor_history, taylor_rules
+from pfe_drai.learn.history import ANALOGUE_FEATURES, analogues, numbers, regime_mix, snapshot
+from pfe_drai.learn.lab import (
+    bond,
+    curve_recession_probability,
+    debt_path,
+    mortgage_payment,
+    purchasing_power,
+    real_change,
+    stabilising_balance,
+)
 from pfe_drai.learn.today import checklist, in_focus, readings
 
 SECTIONS = ["today", "concepts", "map", "history", "lab", "glossary", "quiz", "ask"]
@@ -167,8 +177,11 @@ def render(level: str, ctx: Context) -> None:
         key=section_key,
         format_func=lambda s: t(f"learn.section.{s}", lang),
         label_visibility="collapsed",
+        on_change=_keep_section,
+        args=(section_key,),
     )
-    section = st.session_state.get(section_key) or "today"
+    section = st.session_state[section_key]
+    st.session_state[f"{section_key}_last"] = section
     if section == "today":
         _today(level, ctx, data, values, indicators, settings, date)
     elif section == "concepts":
@@ -176,7 +189,7 @@ def render(level: str, ctx: Context) -> None:
     elif section == "map":
         _map(level, ctx, values, indicators, cards, date)
     elif section == "history":
-        _history(level, ctx, values, cards, settings)
+        _history(level, ctx, values, cards, settings, date)
     elif section == "lab":
         _lab(level, ctx, data, values, settings, date)
     elif section == "glossary":
@@ -189,6 +202,12 @@ def render(level: str, ctx: Context) -> None:
     # Publishers only: notes in brackets (release, route) stay in indicators.yaml.
     owners = sorted({re.sub(r"\s*\(.*\)", "", v["owner"]) for v in series_catalog(settings).values()})
     st.caption(t("learn.footer", lang, sources=", ".join(owners)))
+
+
+def _keep_section(section_key: str) -> None:
+    """Clicking the open section again would unselect it: stay on it instead."""
+    if st.session_state.get(section_key) is None:
+        st.session_state[section_key] = st.session_state.get(f"{section_key}_last", "today")
 
 
 def open_card(level: str, card_id: str) -> None:
@@ -605,16 +624,64 @@ def _map(level, ctx: Context, values, indicators, cards, date):
 
 
 # ---------------------------------------------------------------- history lessons
-def _history(level, ctx: Context, values, cards, settings):
+@st.cache_data(show_spinner=False, ttl=3600)
+def episode_analogues(provider: str, date: str):
+    _, values, _, _ = learn_data(provider)
+    return analogues(values, load_episodes(load_settings()), pd.Timestamp(date))
+
+
+def pick_episode(level: str, episode_id: str) -> None:
+    """Callback: show an episode in the History section."""
+    st.session_state[f"learn_{level}_episode"] = episode_id
+
+
+def _history(level, ctx: Context, values, cards, settings, date):
     lang = ctx.lang
-    episodes = load_episodes(settings)
+    episodes = sorted(load_episodes(settings), key=lambda e: e["start"])
     by_ep = {e["id"]: e for e in episodes}
-    pick = st.radio(
+    order = [e["id"] for e in episodes]
+    key = f"learn_{level}_episode"
+    if st.session_state.get(key) not in by_ep:
+        st.session_state[key] = order[-1]
+
+    # Every episode on one timeline of the Fed's rate and inflation.
+    st.markdown(f"#### {t('learn.history.overview', lang)}")
+    names = ["policy_rate", "core_pce_yoy"] if level == "beginner" else ["policy_rate", "core_pce_yoy", "unrate"]
+    fig = _history_chart(values, names, ctx, ctx.usrec, None, date, 300)
+    for i, ep in enumerate(episodes, start=1):
+        fig.add_vrect(
+            x0=ep["start"],
+            x1=ep["end"],
+            fillcolor=ctx.theme.accent,
+            opacity=0.30 if ep["id"] == st.session_state[key] else 0.10,
+            line_width=0,
+            annotation_text=str(i),
+            annotation_position="top left",
+            annotation_font=dict(size=10, color=ctx.theme.text),
+        )
+    _chart(fig, f"learn_{level}_episodes_overview")
+    st.caption(t("learn.history.overview_help", lang))
+
+    # The past episodes that started in conditions most like the analysis date.
+    close = episode_analogues(ctx.provider, str(pd.Timestamp(date).date()))
+    st.markdown(f"#### {t('learn.history.analogue_title', lang)}")
+    st.caption(t(f"learn.history.analogue_help.{level}", lang))
+    if close:
+        for row in close:
+            label = f"{order.index(row['id']) + 1}. {by_ep[row['id']]['title'][lang]}"
+            if level == "pro":
+                distance = f"{row['distance']:.2f}".replace(".", "," if lang == "fr" else ".")
+                label += f" ({t('learn.history.distance', lang)} {distance})"
+            st.button(f"🔍 {label}", key=f"learn_{level}_analogue_{row['id']}", on_click=pick_episode, args=(level, row["id"]))
+    else:
+        st.caption(t("learn.history.analogue_none", lang))
+
+    st.divider()
+    pick = st.selectbox(
         t("learn.history.pick", lang),
-        [e["id"] for e in episodes],
-        format_func=lambda e: by_ep[e]["title"][lang],
-        key=f"learn_{level}_episode",
-        horizontal=True,
+        order,
+        format_func=lambda e: f"{order.index(e) + 1}. {by_ep[e]['title'][lang]}",
+        key=key,
     )
     ep = by_ep[pick]
     start, end = pd.Timestamp(ep["start"]), pd.Timestamp(ep["end"])
@@ -627,11 +694,37 @@ def _history(level, ctx: Context, values, cards, settings):
     fig = _history_chart(values, names, ctx, ctx.usrec, span[0], span[1], 320, window=(start, end))
     _chart(fig, f"learn_{level}_episode_plot")
     st.caption(t("learn.history.chart_note", lang))
+
     text = ep[level][lang]
     cols = st.columns(3)
     for col, part in zip(cols, ["happened", "fed", "lesson"], strict=True):
         col.markdown(f"**{t(f'learn.history.{part}', lang)}**")
         col.markdown(text[part])
+
+    _episode_numbers(level, ctx, values, ep)
+
+    if ep.get("timeline"):
+        st.markdown(f"**{t('learn.history.timeline', lang)}**")
+        st.markdown("\n".join(f"- **{fmt_date(e['date'], lang)}** · {e[lang]}" for e in ep["timeline"]))
+
+    _episode_vs_today(level, ctx, values, ep, date)
+
+    if level == "pro":
+        if ep.get("debate"):
+            st.markdown(f"**{t('learn.history.debate', lang)}**")
+            st.markdown(ep["debate"][lang])
+        st.markdown(f"**{t('learn.history.model', lang)}**")
+        mix = regime_mix(ctx.regimes, start, end)
+        if mix:
+            ranked = sorted(mix.items(), key=lambda x: -x[1])
+            st.markdown(" · ".join(f"{t(f'regime.{r}', lang)} {fmt_pct(v, lang)}" for r, v in ranked))
+            st.caption(t("learn.history.model_help", lang))
+        else:
+            st.caption(t("learn.history.model_none", lang))
+        if ep.get("reading"):
+            st.markdown(f"**{t('learn.history.reading', lang)}**")
+            st.markdown("\n".join(f"- {r}" for r in ep["reading"]))
+
     by_id = {c.id: c for c in cards}
     st.caption(t("learn.history.cards", lang))
     cols = st.columns(len(ep["cards"]))
@@ -644,17 +737,97 @@ def _history(level, ctx: Context, values, cards, settings):
         )
 
 
+def _episode_numbers(level, ctx: Context, values, ep):
+    lang = ctx.lang
+    n = numbers(values, ep, ctx.usrec)
+    if not n:
+        return
+    st.markdown(f"**{t('learn.history.numbers', lang)}**")
+    items = []
+    if "rate_start" in n:
+        rng = t(
+            "learn.history.n.rate_range",
+            lang,
+            low=fmt_value(n["rate_low"], "pct", lang),
+            high=fmt_value(n["rate_high"], "pct", lang),
+        )
+        items.append(
+            (
+                t("learn.history.n.rate", lang),
+                f"{fmt_value(n['rate_start'], 'pct', lang)} → {fmt_value(n['rate_end'], 'pct', lang)}",
+                rng,
+            )
+        )
+    for k, unit in (("inflation_high", "pct"), ("unemployment_high", "pct"), ("vix_high", "pts")):
+        if k in n:
+            items.append((t(f"learn.history.n.{k}", lang), fmt_value(n[k], unit, lang), None))
+    if "recession_months" in n:
+        items.append((t("learn.history.n.recession_months", lang), str(n["recession_months"]), None))
+    if level == "pro":
+        if "oil_low" in n:
+            oil = f"{n['oil_low']:.0f} – {n['oil_high']:.0f} USD"  # two $ signs would render as LaTeX
+            items.append((t("learn.history.n.oil", lang), oil, None))
+        if "curve_low" in n:
+            items.append((t("learn.history.n.curve_low", lang), fmt_value(n["curve_low"], "pt", lang, signed=True), None))
+    cols = st.columns(min(len(items), 4))
+    for i, (label, value, delta) in enumerate(items):
+        cols[i % len(cols)].metric(label, value, delta, delta_color="off")
+
+
+def _episode_vs_today(level, ctx: Context, values, ep, date):
+    """The episode's starting conditions next to the analysis date's."""
+    lang = ctx.lang
+    then, now = snapshot(values, ep["start"]), snapshot(values, date)
+    names = list(ANALOGUE_FEATURES) if level == "pro" else ["policy_rate", "core_pce_yoy", "unrate"]
+    rows = []
+    for name in names:
+        label = t("learn.history.fed_last_year", lang) if name == "fed_last_year" else ind_name(name, lang)
+        unit = "pt" if name in ("fed_last_year", "curve_10y_3m") else "pct"
+        signed = unit == "pt"
+        rows.append(
+            {
+                " ": label,
+                t("learn.history.then", lang, date=fmt_date(ep["start"], lang)): fmt_value(then[name], unit, lang, signed),
+                t("learn.history.now", lang, date=fmt_date(date, lang)): fmt_value(now[name], unit, lang, signed),
+            }
+        )
+    st.markdown(f"**{t('learn.history.compare', lang)}**")
+    st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+
+
 # ---------------------------------------------------------------- what-if lab
+LAB_TABS = {"beginner": ("fed", "rates", "household", "debt"), "pro": ("fed", "rates", "household", "debt", "phillips")}
+
+
 def _lab(level, ctx: Context, data, values, settings, date):
     lang = ctx.lang
-    cfg = settings["learn"]["fed"]["taylor"]
 
     def last(name, default):
         s = values.get(name)
-        if s is None or s.loc[:date].empty:
+        if s is None or s.loc[:date].dropna().empty:
             return default
-        return float(s.loc[:date].iloc[-1])
+        return float(s.loc[:date].dropna().iloc[-1])
 
+    st.caption(t(f"learn.lab.intro.{level}", lang))
+    tabs = st.tabs([t(f"learn.lab.tab.{k}", lang) for k in LAB_TABS[level]])
+    for tab, name in zip(tabs, LAB_TABS[level], strict=True):
+        with tab:
+            {
+                "fed": _lab_fed,
+                "rates": _lab_rates,
+                "household": _lab_household,
+                "debt": _lab_debt,
+                "phillips": _lab_phillips,
+            }[name](level, ctx, values, settings, date, last)
+
+
+def _money(value: float, lang: str) -> str:
+    return f"{value:,.0f} $".replace(",", " ") if lang == "fr" else f"${value:,.0f}"
+
+
+def _lab_fed(level, ctx: Context, values, settings, date, last):
+    lang = ctx.lang
+    cfg = settings["learn"]["fed"]["taylor"]
     pi0, u0, ustar0, i0 = last("core_pce_yoy", 2.5), last("unrate", 4.2), last("nrou", 4.2), last("policy_rate", 3.0)
     st.markdown(f"#### {t('learn.lab.taylor', lang)}")
     st.caption(t(f"learn.lab.taylor_help.{level}", lang))
@@ -696,6 +869,10 @@ def _lab(level, ctx: Context, data, values, settings, date):
             ctx.style(fig, 300, title=dict(text=t("learn.lab.taylor_history", lang), font=dict(size=13)))
             _chart(fig, "learn_pro_taylor_history")
 
+
+def _lab_rates(level, ctx: Context, values, settings, date, last):
+    lang = ctx.lang
+    # Real rate (Fisher).
     st.markdown(f"#### {t('learn.lab.fisher', lang)}")
     c1, c2, c3 = st.columns(3)
     nominal = c1.number_input(
@@ -704,53 +881,181 @@ def _lab(level, ctx: Context, data, values, settings, date):
     expected = c2.number_input(
         t("learn.lab.expected", lang), -3.0, 15.0, round(last("breakeven_10y", 2.3), 2), 0.05, key=f"learn_{level}_lab_exp"
     )
-    real = (1 + nominal / 100) / (1 + expected / 100) * 100 - 100 if level == "pro" else nominal - expected
+    real = real_change(nominal, expected) if level == "pro" else nominal - expected
     c3.metric(t("learn.lab.real", lang), fmt_value(real, "pct", lang))
     st.caption(t(f"learn.lab.fisher_help.{level}", lang))
 
+    # Bond prices when rates move.
+    st.markdown(f"#### {t('learn.lab.bond', lang)}")
+    st.caption(t(f"learn.lab.bond_help.{level}", lang))
+    c1, c2, c3 = st.columns(3)
+    years = c1.select_slider(t("learn.lab.bond_years", lang), [1, 2, 5, 10, 20, 30], 10, key=f"learn_{level}_lab_byears")
+    y0 = c2.number_input(
+        t("learn.lab.bond_yield", lang), 0.0, 15.0, round(last("us10y", 4.0), 2), 0.05, key=f"learn_{level}_lab_byield"
+    )
+    shift = c3.slider(t("learn.lab.bond_shift", lang), -3.0, 3.0, 1.0, 0.25, key=f"learn_{level}_lab_bshift")
+    coupon = y0
+    if level == "pro":
+        coupon = st.number_input(t("learn.lab.bond_coupon", lang), 0.0, 15.0, y0, 0.25, key=f"learn_{level}_lab_bcoupon")
+    b = bond(y0, coupon, years, shift)
+    m1, m2, m3 = st.columns(3)
+    m1.metric(t("learn.lab.bond_change", lang), fmt_value(b["change_pct"], "pct", lang, signed=True).replace(" pt", " %"))
+    m2.metric(t("learn.lab.bond_value", lang), _money(10_000 * (1 + b["change_pct"] / 100), lang))
+    if level == "pro":
+        m3.metric(
+            t("learn.lab.bond_duration", lang),
+            f"{b['duration']:.2f}".replace(".", "," if lang == "fr" else "."),
+            t("learn.lab.bond_estimate", lang, pct=f"{b['estimate_pct']:+.2f}".replace(".", "," if lang == "fr" else ".")),
+            delta_color="off",
+        )
+
+    # Recession odds from the yield curve (NY Fed model).
+    st.markdown(f"#### {t('learn.lab.curve', lang)}")
+    st.caption(t(f"learn.lab.curve_help.{level}", lang))
+    c1, c2 = st.columns([1.2, 1])
+    spread0 = last("curve_10y_3m", 1.0)
+    spread = c1.slider(
+        t("learn.lab.curve_spread", lang), -3.0, 4.0, float(round(spread0 * 4) / 4), 0.05, key=f"learn_{level}_lab_spread"
+    )
+    c2.metric(
+        t("learn.lab.curve_prob", lang),
+        fmt_pct(curve_recession_probability(spread), lang),
+        t("learn.lab.curve_today", lang, pct=fmt_pct(curve_recession_probability(spread0), lang)),
+        delta_color="off",
+    )
+    if level == "pro":
+        s = values.get("curve_10y_3m")
+        if s is not None and not s.empty:
+            monthly = s.loc[:date].resample("ME").mean().dropna()
+            prob = monthly.map(curve_recession_probability)
+            fig = go.Figure()
+            fig.add_scatter(
+                x=prob.index,
+                y=prob.values * 100,
+                name=t("learn.lab.curve_prob", lang),
+                line=dict(color=ctx.theme.states["stress"]),
+            )
+            usrec = ctx.usrec
+            if usrec is not None and not usrec.empty:
+                for a, z in _spans(usrec.loc[prob.index[0] :] > 0.5):
+                    fig.add_vrect(x0=a, x1=z, fillcolor=ctx.theme.muted, opacity=0.15, line_width=0)
+            ctx.style(fig, 260, yaxis_title="%")
+            _chart(fig, "learn_pro_curve_history")
+            st.caption(t("learn.lab.curve_chart_help", lang))
+
+
+def _lab_household(level, ctx: Context, values, settings, date, last):
+    lang = ctx.lang
+    # Mortgage.
     st.markdown(f"#### {t('learn.lab.mortgage', lang)}")
     c1, c2, c3 = st.columns(3)
     loan = c1.number_input(t("learn.lab.loan", lang), 10_000, 5_000_000, 300_000, 10_000, key=f"learn_{level}_lab_loan")
     rate = c2.number_input(
         t("learn.lab.rate", lang), 0.0, 20.0, round(last("us10y", 4.3) + 1.8, 2), 0.05, key=f"learn_{level}_lab_rate"
     )
-    pay, pay_up = _payment(loan, rate), _payment(loan, rate + 1)
+    pay, pay_up = mortgage_payment(loan, rate), mortgage_payment(loan, rate + 1)
     c3.metric(
         t("learn.lab.payment", lang),
-        f"{pay:,.0f} $".replace(",", " ") if lang == "fr" else f"${pay:,.0f}",
+        _money(pay, lang),
         t("learn.lab.payment_up", lang, pct=fmt_pct(pay_up / pay - 1, lang, 1)),
         delta_color="off",
     )
     st.caption(t("learn.lab.mortgage_help", lang))
 
-    if level == "pro":
-        st.markdown(f"#### {t('learn.lab.phillips', lang)}")
-        gap, infl = values.get("unemp_gap"), values.get("core_pce_yoy")
-        if gap is not None and infl is not None and not gap.empty and not infl.empty:
-            months = infl.index
-            frame = pd.DataFrame({"gap": gap.reindex(months, method="ffill"), "pi": infl}).dropna()
-            frame["decade"] = (frame.index.year // 10 * 10).astype(str) + "s"
-            fig = go.Figure()
-            for dec, part in frame.groupby("decade"):
-                fig.add_scatter(x=part["gap"], y=part["pi"], mode="markers", name=dec, marker=dict(size=4, opacity=0.7))
-            if date in frame.index or not frame.loc[:date].empty:
-                now = frame.loc[:date].iloc[-1]
-                fig.add_scatter(
-                    x=[now["gap"]],
-                    y=[now["pi"]],
-                    mode="markers",
-                    name=t("learn.lab.now", lang),
-                    marker=dict(size=13, symbol="star", color=ctx.theme.states["stress"]),
-                )
-            ctx.style(fig, 400, xaxis_title=t("learn.ind.unemp_gap", lang), yaxis_title=t("learn.ind.core_pce_yoy", lang))
-            fig.update_layout(legend=dict(y=-0.28))  # below the axis title
-            _chart(fig, "learn_pro_phillips")
-            st.caption(t("learn.lab.phillips_help", lang))
+    # Purchasing power of a dollar (CPI).
+    st.markdown(f"#### {t('learn.lab.ppower', lang)}")
+    cpi = _cpi_index(values)
+    if cpi is not None:
+        first = int(cpi.index[0].year) + 1
+        now_year = pd.Timestamp(date).year
+        c1, c2, c3 = st.columns(3)
+        amount = c1.number_input(t("learn.lab.ppower_amount", lang), 1, 1_000_000, 100, 10, key=f"learn_{level}_lab_pp_amount")
+        year = c2.slider(
+            t("learn.lab.ppower_year", lang), first, now_year, max(first, now_year - 20), key=f"learn_{level}_lab_pp_year"
+        )
+        worth = purchasing_power(cpi, amount, f"{year}-06-30", date)
+        if worth is not None:
+            c3.metric(
+                t("learn.lab.ppower_result", lang, year=year),
+                _money(worth, lang),
+                t("learn.lab.ppower_loss", lang, pct=fmt_pct(1 - amount / worth, lang)),
+                delta_color="off",
+            )
+        st.caption(t(f"learn.lab.ppower_help.{level}", lang))
+
+    # Real wages.
+    st.markdown(f"#### {t('learn.lab.wage', lang)}")
+    c1, c2, c3 = st.columns(3)
+    wage = c1.number_input(
+        t("learn.lab.wage_growth", lang), -10.0, 20.0, round(last("wages_yoy", 4.0), 1), 0.1, key=f"learn_{level}_lab_wage"
+    )
+    infl = c2.number_input(
+        t("learn.lab.wage_inflation", lang), -5.0, 20.0, round(last("cpi_yoy", 3.0), 1), 0.1, key=f"learn_{level}_lab_winfl"
+    )
+    c3.metric(t("learn.lab.wage_real", lang), fmt_value(real_change(wage, infl), "pct", lang, signed=True).replace(" pt", " %"))
+    st.caption(t(f"learn.lab.wage_help.{level}", lang))
 
 
-def _payment(loan: float, rate_pct: float, years: int = 30) -> float:
-    r, n = rate_pct / 1200, years * 12
-    return loan / n if r == 0 else loan * r * (1 + r) ** n / ((1 + r) ** n - 1)
+def _cpi_index(values: dict) -> pd.Series | None:
+    """The CPI level (indicator cpi_level), for prices of one year in dollars of another."""
+    s = values.get("cpi_level")
+    return None if s is None or s.dropna().empty else s.dropna()
+
+
+def _lab_debt(level, ctx: Context, values, settings, date, last):
+    lang = ctx.lang
+    st.markdown(f"#### {t('learn.lab.debt', lang)}")
+    st.caption(t(f"learn.lab.debt_help.{level}", lang))
+    c1, c2 = st.columns([1.2, 1])
+    with c1:
+        d0 = st.slider(
+            t("learn.lab.debt_start", lang), 20.0, 200.0, float(round(last("debt_gdp", 120.0))), 1.0, key=f"learn_{level}_lab_d0"
+        )
+        deficit = st.slider(t("learn.lab.debt_deficit", lang), -4.0, 8.0, 3.0, 0.25, key=f"learn_{level}_lab_pdef")
+        r = st.slider(t("learn.lab.debt_rate", lang), 0.0, 8.0, 3.5, 0.25, key=f"learn_{level}_lab_r")
+        g = st.slider(t("learn.lab.debt_growth", lang), 0.0, 8.0, 4.0, 0.25, key=f"learn_{level}_lab_g")
+    path = debt_path(d0, deficit, r, g, 20)
+    with c2:
+        st.metric(
+            t("learn.lab.debt_end", lang),
+            fmt_value(path[-1], "pct", lang),
+            fmt_value(path[-1] - d0, "pt", lang, signed=True),
+            delta_color="off",
+        )
+        if level == "pro":
+            st.metric(t("learn.lab.debt_stabilise", lang), fmt_value(stabilising_balance(d0, r, g), "pct", lang, signed=True))
+    fig = go.Figure()
+    years = list(range(pd.Timestamp(date).year, pd.Timestamp(date).year + len(path)))
+    fig.add_scatter(x=years, y=path, name=t("learn.lab.debt_path", lang), line=dict(color=ctx.theme.accent, width=2.2))
+    ctx.style(fig, 260, yaxis_title="% PIB" if lang == "fr" else "% of GDP", showlegend=False)
+    _chart(fig, f"learn_{level}_debt_path")
+
+
+def _lab_phillips(level, ctx: Context, values, settings, date, last):
+    lang = ctx.lang
+    st.markdown(f"#### {t('learn.lab.phillips', lang)}")
+    gap, infl = values.get("unemp_gap"), values.get("core_pce_yoy")
+    if gap is None or infl is None or gap.empty or infl.empty:
+        return
+    months = infl.index
+    frame = pd.DataFrame({"gap": gap.reindex(months, method="ffill"), "pi": infl}).dropna()
+    frame["decade"] = (frame.index.year // 10 * 10).astype(str) + "s"
+    fig = go.Figure()
+    for dec, part in frame.groupby("decade"):
+        fig.add_scatter(x=part["gap"], y=part["pi"], mode="markers", name=dec, marker=dict(size=4, opacity=0.7))
+    if not frame.loc[:date].empty:
+        now = frame.loc[:date].iloc[-1]
+        fig.add_scatter(
+            x=[now["gap"]],
+            y=[now["pi"]],
+            mode="markers",
+            name=t("learn.lab.now", lang),
+            marker=dict(size=13, symbol="star", color=ctx.theme.states["stress"]),
+        )
+    ctx.style(fig, 400, xaxis_title=t("learn.ind.unemp_gap", lang), yaxis_title=t("learn.ind.core_pce_yoy", lang))
+    fig.update_layout(legend=dict(y=-0.28))  # below the axis title
+    _chart(fig, "learn_pro_phillips")
+    st.caption(t("learn.lab.phillips_help", lang))
 
 
 # ---------------------------------------------------------------- glossary

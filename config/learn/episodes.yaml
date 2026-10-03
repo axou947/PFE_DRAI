@@ -24,6 +24,20 @@ episodes:
         happened: "L'embargo de l'OPEP (octobre 1973) a fait passer le WTI d'environ 3 à 12 dollars ; l'inflation CPI a dépassé 12 % en 1974 pendant que le chômage montait à 9 % en 1975 (récession NBER de novembre 1973 à mars 1975)."
         fed: "Sous Burns, le taux des fonds fédéraux a culminé au-dessus de 12 % mi-1974, puis est revenu vers 5 % en 1975 avec une inflation core encore proche de 7 %, des taux réels négatifs."
         lesson: "Accommoder les effets de second tour a désancré les anticipations et préparé la deuxième vague de 1979-80 (Blinder et Rudd sur les chocs d'offre ; Orphanides sur l'erreur de mesure de l'écart en temps réel)."
+    timeline:
+      - {date: "1973-10-17", en: "Arab oil producers (OAPEC) announce production cuts and an embargo targeting the United States, during the Yom Kippur War.", fr: "Les producteurs arabes de pétrole (OPAEP) annoncent des baisses de production et un embargo visant les États-Unis, pendant la guerre du Kippour."}
+      - {date: "1973-11-01", en: "The US economy enters recession (NBER peak in November 1973).", fr: "L'économie américaine entre en récession (pic NBER en novembre 1973)."}
+      - {date: "1974-01-01", en: "OPEC's posted price for Arabian Light reaches 11.65 dollars a barrel, about four times its level of early October 1973.", fr: "Le prix affiché de l'OPEP pour l'Arabian Light atteint 11,65 dollars le baril, environ quatre fois son niveau de début octobre 1973."}
+      - {date: "1974-03-18", en: "Arab producers lift the embargo on the United States, but prices stay at their new, much higher level.", fr: "Les producteurs arabes lèvent l'embargo contre les États-Unis, mais les prix restent à leur nouveau niveau, bien plus élevé."}
+      - {date: "1974-07-01", en: "The effective federal funds rate peaks near 13% under Arthur Burns, before the Fed eases as the recession deepens.", fr: "Le taux effectif des fonds fédéraux culmine près de 13 % sous Arthur Burns, avant que la Fed n'assouplisse face à l'aggravation de la récession."}
+      - {date: "1975-03-01", en: "The recession ends (NBER trough in March 1975), with inflation still high and unemployment heading to 9%.", fr: "La récession prend fin (creux NBER en mars 1975), avec une inflation encore élevée et un chômage en route vers 9 %."}
+    debate:
+      en: "Economists still disagree on how much of the Great Inflation the oil shock itself explains. Blinder and Rudd argue that supply shocks (oil, food, the end of price controls) account for most of the 1973-75 inflation spike, while Barsky and Kilian argue that loose monetary policy came first and that oil prices were partly endogenous to it. A related debate, following Orphanides, asks whether the Burns Fed's errors came from overestimating potential output in real time, from political pressure, or from a flawed view of the inflation process."
+      fr: "Les économistes discutent encore de la part de la Grande Inflation imputable au choc pétrolier lui-même. Blinder et Rudd soutiennent que les chocs d'offre (pétrole, alimentation, fin du contrôle des prix) expliquent l'essentiel du pic d'inflation de 1973-75, tandis que Barsky et Kilian estiment que la politique monétaire laxiste est venue en premier et que le prix du pétrole en dépendait en partie. Un débat voisin, à la suite d'Orphanides, porte sur l'origine des erreurs de la Fed de Burns : surestimation de la production potentielle en temps réel, pression politique ou mauvaise compréhension du processus d'inflation ?"
+    reading:
+      - "Barsky, Robert B. and Lutz Kilian (2001), \"Do We Really Know that Oil Caused the Great Stagflation? A Monetary Alternative\", NBER Macroeconomics Annual 16."
+      - "Blinder, Alan S. and Jeremy B. Rudd (2013), \"The Supply-Shock Explanation of the Great Stagflation Revisited\", in M. Bordo and A. Orphanides (eds.), The Great Inflation, University of Chicago Press."
+      - "Orphanides, Athanasios (2002), \"Monetary-Policy Rules and the Great Inflation\", American Economic Review 92(2)."
   - id: volcker
     start: "1979-08-01"
     end: "1983-06-30"
@@ -47,6 +61,94 @@ episodes:
         happened: "L'inflation CPI a culminé à 14,8 % (mars 1980) ; le choc pétrolier de 1979 et des anticipations désancrées faisaient monter ensemble salaires et prix."
         fed: "Le passage en octobre 1979 au ciblage des réserves non empruntées a laissé le taux des fonds fédéraux monter à 19-20 % ; deux récessions coup sur coup (1980, 1981-82), chômage à 10,8 % (novembre 1982)."
         lesson: "Restaurer la crédibilité a exigé un ratio de sacrifice élevé ; des anticipations ancrées ont ensuite rendu les désinflations moins coûteuses (Goodfriend et King 2005)."
+    timeline:
+      - {date: "1979-08-06", en: "Paul Volcker is sworn in as Chairman of the Federal Reserve Board.", fr: "Paul Volcker prête serment comme président du Conseil des gouverneurs de la Fed."}
+      - {date: "1979-10-06", en: "In a Saturday evening announcement, the FOMC switches to targeting non-borrowed reserves and raises the discount rate to 12%.", fr: "Lors d'une annonce un samedi soir, le FOMC passe au ciblage des réserves non empruntées et relève le taux d'escompte à 12 %."}
+      - {date: "1980-03-14", en: "President Carter announces credit controls, which the Fed implements; spending drops sharply and the controls are lifted within months.", fr: "Le président Carter annonce un contrôle du crédit, mis en œuvre par la Fed ; la dépense chute brutalement et le dispositif est levé en quelques mois."}
+      - {date: "1981-07-01", en: "With the effective funds rate near 19%, a second, deeper recession begins (NBER peak in July 1981).", fr: "Avec un taux effectif des fonds fédéraux proche de 19 %, une seconde récession, plus profonde, commence (pic NBER en juillet 1981)."}
+      - {date: "1982-10-01", en: "The FOMC de-emphasises its M1 target and lets rates fall as inflation recedes and financial strains mount.", fr: "Le FOMC relègue au second plan son objectif sur M1 et laisse les taux baisser, l'inflation reculant et les tensions financières s'accumulant."}
+      - {date: "1982-11-01", en: "The recession ends (NBER trough) with unemployment at 10.8%, its postwar high at the time.", fr: "La récession prend fin (creux NBER) avec un chômage à 10,8 %, son record d'après-guerre à l'époque."}
+    debate:
+      en: "Economists still debate whether the October 1979 switch to reserve targeting was a genuine monetarist experiment or a political shield that let the Fed raise rates further than it could have openly justified. The size of the sacrifice ratio is also contested: rational-expectations views (Sargent) suggested a credible regime change could disinflate cheaply, yet Goodfriend and King argue the Fed lacked credibility until well into 1982-84, which made the disinflation costly. The role of fiscal policy and the 1980 credit controls in the timing of the recessions remains discussed."
+      fr: "Les économistes se demandent encore si le passage au ciblage des réserves en octobre 1979 fut une véritable expérience monétariste ou un bouclier politique permettant à la Fed de monter les taux plus haut qu'elle n'aurait pu le justifier ouvertement. L'ampleur du ratio de sacrifice est aussi discutée : l'approche des anticipations rationnelles (Sargent) laissait penser qu'un changement de régime crédible pouvait désinflater à faible coût, mais Goodfriend et King soutiennent que la Fed n'a été crédible qu'en 1982-84, d'où une désinflation coûteuse. Le rôle de la politique budgétaire et du contrôle du crédit de 1980 dans le calendrier des récessions reste débattu."
+    reading:
+      - "Goodfriend, Marvin and Robert G. King (2005), \"The Incredible Volcker Disinflation\", Journal of Monetary Economics 52(5)."
+      - "Lindsey, David E., Athanasios Orphanides and Robert H. Rasche (2005), \"The Reform of October 1979: How It Happened and Why\", Federal Reserve Bank of St. Louis Review 87(2)."
+      - "Volcker, Paul A. with Christine Harper (2018), \"Keeping At It: The Quest for Sound Money and Good Government\", PublicAffairs."
+  - id: crash_1987
+    start: "1987-08-01"
+    end: "1988-03-31"
+    title: {en: "1987: Black Monday", fr: "1987 : le lundi noir"}
+    cards: [volatility, liquidity, fed_policy]
+    beginner:
+      en:
+        happened: "On 19 October 1987 the Dow Jones lost almost a quarter of its value in one day, the biggest one-day fall in its history."
+        fed: "The next morning, the new Fed chair, Alan Greenspan, said the Fed was ready to provide all the cash the system needed, and rates were eased a little."
+        lesson: "A crash does not have to cause a recession if the central bank keeps money flowing. The economy kept growing in 1988."
+      fr:
+        happened: "Le 19 octobre 1987, le Dow Jones a perdu presque un quart de sa valeur en une seule journée, la plus forte baisse de son histoire en un jour."
+        fed: "Le lendemain matin, le nouveau président de la Fed, Alan Greenspan, a dit que la Fed était prête à fournir tout l'argent nécessaire au système, et les taux ont un peu baissé."
+        lesson: "Un krach n'entraîne pas forcément une récession si la banque centrale fait circuler l'argent. L'économie a continué de croître en 1988."
+    pro:
+      en:
+        happened: "After a strong 1987 rally, rising long yields (10-year near 10%), a weak dollar and a bad trade deficit print set the stage; on 19 October the Dow fell 22.6% (S&P 500 about -20%), amplified by portfolio insurance and program selling that swamped specialists and futures-cash links."
+        fed: "Greenspan (in office since August, discount rate raised to 6% in September) issued a one-sentence statement on 20 October affirming the Fed's \"readiness to serve as a source of liquidity\"; open market operations added reserves, the funds rate drifted down by roughly half a point, and the New York Fed pressed banks to keep lending to securities firms."
+        lesson: "The textbook lender-of-last-resort response to a market crash: ample liquidity, no lasting tightening of credit, no recession. It also seeded the idea of a \"Greenspan put\" and led to circuit breakers (Brady Commission)."
+      fr:
+        happened: "Après une forte hausse en 1987, la montée des taux longs (10 ans proche de 10 %), un dollar faible et un mauvais chiffre de déficit commercial ont préparé le terrain ; le 19 octobre, le Dow a perdu 22,6 % (S&P 500 environ -20 %), amplifié par l'assurance de portefeuille et les ventes programmées qui ont submergé les spécialistes et rompu le lien entre futures et comptant."
+        fed: "Greenspan (en poste depuis août, taux d'escompte relevé à 6 % en septembre) a publié le 20 octobre une déclaration d'une phrase affirmant que la Fed était « prête à servir de source de liquidité » ; les opérations d'open market ont ajouté des réserves, le taux des fonds fédéraux a reculé d'environ un demi-point, et la Fed de New York a poussé les banques à continuer de prêter aux maisons de titres."
+        lesson: "La réponse de manuel du prêteur en dernier ressort à un krach : liquidité abondante, pas de resserrement durable du crédit, pas de récession. L'épisode a aussi semé l'idée d'un « put Greenspan » et conduit aux coupe-circuits (commission Brady)."
+    timeline:
+      - {date: "1987-08-11", en: "Alan Greenspan succeeds Paul Volcker as Fed chair.", fr: "Alan Greenspan succède à Paul Volcker à la présidence de la Fed."}
+      - {date: "1987-09-04", en: "The Fed raises the discount rate from 5.5% to 6% to lean against inflation and dollar weakness.", fr: "La Fed relève le taux d'escompte de 5,5 % à 6 % face à l'inflation et à la faiblesse du dollar."}
+      - {date: "1987-10-14", en: "A worse-than-expected trade deficit triggers a first wave of selling in stocks and bonds.", fr: "Un déficit commercial pire que prévu déclenche une première vague de ventes sur les actions et les obligations."}
+      - {date: "1987-10-19", en: "Black Monday: the Dow falls 508 points, or 22.6%, its largest one-day percentage drop.", fr: "Lundi noir : le Dow chute de 508 points, soit 22,6 %, sa plus forte baisse en pourcentage sur une séance."}
+      - {date: "1987-10-20", en: "Before the open, the Fed affirms its readiness to serve as a source of liquidity to the economic and financial system.", fr: "Avant l'ouverture, la Fed affirme être prête à servir de source de liquidité pour le système économique et financier."}
+      - {date: "1988-01-08", en: "The Brady Commission report blames portfolio insurance and fragmented markets, and recommends circuit breakers.", fr: "Le rapport de la commission Brady met en cause l'assurance de portefeuille et des marchés fragmentés, et recommande des coupe-circuits."}
+    debate:
+      en: "Economists still disagree on how much of the crash reflected fundamentals (rising real rates, the dollar, the Louvre Accord tensions) versus pure market mechanics such as portfolio insurance and liquidity spirals. A second debate is whether the Fed's quick rescue was costless or started a pattern of asymmetric responses to equity falls, the \"Greenspan put\", that encouraged risk-taking in the 1990s."
+      fr: "Les économistes discutent encore de la part du krach due aux fondamentaux (hausse des taux réels, dollar, tensions autour des accords du Louvre) par rapport à la pure mécanique de marché, comme l'assurance de portefeuille et les spirales de liquidité. Un second débat porte sur le sauvetage rapide de la Fed : sans coût, ou point de départ d'une réaction asymétrique aux baisses boursières, le « put Greenspan », qui aurait encouragé la prise de risque des années 1990 ?"
+    reading:
+      - "Carlson, M. (2007), \"A Brief History of the 1987 Stock Market Crash with a Discussion of the Federal Reserve Response\", Finance and Economics Discussion Series 2007-13, Federal Reserve Board."
+      - "Presidential Task Force on Market Mechanisms (1988), \"Report of the Presidential Task Force on Market Mechanisms\" (Brady Report), U.S. Government Printing Office."
+      - "Federal Reserve History, \"Stock Market Crash of 1987\", federalreservehistory.org."
+  - id: recession_1990
+    start: "1990-01-01"
+    end: "1992-12-31"
+    title: {en: "1990-92: credit crunch, Gulf war and a jobless recovery", fr: "1990-92 : resserrement du crédit, guerre du Golfe et reprise sans emplois"}
+    cards: [credit, recession, oil, labour_market]
+    beginner:
+      en:
+        happened: "Hundreds of savings banks had failed after bad property loans, so banks became careful about lending. Then Iraq invaded Kuwait and the oil price doubled, and the economy fell into recession."
+        fed: "The Fed cut its rate step by step, from about 8% to 3% by late 1992."
+        lesson: "When banks are weak, low rates take a long time to work. The recession was short, but jobs came back very slowly."
+      fr:
+        happened: "Des centaines de caisses d'épargne avaient fait faillite après de mauvais prêts immobiliers, et les banques sont devenues prudentes pour prêter. Puis l'Irak a envahi le Koweït, le prix du pétrole a doublé et l'économie est entrée en récession."
+        fed: "La Fed a baissé son taux pas à pas, d'environ 8 % à 3 % fin 1992."
+        lesson: "Quand les banques sont fragiles, les taux bas mettent longtemps à agir. La récession a été courte, mais les emplois sont revenus très lentement."
+    pro:
+      en:
+        happened: "The savings and loan collapse (more than 1,000 thrifts closed from 1986 to 1995, FIRREA and the Resolution Trust Corporation in 1989) and commercial real estate losses squeezed bank capital just as Basel I ratios phased in; the August 1990 invasion of Kuwait roughly doubled oil prices. NBER recession July 1990 to March 1991."
+        fed: "Greenspan's FOMC cut the funds rate from 8.25% in mid-1990 to 3% in September 1992, removed reserve requirements on non-personal time deposits (December 1990) and cut the discount rate by a full point in December 1991; Greenspan described the credit drag as \"50-mile-an-hour headwinds\"."
+        lesson: "A balance-sheet-constrained banking system weakens the transmission of rate cuts (Bernanke and Lown 1991); unemployment kept rising to 7.8% in June 1992, more than a year after the trough, the first modern \"jobless recovery\"."
+      fr:
+        happened: "L'effondrement des caisses d'épargne (plus de 1 000 établissements fermés de 1986 à 1995, loi FIRREA et Resolution Trust Corporation en 1989) et les pertes sur l'immobilier commercial ont rogné le capital des banques au moment où entraient en vigueur les ratios de Bâle I ; l'invasion du Koweït en août 1990 a environ doublé le prix du pétrole. Récession NBER de juillet 1990 à mars 1991."
+        fed: "Le FOMC de Greenspan a abaissé le taux des fonds fédéraux de 8,25 % mi-1990 à 3 % en septembre 1992, supprimé les réserves obligatoires sur les dépôts à terme non personnels (décembre 1990) et baissé le taux d'escompte d'un point entier en décembre 1991 ; Greenspan parlait de « vents contraires à 80 km/h » pour décrire le frein du crédit."
+        lesson: "Un système bancaire contraint par ses bilans affaiblit la transmission des baisses de taux (Bernanke et Lown 1991) ; le chômage a continué de monter jusqu'à 7,8 % en juin 1992, plus d'un an après le creux, la première « reprise sans emplois » moderne."
+    timeline:
+      - {date: "1990-07-01", en: "The expansion peaks; the NBER later dates the start of the recession to July 1990.", fr: "L'expansion atteint son sommet ; le NBER datera ensuite le début de la récession à juillet 1990."}
+      - {date: "1990-08-02", en: "Iraq invades Kuwait and oil prices roughly double over the following two months.", fr: "L'Irak envahit le Koweït et le prix du pétrole double environ dans les deux mois suivants."}
+      - {date: "1990-12-01", en: "The Fed removes reserve requirements on non-personal time deposits to ease the credit crunch.", fr: "La Fed supprime les réserves obligatoires sur les dépôts à terme non personnels pour desserrer le crédit."}
+      - {date: "1991-03-01", en: "The recession ends after the Gulf war, according to the NBER, but hiring stays weak.", fr: "La récession prend fin après la guerre du Golfe selon le NBER, mais les embauches restent faibles."}
+      - {date: "1991-12-20", en: "The Fed cuts the discount rate by a full point, to 3.5%.", fr: "La Fed baisse le taux d'escompte d'un point entier, à 3,5 %."}
+      - {date: "1992-09-04", en: "The funds rate target is cut to 3%, where it stays until February 1994.", fr: "La cible du taux des fonds fédéraux est abaissée à 3 %, où elle reste jusqu'en février 1994."}
+    debate:
+      en: "The main debate is the cause of the recession: an oil and confidence shock from the Gulf war, a supply-of-credit shock from weak bank capital and tighter regulation, or the lagged effect of the Fed's 1988-89 tightening. Economists also argue about whether the Fed eased too slowly in 1990-91, and whether the slow recovery reflected the credit crunch or structural corporate restructuring."
+      fr: "Le principal débat porte sur la cause de la récession : choc pétrolier et de confiance lié à la guerre du Golfe, choc d'offre de crédit dû au capital bancaire affaibli et à une réglementation plus stricte, ou effet retardé du resserrement de la Fed en 1988-89 ? On discute aussi de la lenteur de l'assouplissement de 1990-91, et de savoir si la reprise poussive tenait au resserrement du crédit ou à des restructurations d'entreprises."
+    reading:
+      - "Bernanke, B. and Lown, C. (1991), \"The Credit Crunch\", Brookings Papers on Economic Activity."
+      - "Walsh, C. (1993), \"What Caused the 1990-1991 Recession?\", Federal Reserve Bank of San Francisco Economic Review."
+      - "FDIC (1997), \"History of the Eighties: Lessons for the Future\", Federal Deposit Insurance Corporation."
   - id: soft_1994
     start: "1994-01-01"
     end: "1995-12-31"
@@ -64,12 +166,63 @@ episodes:
     pro:
       en:
         happened: "With unemployment falling below estimates of the NAIRU, Greenspan's FOMC began tightening in February 1994 with core inflation near 3%."
-        fed: "300 bp in 12 months (including a 75 bp move in November 1994); the \"bond massacre\" lifted 10-year yields by about 2.5 pt, then three cuts in 1995 (\"insurance\")."
+        fed: "300 bp in 12 months (including a 75 bp move in November 1994); the \"bond massacre\" lifted 10-year yields by about 2.5 pt, then three \"insurance\" cuts from July 1995 to January 1996."
         lesson: "The textbook soft landing; pre-emption works when expectations are anchored, but fast hikes expose leverage (Orange County, Mexico's tequila crisis)."
       fr:
         happened: "Avec un chômage passé sous les estimations du NAIRU, le FOMC de Greenspan a commencé à resserrer en février 1994, l'inflation core autour de 3 %."
-        fed: "300 pb en 12 mois (dont 75 pb en novembre 1994) ; le « massacre obligataire » a monté le 10 ans d'environ 2,5 pt, puis trois baisses en 1995 (« d'assurance »)."
+        fed: "300 pb en 12 mois (dont 75 pb en novembre 1994) ; le « massacre obligataire » a monté le 10 ans d'environ 2,5 pt, puis trois baisses « d'assurance » de juillet 1995 à janvier 1996."
         lesson: "L'atterrissage en douceur de manuel ; la préemption marche quand les anticipations sont ancrées, mais des hausses rapides révèlent le levier (Orange County, crise tequila au Mexique)."
+    timeline:
+      - {date: "1994-02-04", en: "The FOMC raises the funds rate target by 25 bp to 3.25% and, for the first time, publicly announces its decision the same day.", fr: "Le FOMC relève de 25 pb l'objectif du taux des fonds fédéraux, à 3,25 %, et annonce pour la première fois publiquement sa décision le jour même."}
+      - {date: "1994-11-15", en: "A 75 bp hike takes the target to 5.5%, the largest single move of the cycle.", fr: "Une hausse de 75 pb porte l'objectif à 5,5 %, le plus fort mouvement du cycle."}
+      - {date: "1994-12-06", en: "Orange County, California, files for bankruptcy after leveraged bets on low rates go wrong.", fr: "Le comté d'Orange, en Californie, se déclare en faillite après l'échec de paris à effet de levier sur des taux bas."}
+      - {date: "1994-12-20", en: "Mexico devalues the peso, triggering the tequila crisis.", fr: "Le Mexique dévalue le peso, ce qui déclenche la crise tequila."}
+      - {date: "1995-02-01", en: "A final 50 bp hike brings the target to 6%, double its level of a year earlier.", fr: "Une dernière hausse de 50 pb porte l'objectif à 6 %, le double de son niveau un an plus tôt."}
+      - {date: "1995-07-06", en: "The FOMC cuts by 25 bp to 5.75%, the first of the insurance cuts as growth slows without a recession.", fr: "Le FOMC baisse de 25 pb, à 5,75 %, la première des baisses d'assurance alors que la croissance ralentit sans récession."}
+    debate:
+      en: "The main debate is whether 1994-95 shows that pre-emptive tightening works, or whether the soft landing owed much to luck, notably the productivity acceleration and favourable supply shocks of the late 1990s. The bond market rout also raised the question of whether markets were surprised by the Fed's path or were repricing term premia, and it fed the push toward more transparent communication. Finally, economists discuss whether the 1995 cuts were a fine-tuning success or a sign that the Fed could not know how much tightening was enough."
+      fr: "Le débat principal porte sur la question de savoir si 1994-95 prouve l'efficacité du resserrement préventif, ou si l'atterrissage en douceur doit beaucoup à la chance, notamment à l'accélération de la productivité et aux chocs d'offre favorables de la fin des années 1990. La déroute obligataire pose aussi la question de savoir si les marchés ont été surpris par la trajectoire de la Fed ou ont réévalué les primes de terme ; elle a nourri l'évolution vers une communication plus transparente. Enfin, on discute de savoir si les baisses de 1995 furent un réglage fin réussi ou le signe que la Fed ne pouvait pas savoir quel resserrement suffisait."
+    reading:
+      - "Blinder, Alan S. and Janet L. Yellen (2001), \"The Fabulous Decade: Macroeconomic Lessons from the 1990s\", Century Foundation Press."
+      - "Campbell, John Y. (1995), \"Some Lessons from the Yield Curve\", Journal of Economic Perspectives 9(3)."
+      - "Federal Open Market Committee (1994), \"Transcripts of FOMC meetings, 1994\", Board of Governors of the Federal Reserve System."
+  - id: ltcm_1998
+    start: "1997-07-01"
+    end: "1999-06-30"
+    title: {en: "1997-98: Asian crisis, Russia and LTCM", fr: "1997-98 : crise asiatique, Russie et LTCM"}
+    cards: [liquidity, volatility, credit, fed_policy]
+    beginner:
+      en:
+        happened: "Currencies collapsed in Asia, then Russia stopped paying its debts. A giant US hedge fund, LTCM, lost almost all its money and threatened to drag big banks with it."
+        fed: "The New York Fed brought banks together to rescue the fund, and the Fed cut rates three times in a few weeks even though the US economy was strong."
+        lesson: "A crisis far away can freeze markets at home. Small rate cuts can calm panic, but they can also feed the next bubble."
+      fr:
+        happened: "Des monnaies se sont effondrées en Asie, puis la Russie a cessé de rembourser ses dettes. Un énorme fonds spéculatif américain, LTCM, a perdu presque tout son argent et menaçait d'entraîner de grandes banques."
+        fed: "La Fed de New York a réuni des banques pour sauver le fonds, et la Fed a baissé ses taux trois fois en quelques semaines alors que l'économie américaine allait bien."
+        lesson: "Une crise lointaine peut geler les marchés chez soi. De petites baisses de taux peuvent calmer la panique, mais aussi nourrir la bulle suivante."
+    pro:
+      en:
+        happened: "The baht's float (July 1997) spread to Indonesia and Korea; Russia's devaluation and domestic debt default (17 August 1998) triggered a global flight to quality. Highly leveraged convergence trades at LTCM (balance-sheet leverage around 25 to 1, derivatives notional above 1 trillion dollars) imploded as credit, swap and off-the-run Treasury spreads widened."
+        fed: "The New York Fed brokered a 3.6 billion dollar private recapitalisation by 14 institutions (23 September 1998); the FOMC cut the funds target from 5.5% to 4.75% in three 25 bp steps (29 September, an intermeeting cut on 15 October, 17 November), then reversed course from June 1999."
+        lesson: "A classic insurance easing against market dysfunction rather than domestic weakness (compare 1995 and 2019). It showed how leverage and crowded trades turn liquidity into solvency risk, and raised moral hazard questions about Fed-brokered rescues."
+      fr:
+        happened: "Le flottement du baht (juillet 1997) s'est propagé à l'Indonésie et à la Corée ; la dévaluation et le défaut de la Russie sur sa dette intérieure (17 août 1998) ont déclenché une fuite mondiale vers la qualité. Les paris de convergence très endettés de LTCM (levier de bilan d'environ 25 pour 1, notionnel de dérivés au-delà de 1 000 milliards de dollars) ont implosé quand les écarts de crédit, de swap et des Treasuries hors benchmark se sont élargis."
+        fed: "La Fed de New York a orchestré une recapitalisation privée de 3,6 milliards de dollars par 14 établissements (23 septembre 1998) ; le FOMC a abaissé la cible des fonds fédéraux de 5,5 % à 4,75 % en trois pas de 25 pb (29 septembre, baisse entre deux réunions le 15 octobre, 17 novembre), puis a fait marche arrière à partir de juin 1999."
+        lesson: "Un assouplissement d'assurance classique contre un dysfonctionnement de marché plutôt qu'une faiblesse intérieure (comparer avec 1995 et 2019). L'épisode a montré comment le levier et les positions encombrées transforment un risque de liquidité en risque de solvabilité, et a posé la question de l'aléa moral des sauvetages orchestrés par la Fed."
+    timeline:
+      - {date: "1997-07-02", en: "Thailand floats the baht, starting the Asian financial crisis.", fr: "La Thaïlande laisse flotter le baht, ce qui déclenche la crise financière asiatique."}
+      - {date: "1997-10-27", en: "The Dow falls about 7% in one day as the Asian crisis hits US markets; trading halts are triggered.", fr: "Le Dow perd environ 7 % en une séance quand la crise asiatique atteint les marchés américains ; les coupe-circuits se déclenchent."}
+      - {date: "1998-08-17", en: "Russia devalues the rouble and defaults on its domestic debt.", fr: "La Russie dévalue le rouble et fait défaut sur sa dette intérieure."}
+      - {date: "1998-09-23", en: "The New York Fed coordinates a 3.6 billion dollar recapitalisation of LTCM by 14 banks and brokers.", fr: "La Fed de New York coordonne une recapitalisation de LTCM de 3,6 milliards de dollars par 14 banques et courtiers."}
+      - {date: "1998-10-15", en: "The Fed cuts by 25 bp between meetings, its second cut in three weeks.", fr: "La Fed baisse ses taux de 25 pb entre deux réunions, sa deuxième baisse en trois semaines."}
+      - {date: "1998-11-17", en: "A third 25 bp cut takes the funds target to 4.75%.", fr: "Une troisième baisse de 25 pb porte la cible des fonds fédéraux à 4,75 %."}
+    debate:
+      en: "Economists debate whether the LTCM rescue, though privately funded, created moral hazard by signalling that the Fed would step in when large intermediaries were threatened. A related argument is whether the 1998 cuts, made with unemployment near 4.5% and a booming stock market, helped inflate the dot-com bubble."
+      fr: "Les économistes se demandent si le sauvetage de LTCM, bien que financé par le privé, a créé un aléa moral en signalant que la Fed interviendrait dès que de grands intermédiaires seraient menacés. Un débat voisin porte sur les baisses de 1998, décidées avec un chômage proche de 4,5 % et une Bourse euphorique : ont-elles contribué à gonfler la bulle internet ?"
+    reading:
+      - "Lowenstein, R. (2000), \"When Genius Failed: The Rise and Fall of Long-Term Capital Management\", Random House."
+      - "President's Working Group on Financial Markets (1999), \"Hedge Funds, Leverage, and the Lessons of Long-Term Capital Management\", U.S. Department of the Treasury."
+      - "Federal Reserve History, \"Near Failure of Long-Term Capital Management\", federalreservehistory.org."
   - id: dotcom
     start: "2000-01-01"
     end: "2003-06-30"
@@ -93,6 +246,57 @@ episodes:
         happened: "Le Nasdaq a perdu environ 78 % de mars 2000 à octobre 2002 ; l'investissement technologique s'est effondré ; le 11 septembre a aggravé le choc. Récession NBER de mars à novembre 2001."
         fed: "475 pb de baisses en 2001, puis 1 % en 2003 sur fond de crainte de déflation ; la courbe s'est fortement pentifiée."
         lesson: "Une crise partie des actions, avec des bilans de ménages et de banques sains, a donné une récession légère mais une « reprise sans emplois » ; les taux bas ont ensuite nourri le boom immobilier."
+    timeline:
+      - {date: "2000-03-10", en: "The Nasdaq Composite closes at a record of about 5,049 points.", fr: "Le Nasdaq Composite clôture à un record d'environ 5 049 points."}
+      - {date: "2001-01-03", en: "In an unscheduled move, the FOMC cuts its target by 50 bp to 6%, starting the easing cycle.", fr: "Hors calendrier, le FOMC baisse son objectif de 50 pb, à 6 %, lançant le cycle d'assouplissement."}
+      - {date: "2001-03-01", en: "The recession begins (NBER peak in March 2001), led by a collapse in business investment.", fr: "La récession commence (pic NBER en mars 2001), entraînée par l'effondrement de l'investissement des entreprises."}
+      - {date: "2001-09-17", en: "As markets reopen after the 9/11 attacks, the FOMC cuts by 50 bp to 3% between meetings.", fr: "À la réouverture des marchés après les attentats du 11 septembre, le FOMC baisse de 50 pb, à 3 %, entre deux réunions."}
+      - {date: "2002-10-09", en: "The Nasdaq hits its bear-market low of about 1,114 points, roughly 78% below its peak.", fr: "Le Nasdaq touche son plus bas du marché baissier, environ 1 114 points, soit près de 78 % sous son pic."}
+      - {date: "2003-06-25", en: "The FOMC cuts its target to 1%, its lowest level in 45 years, citing the risk of an unwelcome fall in inflation.", fr: "Le FOMC abaisse son objectif à 1 %, au plus bas depuis 45 ans, en invoquant le risque d'une baisse indésirable de l'inflation."}
+    debate:
+      en: "The episode is the reference case in the debate on whether central banks should lean against asset price bubbles or only clean up after they burst, the view associated with Greenspan and with Bernanke and Gertler (1999). A second debate concerns the aftermath: Taylor argues that keeping rates well below his rule in 2002-04 helped fuel the housing boom, while others point to global savings and lax credit standards instead. Whether the Fed could have identified the bubble in real time is still contested."
+      fr: "L'épisode est le cas de référence du débat sur la question de savoir si les banques centrales doivent contrer les bulles d'actifs ou seulement réparer les dégâts après leur éclatement, position associée à Greenspan et à Bernanke et Gertler (1999). Un second débat porte sur la suite : Taylor estime que des taux très inférieurs à sa règle en 2002-04 ont alimenté le boom immobilier, tandis que d'autres invoquent plutôt l'excès d'épargne mondiale et le relâchement des normes de crédit. La capacité de la Fed à repérer la bulle en temps réel reste contestée."
+    reading:
+      - "Shiller, Robert J. (2000), \"Irrational Exuberance\", Princeton University Press."
+      - "Bernanke, Ben S. and Mark Gertler (1999), \"Monetary Policy and Asset Price Volatility\", Federal Reserve Bank of Kansas City Economic Review 84(4)."
+      - "Taylor, John B. (2007), \"Housing and Monetary Policy\", in Housing, Housing Finance, and Monetary Policy, Federal Reserve Bank of Kansas City Jackson Hole Symposium."
+  - id: housing_2004
+    start: "2004-06-01"
+    end: "2006-12-31"
+    title: {en: "2004-06: measured hikes and the housing boom", fr: "2004-06 : hausses mesurées et boom immobilier"}
+    cards: [housing, fed_policy, yield_curve, credit]
+    beginner:
+      en:
+        happened: "Home prices rose very fast, helped by cheap loans, including many risky ones to buyers who could hardly afford them."
+        fed: "The Fed raised its rate slowly and predictably, a quarter point at every meeting for two years, from 1% to 5.25%."
+        lesson: "Raising short rates does not always cool everything: long-term rates and mortgage rates barely moved, and the housing bubble kept growing until 2006."
+      fr:
+        happened: "Les prix des logements ont monté très vite, portés par des prêts bon marché, dont beaucoup de prêts risqués à des acheteurs qui pouvaient à peine rembourser."
+        fed: "La Fed a monté son taux lentement et de façon prévisible, d'un quart de point à chaque réunion pendant deux ans, de 1 % à 5,25 %."
+        lesson: "Monter les taux courts ne refroidit pas tout : les taux longs et les taux immobiliers ont à peine bougé, et la bulle immobilière a grossi jusqu'en 2006."
+    pro:
+      en:
+        happened: "Nominal home prices rose at double-digit annual rates, housing starts peaked in early 2006 and subprime and Alt-A lending surged, funded by private-label securitisation. The 10-year yield actually fell from about 4.7% in June 2004 to near 4% in mid-2005 despite Fed tightening."
+        fed: "17 consecutive 25 bp hikes from June 2004 to June 2006 (1% to 5.25%), signalled as \"measured\"; Bernanke succeeded Greenspan in February 2006 and the FOMC paused in August 2006, with the 10y-3m curve inverted."
+        lesson: "Greenspan's \"conundrum\" (February 2005): highly predictable gradualism plus global demand for safe assets compressed term premia, so financial conditions eased while policy tightened. Gradualism limited market shocks but did little against a credit-fuelled asset boom."
+      fr:
+        happened: "Les prix nominaux des logements ont progressé à des rythmes annuels à deux chiffres, les mises en chantier ont culminé début 2006 et les prêts subprime et Alt-A ont explosé, financés par la titrisation privée. Le 10 ans est même passé d'environ 4,7 % en juin 2004 à près de 4 % mi-2005, malgré le resserrement de la Fed."
+        fed: "17 hausses consécutives de 25 pb de juin 2004 à juin 2006 (de 1 % à 5,25 %), annoncées comme « mesurées » ; Bernanke a succédé à Greenspan en février 2006 et le FOMC a fait une pause en août 2006, avec une courbe 10 ans - 3 mois inversée."
+        lesson: "L'« énigme » de Greenspan (février 2005) : un gradualisme très prévisible et la demande mondiale d'actifs sûrs ont comprimé les primes de terme, si bien que les conditions financières se sont assouplies pendant que la politique se resserrait. Le gradualisme a évité les chocs de marché mais n'a guère freiné un boom d'actifs nourri par le crédit."
+    timeline:
+      - {date: "2004-06-30", en: "First hike in four years: the funds target rises from 1% to 1.25%.", fr: "Première hausse en quatre ans : la cible des fonds fédéraux passe de 1 % à 1,25 %."}
+      - {date: "2005-02-16", en: "Greenspan calls falling long-term yields during a tightening cycle a \"conundrum\" in testimony to Congress.", fr: "Devant le Congrès, Greenspan qualifie d'« énigme » la baisse des taux longs en plein cycle de resserrement."}
+      - {date: "2005-03-10", en: "Bernanke gives his \"global saving glut\" speech explaining low long-term rates by foreign saving.", fr: "Bernanke prononce son discours sur la « surabondance d'épargne mondiale », qui explique les taux longs bas par l'épargne étrangère."}
+      - {date: "2006-02-01", en: "Ben Bernanke becomes Fed chair.", fr: "Ben Bernanke devient président de la Fed."}
+      - {date: "2006-06-29", en: "The 17th consecutive hike takes the funds target to 5.25%.", fr: "La 17e hausse consécutive porte la cible des fonds fédéraux à 5,25 %."}
+      - {date: "2006-08-08", en: "The FOMC pauses as the housing market starts to turn down.", fr: "Le FOMC fait une pause alors que le marché immobilier commence à se retourner."}
+    debate:
+      en: "John Taylor argues that rates were held too low for too long in 2002-04 and then raised too slowly, fuelling the bubble; Bernanke and others point instead to the global saving glut, weak underwriting and regulatory gaps. Economists also still debate whether the conundrum reflected foreign official demand, lower volatility under predictable policy, or a broader fall in the term premium."
+      fr: "John Taylor soutient que les taux sont restés trop bas trop longtemps en 2002-04 puis ont monté trop lentement, nourrissant la bulle ; Bernanke et d'autres mettent plutôt en cause la surabondance d'épargne mondiale, des critères de crédit laxistes et des failles réglementaires. On débat aussi encore de l'origine de l'énigme : demande des banques centrales étrangères, volatilité réduite par une politique prévisible, ou baisse plus générale de la prime de terme ?"
+    reading:
+      - "Bernanke, B. (2005), \"The Global Saving Glut and the U.S. Current Account Deficit\", Sandridge Lecture, Virginia Association of Economists."
+      - "Taylor, J. (2007), \"Housing and Monetary Policy\", Federal Reserve Bank of Kansas City, Jackson Hole Economic Policy Symposium."
+      - "Greenspan, A. (2005), \"Federal Reserve Board's semiannual Monetary Policy Report to the Congress\", testimony of 16 February 2005, federalreserve.gov."
   - id: gfc
     start: "2007-08-01"
     end: "2009-12-31"
@@ -116,6 +320,130 @@ episodes:
         happened: "Les pertes sur le subprime se sont propagées via la titrisation et le financement de gros à court terme (ABCP, repo, fonds monétaires) ; la faillite de Lehman (septembre 2008) a gelé les marchés ; VIX au-dessus de 80, chômage à 10 % (octobre 2009). Récession NBER de décembre 2007 à juin 2009."
         fed: "Taux des fonds fédéraux à 0-0,25 % (décembre 2008), facilités de prêt d'urgence, lignes de swap, QE1 (novembre 2008), plus le TARP et la relance budgétaire."
         lesson: "Les récessions financières sont profondes et lentes à guérir (Reinhart et Rogoff) ; prêteur en dernier ressort et outils de bilan sont devenus des pièces permanentes de la boîte à outils."
+    timeline:
+      - {date: "2007-08-09", en: "BNP Paribas freezes three funds exposed to US subprime, and interbank funding markets seize up.", fr: "BNP Paribas gèle trois fonds exposés au subprime américain, et le marché interbancaire se grippe."}
+      - {date: "2008-03-16", en: "JPMorgan agrees to buy Bear Stearns with Fed financing, and the Fed opens a lending facility for primary dealers.", fr: "JPMorgan accepte de racheter Bear Stearns avec un financement de la Fed, qui ouvre une facilité de prêt aux primary dealers."}
+      - {date: "2008-09-15", en: "Lehman Brothers files for bankruptcy; the next day the Fed lends to AIG to prevent its collapse.", fr: "Lehman Brothers se déclare en faillite ; le lendemain, la Fed prête à AIG pour éviter son effondrement."}
+      - {date: "2008-10-03", en: "The Emergency Economic Stabilization Act creating the 700 billion dollar TARP is signed into law.", fr: "La loi d'urgence de stabilisation économique, qui crée le TARP de 700 milliards de dollars, est promulguée."}
+      - {date: "2008-11-25", en: "The Fed announces purchases of agency debt and mortgage-backed securities, the start of QE1.", fr: "La Fed annonce des achats de dette d'agences et de titres adossés à des crédits immobiliers, début du QE1."}
+      - {date: "2008-12-16", en: "The FOMC cuts the funds rate target to a range of 0-0.25%, where it stays until December 2015.", fr: "Le FOMC abaisse l'objectif du taux des fonds fédéraux à une fourchette de 0-0,25 %, où il restera jusqu'en décembre 2015."}
+    debate:
+      en: "Economists still argue over whether the Fed and Treasury could legally have saved Lehman Brothers, or chose not to: officials cited a lack of adequate collateral, while Ball (2018) argues a rescue was feasible. The causes of the crisis remain debated, from subprime credit expansion to the fragility of short-term wholesale funding and runs on repo (Gorton and Metrick). The size and channels of QE's effects, and whether the recovery was slow because policy was too timid, are also open questions."
+      fr: "Les économistes discutent encore de la question de savoir si la Fed et le Trésor pouvaient légalement sauver Lehman Brothers ou ont choisi de ne pas le faire : les responsables invoquaient l'absence de garanties suffisantes, tandis que Ball (2018) juge un sauvetage possible. Les causes de la crise restent débattues, de l'expansion du crédit subprime à la fragilité du financement de gros à court terme et aux runs sur le repo (Gorton et Metrick). L'ampleur et les canaux des effets du QE, ainsi que la question d'une reprise lente faute de politiques assez audacieuses, restent ouverts."
+    reading:
+      - "Reinhart, Carmen M. and Kenneth S. Rogoff (2009), \"This Time Is Different: Eight Centuries of Financial Folly\", Princeton University Press."
+      - "Gorton, Gary and Andrew Metrick (2012), \"Securitized Banking and the Run on Repo\", Journal of Financial Economics 104(3)."
+      - "Ball, Laurence M. (2018), \"The Fed and Lehman Brothers: Setting the Record Straight on a Financial Disaster\", Cambridge University Press."
+  - id: euro_2011
+    start: "2011-04-01"
+    end: "2012-09-30"
+    title: {en: "2011-12: debt ceiling, euro crisis and Operation Twist", fr: "2011-12 : plafond de la dette, crise de l'euro et opération Twist"}
+    cards: [fiscal, volatility, qe_qt, yield_curve]
+    beginner:
+      en:
+        happened: "A fight in Congress over the debt limit led to the first ever downgrade of US government debt, while Greece and other euro countries struggled to pay their debts. Stocks fell sharply."
+        fed: "With rates already at zero, the Fed promised to keep them there for years and swapped short-term bonds for long-term ones to push long rates down."
+        lesson: "Even when its debt is downgraded, the US remains a safe haven: investors rushed into US bonds and long rates hit record lows."
+      fr:
+        happened: "Un bras de fer au Congrès sur le plafond de la dette a conduit à la toute première dégradation de la note des États-Unis, pendant que la Grèce et d'autres pays de l'euro peinaient à payer leurs dettes. Les actions ont fortement baissé."
+        fed: "Avec des taux déjà à zéro, la Fed a promis de les y laisser des années et a échangé des obligations courtes contre des longues pour faire baisser les taux longs."
+        lesson: "Même avec une note dégradée, les États-Unis restent une valeur refuge : les investisseurs se sont rués sur les obligations américaines et les taux longs ont atteint des records à la baisse."
+    pro:
+      en:
+        happened: "The Budget Control Act (2 August 2011) ended the debt-ceiling standoff only hours before the deadline; S&P cut the US from AAA to AA+ on 5 August, the S&P 500 fell about 6.7% on 8 August and the VIX passed 40. Contagion from Greece to Italy and Spain kept stress high until Draghi's \"whatever it takes\" (July 2012)."
+        fed: "In August 2011 the FOMC adopted calendar guidance (rates exceptionally low \"at least through mid-2013\"); in September it launched the Maturity Extension Program, selling 400 billion dollars of short Treasuries to buy 6-to-30-year ones, extended in June 2012, before open-ended QE3 in September 2012."
+        lesson: "Flight to quality overrode the downgrade: the 10-year fell from about 3.5% in spring 2011 to a record low near 1.4% in July 2012. Fiscal brinkmanship and foreign crises can tighten financial conditions as much as a rate hike, and the Fed shifted to guidance and duration tools at the zero bound."
+      fr:
+        happened: "Le Budget Control Act (2 août 2011) a clos le bras de fer sur le plafond de la dette quelques heures avant l'échéance ; S&P a abaissé la note des États-Unis de AAA à AA+ le 5 août, le S&P 500 a chuté d'environ 6,7 % le 8 août et le VIX a dépassé 40. La contagion de la Grèce à l'Italie et à l'Espagne a entretenu les tensions jusqu'au « whatever it takes » de Draghi (juillet 2012)."
+        fed: "En août 2011, le FOMC a adopté une indication calendaire (taux exceptionnellement bas « au moins jusqu'à mi-2013 ») ; en septembre, il a lancé le programme d'allongement des maturités, vendant 400 milliards de dollars de Treasuries courts pour acheter des titres de 6 à 30 ans, prolongé en juin 2012, avant le QE3 sans limite de durée de septembre 2012."
+        lesson: "La fuite vers la qualité l'a emporté sur la dégradation : le 10 ans est passé d'environ 3,5 % au printemps 2011 à un plus bas historique proche de 1,4 % en juillet 2012. Les jeux budgétaires au bord du gouffre et les crises étrangères peuvent resserrer les conditions financières autant qu'une hausse de taux, et la Fed s'est tournée vers l'indication prospective et les outils de duration au plancher zéro."
+    timeline:
+      - {date: "2011-08-02", en: "The Budget Control Act raises the debt ceiling just before the Treasury's deadline.", fr: "Le Budget Control Act relève le plafond de la dette juste avant l'échéance du Trésor."}
+      - {date: "2011-08-05", en: "S&P downgrades the US long-term credit rating from AAA to AA+.", fr: "S&P abaisse la note de long terme des États-Unis de AAA à AA+."}
+      - {date: "2011-08-09", en: "The FOMC says rates will likely stay exceptionally low at least through mid-2013.", fr: "Le FOMC indique que les taux resteront sans doute exceptionnellement bas au moins jusqu'à mi-2013."}
+      - {date: "2011-09-21", en: "The Fed announces Operation Twist: 400 billion dollars of short Treasuries swapped for long ones.", fr: "La Fed annonce l'opération Twist : 400 milliards de dollars de Treasuries courts échangés contre des longs."}
+      - {date: "2012-07-26", en: "Mario Draghi says the ECB will do \"whatever it takes\" to preserve the euro.", fr: "Mario Draghi déclare que la BCE fera « tout ce qu'il faudra » pour préserver l'euro."}
+      - {date: "2012-09-13", en: "The Fed launches QE3 with open-ended purchases of 40 billion dollars of MBS per month.", fr: "La Fed lance le QE3 avec des achats sans limite de durée de 40 milliards de dollars de MBS par mois."}
+    debate:
+      en: "Economists debate how Operation Twist and calendar guidance worked: by lowering the term premium through portfolio balance effects, or mainly by signalling a longer path of zero rates. The episode is also cited in arguments over the cost of debt-ceiling brinkmanship, and over whether the US fiscal tightening of 2011-13 slowed the recovery."
+      fr: "Les économistes discutent du canal par lequel l'opération Twist et l'indication calendaire ont agi : baisse de la prime de terme par rééquilibrage des portefeuilles, ou surtout signal d'une période plus longue à taux zéro ? L'épisode nourrit aussi le débat sur le coût des affrontements autour du plafond de la dette, et sur le rôle du resserrement budgétaire américain de 2011-13 dans la lenteur de la reprise."
+    reading:
+      - "Lane, P. (2012), \"The European Sovereign Debt Crisis\", Journal of Economic Perspectives."
+      - "Federal Open Market Committee (2011), \"FOMC statement\", 21 September 2011, federalreserve.gov."
+      - "Draghi, M. (2012), speech at the Global Investment Conference, London, 26 July 2012, European Central Bank."
+  - id: taper_2013
+    start: "2013-05-01"
+    end: "2013-12-31"
+    title: {en: "2013: the taper tantrum", fr: "2013 : le taper tantrum"}
+    cards: [qe_qt, real_rates, yield_curve, dollar]
+    beginner:
+      en:
+        happened: "The Fed was buying 85 billion dollars of bonds every month. When its chair said it could soon buy less, markets panicked and long-term rates jumped."
+        fed: "The Fed explained that buying less was not the same as raising rates, waited until December, then reduced its purchases slowly."
+        lesson: "Just talking about removing support can move markets a lot. Mortgage rates rose about one point, and emerging countries saw money flow out."
+      fr:
+        happened: "La Fed achetait 85 milliards de dollars d'obligations chaque mois. Quand son président a dit qu'elle pourrait bientôt en acheter moins, les marchés ont paniqué et les taux longs ont bondi."
+        fed: "La Fed a expliqué qu'acheter moins n'était pas monter les taux, a attendu décembre, puis a réduit ses achats lentement."
+        lesson: "Le simple fait de parler de retirer un soutien peut beaucoup faire bouger les marchés. Les taux immobiliers ont pris environ un point, et l'argent est sorti des pays émergents."
+    pro:
+      en:
+        happened: "On 22 May 2013 Bernanke told Congress purchases could be reduced \"in the next few meetings\"; the 10-year yield rose from about 1.6% in early May to about 3% in early September, 30-year mortgage rates gained roughly a point and the \"Fragile Five\" (Brazil, India, Indonesia, Turkey, South Africa) suffered outflows and currency falls."
+        fed: "On 19 June Bernanke sketched a path (moderating purchases later in 2013, ending around mid-2014 with unemployment near 7%); the FOMC surprised by not tapering in September, then cut QE3 from 85 to 75 billion dollars a month in December 2013, while strengthening rate guidance."
+        lesson: "Most of the move was a repricing of the term premium and of the expected date of liftoff, not of purchases themselves; balance-sheet signals leak into the rate path. It shaped the very gradual, pre-announced exits of 2014 and 2017 and the 2021 taper."
+      fr:
+        happened: "Le 22 mai 2013, Bernanke a déclaré au Congrès que les achats pourraient être réduits « lors des prochaines réunions » ; le 10 ans est passé d'environ 1,6 % début mai à environ 3 % début septembre, les taux immobiliers à 30 ans ont pris environ un point et les « Cinq fragiles » (Brésil, Inde, Indonésie, Turquie, Afrique du Sud) ont subi des sorties de capitaux et des chutes de change."
+        fed: "Le 19 juin, Bernanke a esquissé un calendrier (ralentir les achats plus tard en 2013, les arrêter vers mi-2014 avec un chômage proche de 7 %) ; le FOMC a surpris en ne réduisant pas en septembre, puis a ramené le QE3 de 85 à 75 milliards de dollars par mois en décembre 2013, tout en renforçant l'indication sur les taux."
+        lesson: "L'essentiel du mouvement a été une révision de la prime de terme et de la date attendue de la première hausse, pas des achats eux-mêmes ; les signaux sur le bilan déteignent sur le sentier des taux. L'épisode a inspiré les sorties très graduelles et annoncées à l'avance de 2014, 2017 et le tapering de 2021."
+    timeline:
+      - {date: "2013-05-22", en: "Bernanke tells the Joint Economic Committee that purchases could slow in the next few meetings.", fr: "Bernanke indique au Joint Economic Committee que les achats pourraient ralentir lors des prochaines réunions."}
+      - {date: "2013-06-19", en: "At his press conference, Bernanke outlines tapering later in 2013 and an end to purchases around mid-2014.", fr: "En conférence de presse, Bernanke évoque une réduction plus tard en 2013 et la fin des achats vers mi-2014."}
+      - {date: "2013-09-01", en: "The 10-year Treasury yield reaches about 3%, nearly double its May low.", fr: "Le rendement du Treasury à 10 ans atteint environ 3 %, près du double de son plus bas de mai."}
+      - {date: "2013-09-18", en: "The FOMC surprises markets by keeping purchases at 85 billion dollars a month.", fr: "Le FOMC surprend les marchés en maintenant les achats à 85 milliards de dollars par mois."}
+      - {date: "2013-12-18", en: "The Fed announces the taper: purchases cut to 75 billion dollars a month from January 2014.", fr: "La Fed annonce le tapering : achats ramenés à 75 milliards de dollars par mois dès janvier 2014."}
+    debate:
+      en: "Economists debate whether the tantrum reflected a genuine term premium shock or mainly a pulled-forward expected path of the policy rate, which matters for how QE works (portfolio balance versus signalling). Another debate concerns spillovers: whether emerging markets were hit because of weak fundamentals such as current account deficits, or indiscriminately through global capital flows."
+      fr: "Les économistes se demandent si le tantrum a été un vrai choc de prime de terme ou surtout l'avancée du sentier attendu du taux directeur, ce qui compte pour comprendre le QE (rééquilibrage des portefeuilles contre signal). Un autre débat porte sur la contagion : les émergents ont-ils été touchés pour des fondamentaux fragiles, comme leurs déficits courants, ou sans distinction via les flux de capitaux mondiaux ?"
+    reading:
+      - "Bernanke, B. (2015), \"The Courage to Act: A Memoir of a Crisis and Its Aftermath\", W. W. Norton."
+      - "Eichengreen, B. and Gupta, P. (2015), \"Tapering Talk: The Impact of Expectations of Reduced Federal Reserve Security Purchases on Emerging Markets\", Emerging Markets Review."
+      - "Federal Open Market Committee (2013), \"FOMC statement\", 18 December 2013, federalreserve.gov."
+  - id: liftoff_2015
+    start: "2015-06-01"
+    end: "2019-01-31"
+    title: {en: "2015-18: liftoff, normalisation and the December 2018 sell-off", fr: "2015-18 : décollage, normalisation et la chute de décembre 2018"}
+    cards: [fed_policy, qe_qt, oil, volatility]
+    beginner:
+      en:
+        happened: "Seven years after the crisis, jobs had come back. The Fed started to raise rates from zero, but falling oil prices and worries about China shook markets."
+        fed: "It moved very slowly at first, then raised rates more regularly and began shrinking its bond holdings. In late 2018 stocks fell hard and the Fed said it would be patient."
+        lesson: "Leaving zero rates is delicate: markets react strongly, and the Fed often has to slow down or change course."
+      fr:
+        happened: "Sept ans après la crise, les emplois étaient revenus. La Fed a commencé à remonter ses taux depuis zéro, mais la chute du pétrole et les inquiétudes sur la Chine ont secoué les marchés."
+        fed: "Elle a d'abord avancé très lentement, puis a monté ses taux plus régulièrement et commencé à réduire ses obligations. Fin 2018, la Bourse a fortement chuté et la Fed a dit qu'elle serait patiente."
+        lesson: "Sortir des taux zéro est délicat : les marchés réagissent fort, et la Fed doit souvent ralentir ou changer de cap."
+    pro:
+      en:
+        happened: "The yuan devaluation (August 2015) and the oil collapse (WTI below 30 dollars in early 2016) hit energy credit and global risk appetite; unemployment kept falling, to 3.7% in late 2018, with core PCE inflation only reaching about 2% in 2018. The S&P 500 fell nearly 20% from its September 2018 peak to 24 December."
+        fed: "Liftoff on 16 December 2015 to 0.25-0.5%; the December 2015 dots implied four hikes in 2016 but only one came (December 2016); three hikes in 2017, four in 2018 to 2.25-2.5% (nine hikes in total); balance-sheet runoff (QT) from October 2017. Powell's \"patient\" message in January 2019 marked the pivot."
+        lesson: "With a low and uncertain neutral rate, the dots repeatedly overstated the path; hikes plus QT on \"autopilot\" tightened conditions more than intended. The pivot led straight into the 2019 insurance cuts."
+      fr:
+        happened: "La dévaluation du yuan (août 2015) et l'effondrement du pétrole (WTI sous 30 dollars début 2016) ont frappé le crédit du secteur énergie et l'appétit mondial pour le risque ; le chômage a continué de baisser, jusqu'à 3,7 % fin 2018, avec une inflation PCE core qui n'a atteint qu'environ 2 % en 2018. Le S&P 500 a perdu près de 20 % entre son sommet de septembre 2018 et le 24 décembre."
+        fed: "Décollage le 16 décembre 2015 à 0,25-0,5 % ; les dots de décembre 2015 annonçaient quatre hausses en 2016, mais une seule a eu lieu (décembre 2016) ; trois hausses en 2017, quatre en 2018 jusqu'à 2,25-2,5 % (neuf hausses au total) ; réduction du bilan (QT) dès octobre 2017. Le message de « patience » de Powell en janvier 2019 a marqué le virage."
+        lesson: "Avec un taux neutre bas et incertain, les dots ont surestimé le sentier à plusieurs reprises ; hausses et QT en « pilote automatique » ont resserré les conditions plus que voulu. Le virage a mené directement aux baisses d'assurance de 2019."
+    timeline:
+      - {date: "2015-08-11", en: "China devalues the yuan, triggering a global sell-off later in August.", fr: "La Chine dévalue le yuan, ce qui déclenche une chute mondiale des marchés plus tard en août."}
+      - {date: "2015-12-16", en: "Liftoff: the Fed raises the funds target to 0.25-0.5%, its first hike since 2006.", fr: "Décollage : la Fed relève la cible des fonds fédéraux à 0,25-0,5 %, sa première hausse depuis 2006."}
+      - {date: "2016-02-11", en: "WTI falls to about 26 dollars, the low of the oil collapse.", fr: "Le WTI tombe à environ 26 dollars, le point bas de l'effondrement pétrolier."}
+      - {date: "2017-09-20", en: "The Fed announces balance-sheet runoff starting in October 2017.", fr: "La Fed annonce la réduction de son bilan à partir d'octobre 2017."}
+      - {date: "2018-12-19", en: "Ninth hike, to 2.25-2.5%, while markets are already falling.", fr: "Neuvième hausse, à 2,25-2,5 %, alors que les marchés baissent déjà."}
+      - {date: "2019-01-04", en: "Powell says the Fed will be patient and flexible, and stocks rebound.", fr: "Powell affirme que la Fed sera patiente et flexible, et les actions rebondissent."}
+    debate:
+      en: "Some economists argue liftoff in 2015 was premature, with inflation below target and the 2016 slowdown as proof, while others see gradual normalisation as a success that built room for later cuts. A related debate concerns r-star: the 2018 hikes may have pushed the funds rate close to or above a low neutral rate, and whether QT tightened through the term premium or mainly through reserve scarcity is still unsettled."
+      fr: "Certains économistes jugent le décollage de 2015 prématuré, avec une inflation sous la cible et le ralentissement de 2016 pour preuve, d'autres voient dans la normalisation graduelle un succès qui a créé de la marge pour de futures baisses. Un débat voisin porte sur r-étoile : les hausses de 2018 ont pu porter le taux des fonds fédéraux près ou au-dessus d'un taux neutre bas, et l'on ne sait toujours pas si le QT a resserré via la prime de terme ou surtout via la rareté des réserves."
+    reading:
+      - "Federal Open Market Committee (2014, addendum 2017), \"Policy Normalization Principles and Plans\", federalreserve.gov."
+      - "Powell, J. (2018), \"Monetary Policy in a Changing Economy\", Jackson Hole Economic Policy Symposium, Federal Reserve Bank of Kansas City."
+      - "Federal Open Market Committee (2015), \"FOMC statement\", 16 December 2015, federalreserve.gov."
   - id: insurance_2019
     start: "2018-10-01"
     end: "2019-12-31"
@@ -139,6 +467,20 @@ episodes:
         happened: "Chute des actions au 4e trimestre 2018, guerre commerciale, ralentissement industriel mondial ; écart 10 ans - 3 mois inversé à partir de mai 2019 ; pic du repo en septembre 2019 quand le QT a vidé les réserves."
         fed: "Virage en janvier 2019, 75 pb de baisses d'« ajustement de mi-cycle » (juillet à octobre), fin du QT, puis achats de bons pour rétablir des réserves abondantes."
         lesson: "Les baisses d'assurance rappellent 1995 et 1998 ; la rareté des réserves a montré le plancher du QT, utile pour concevoir le QT de 2022-25."
+    timeline:
+      - {date: "2018-12-19", en: "The FOMC raises the target range to 2.25-2.5%, its ninth hike of the cycle, amid a sharp equity sell-off.", fr: "Le FOMC relève la fourchette cible à 2,25-2,5 %, neuvième hausse du cycle, en pleine chute des marchés d'actions."}
+      - {date: "2019-01-30", en: "The FOMC holds rates and says it will be patient, signalling the end of the hiking cycle.", fr: "Le FOMC maintient ses taux et se dit patient, signe de la fin du cycle de hausses."}
+      - {date: "2019-07-31", en: "First cut since 2008, by 25 bp to 2-2.25%, with balance sheet runoff ended two months early.", fr: "Première baisse depuis 2008, de 25 pb à 2-2,25 %, et fin anticipée de deux mois de la réduction du bilan."}
+      - {date: "2019-09-17", en: "Overnight repo rates spike far above the target range, and the New York Fed starts repo operations for the first time in a decade.", fr: "Les taux du repo au jour le jour s'envolent bien au-dessus de la fourchette cible, et la Fed de New York lance ses premières opérations de repo depuis dix ans."}
+      - {date: "2019-10-11", en: "The Fed announces Treasury bill purchases of about 60 billion dollars a month to rebuild ample reserves.", fr: "La Fed annonce des achats de bons du Trésor d'environ 60 milliards de dollars par mois pour reconstituer des réserves abondantes."}
+      - {date: "2019-10-30", en: "Third cut, to 1.5-1.75%, with a signal that the mid-cycle adjustment is over.", fr: "Troisième baisse, à 1,5-1,75 %, avec le signal que l'ajustement de mi-cycle est terminé."}
+    debate:
+      en: "Economists debate whether the 2019 cuts were genuine insurance against trade-war and global risks or a reaction to market and political pressure, and whether they prolonged the expansion. The 10y-3m inversion revived the argument over whether a compressed term premium has weakened the curve's recession signal. The September 2019 repo spike also sparked a debate on how many reserves the banking system really needs, and on the role of liquidity regulation and of the Treasury's cash balance."
+      fr: "Les économistes se demandent si les baisses de 2019 étaient une vraie assurance contre la guerre commerciale et les risques mondiaux, ou une réaction aux pressions des marchés et du pouvoir politique, et si elles ont prolongé l'expansion. L'inversion de l'écart 10 ans - 3 mois a relancé la discussion sur l'affaiblissement du signal de récession de la courbe quand la prime de terme est comprimée. Le pic du repo de septembre 2019 a aussi ouvert un débat sur le niveau de réserves dont le système bancaire a réellement besoin, et sur le rôle de la réglementation de liquidité et du compte du Trésor."
+    reading:
+      - "Afonso, Gara, Marco Cipriani, Adam Copeland, Anna Kovner, Gabriele La Spada and Antoine Martin (2020), \"The Market Events of Mid-September 2019\", Federal Reserve Bank of New York Staff Reports 918."
+      - "Avalos, Fernando, Torsten Ehlers and Egemen Eren (2019), \"September stress in dollar repo markets: passing or structural?\", BIS Quarterly Review, December."
+      - "Federal Open Market Committee (2019), \"FOMC Statement, July 31, 2019\", Board of Governors of the Federal Reserve System."
   - id: covid
     start: "2020-01-01"
     end: "2020-12-31"
@@ -162,6 +504,20 @@ episodes:
         happened: "S&P 500 à -34 % en 23 séances, VIX au-dessus de 80, une « ruée vers le cash » a perturbé même le marché du Trésor ; récession NBER de février à avril 2020, la plus courte jamais datée."
         fed: "150 pb de baisses en deux réunions d'urgence, QE illimité, facilités de crédit aux entreprises et aux collectivités, lignes de swap ; soutien budgétaire du CARES Act d'environ 10 % du PIB."
         lesson: "Un choc purement extérieur, avec des bilans sains et un soutien massif, a permis une reprise en V ; l'ampleur du soutien a nourri la poussée de demande de 2021-22."
+    timeline:
+      - {date: "2020-03-03", en: "In an emergency move, the FOMC cuts its target by 50 bp to 1-1.25%.", fr: "En urgence, le FOMC baisse son objectif de 50 pb, à 1-1,25 %."}
+      - {date: "2020-03-15", en: "In a second emergency meeting, the FOMC cuts to 0-0.25% and announces at least 700 billion dollars of asset purchases.", fr: "Lors d'une deuxième réunion d'urgence, le FOMC abaisse ses taux à 0-0,25 % et annonce au moins 700 milliards de dollars d'achats d'actifs."}
+      - {date: "2020-03-23", en: "The Fed makes asset purchases open-ended and announces corporate credit facilities; the S&P 500 hits its low that day.", fr: "La Fed rend ses achats d'actifs illimités et annonce des facilités de crédit aux entreprises ; le S&P 500 touche son plus bas ce jour-là."}
+      - {date: "2020-03-27", en: "The CARES Act, a roughly 2 trillion dollar relief package, is signed into law.", fr: "Le CARES Act, plan de soutien d'environ 2 000 milliards de dollars, est promulgué."}
+      - {date: "2020-04-01", en: "Unemployment jumps to about 14.8% in April, the highest since the Great Depression.", fr: "Le chômage bondit à environ 14,8 % en avril, du jamais vu depuis la Grande Dépression."}
+      - {date: "2020-08-27", en: "At Jackson Hole, Powell unveils flexible average inflation targeting, allowing inflation to run moderately above 2% for some time.", fr: "À Jackson Hole, Powell dévoile le ciblage flexible d'une inflation moyenne, qui autorise une inflation modérément au-dessus de 2 % pendant un temps."}
+    debate:
+      en: "A first debate is whether the scale of fiscal and monetary support, appropriate in spring 2020, was kept too long and fed the 2021-22 inflation. A second concerns the March 2020 Treasury market dysfunction: whether dealer balance sheet constraints and leveraged basis trades call for structural reforms such as central clearing or a standing Fed backstop. Economists also question the moral hazard created by the Fed's first purchases of corporate bonds, and whether the new average inflation targeting framework delayed liftoff."
+      fr: "Un premier débat porte sur la question de savoir si l'ampleur du soutien budgétaire et monétaire, justifiée au printemps 2020, a été maintenue trop longtemps et a nourri l'inflation de 2021-22. Un second concerne le dysfonctionnement du marché du Trésor en mars 2020 : les contraintes de bilan des dealers et les basis trades à effet de levier appellent-ils des réformes structurelles, comme la compensation centrale ou un filet de sécurité permanent de la Fed ? Les économistes s'interrogent aussi sur l'aléa moral créé par les premiers achats d'obligations d'entreprises par la Fed, et sur le rôle du nouveau ciblage d'inflation moyenne dans le retard de la première hausse."
+    reading:
+      - "Clarida, Richard H., Burcu Duygan-Bump and Chiara Scotti (2021), \"The COVID-19 Crisis and the Federal Reserve's Policy Response\", Finance and Economics Discussion Series 2021-035, Federal Reserve Board."
+      - "Duffie, Darrell (2020), \"Still the World's Safe Haven? Redesigning the U.S. Treasury Market After the COVID-19 Crisis\", Hutchins Center Working Paper 62, Brookings Institution."
+      - "Haddad, Valentin, Alan Moreira and Tyler Muir (2021), \"When Selling Becomes Viral: Disruptions in Debt Markets in the COVID-19 Crisis and the Fed's Response\", Review of Financial Studies 34(11)."
   - id: inflation_2022
     start: "2021-03-01"
     end: "2024-12-31"
@@ -185,3 +541,54 @@ episodes:
         happened: "Le CPI a culminé à 9,1 % sur un an (juin 2022) ; PCE core au-dessus de 5 % ; près de 2 offres d'emploi par chômeur ; courbe inversée dès mi-2022 pour une durée record."
         fed: "525 pb de mars 2022 à juillet 2023 (quatre hausses de 75 pb), QT dès juin 2022 ; maintien à 5,25-5,5 % jusqu'en septembre 2024, puis baisses."
         lesson: "Chocs d'offre et de demande mélangés ; désinflation via une courbe de Beveridge pentue (les offres ont baissé, pas les emplois) et des points morts 5y5y ancrés. La courbe inversée n'a pas amené de récession dans son délai habituel."
+    timeline:
+      - {date: "2021-11-30", en: "Powell tells Congress it is time to retire the word \"transitory\" to describe inflation.", fr: "Powell déclare au Congrès qu'il est temps d'abandonner le mot « transitoire » pour qualifier l'inflation."}
+      - {date: "2022-02-24", en: "Russia invades Ukraine, pushing energy and food prices sharply higher.", fr: "La Russie envahit l'Ukraine, ce qui fait flamber les prix de l'énergie et de l'alimentation."}
+      - {date: "2022-03-16", en: "The FOMC raises its target range by 25 bp to 0.25-0.5%, the first hike since 2018.", fr: "Le FOMC relève sa fourchette cible de 25 pb, à 0,25-0,5 %, première hausse depuis 2018."}
+      - {date: "2022-06-15", en: "A 75 bp hike to 1.5-1.75%, the largest since 1994, as CPI inflation heads to its 9.1% peak in June.", fr: "Hausse de 75 pb à 1,5-1,75 %, la plus forte depuis 1994, alors que l'inflation CPI se dirige vers son pic de 9,1 % en juin."}
+      - {date: "2023-07-26", en: "The last hike of the cycle takes the target range to 5.25-5.5%, the highest since 2001.", fr: "La dernière hausse du cycle porte la fourchette cible à 5,25-5,5 %, au plus haut depuis 2001."}
+      - {date: "2024-09-18", en: "The FOMC cuts by 50 bp to 4.75-5%, its first cut since 2020.", fr: "Le FOMC baisse ses taux de 50 pb, à 4,75-5 %, première baisse depuis 2020."}
+    debate:
+      en: "Economists still disagree on the split between demand and supply in the inflation surge: Bernanke and Blanchard find that supply shocks to prices drove most of it early on, with tight labour markets mattering more later, while others stress excessive fiscal stimulus and a Fed that was late under its new framework. The disinflation without a recession challenged the Beveridge curve pessimism of Blanchard, Domash and Summers, and revived interest in nonlinear Phillips curves. The roles of corporate profit margins and of anchored expectations remain disputed."
+      fr: "Les économistes divergent encore sur la part de la demande et de l'offre dans la poussée d'inflation : Bernanke et Blanchard trouvent que les chocs d'offre sur les prix en expliquent l'essentiel au début, la tension du marché du travail pesant davantage ensuite, tandis que d'autres insistent sur l'excès de relance budgétaire et le retard de la Fed sous son nouveau cadre. La désinflation sans récession a démenti le pessimisme de Blanchard, Domash et Summers fondé sur la courbe de Beveridge, et relancé l'intérêt pour les courbes de Phillips non linéaires. Le rôle des marges des entreprises et des anticipations ancrées reste discuté."
+    reading:
+      - "Bernanke, Ben S. and Olivier Blanchard (2023), \"What Caused the U.S. Pandemic-Era Inflation?\", Hutchins Center Working Paper 86, Brookings Institution."
+      - "Shapiro, Adam Hale (2022), \"Decomposing Supply and Demand Driven Inflation\", Federal Reserve Bank of San Francisco Working Paper 2022-18."
+      - "Blanchard, Olivier, Alex Domash and Lawrence H. Summers (2022), \"Bad News for the Fed from the Beveridge Space\", Peterson Institute for International Economics Policy Brief 22-7."
+  - id: svb_2023
+    start: "2023-02-01"
+    end: "2023-07-31"
+    title: {en: "2023: the regional bank failures", fr: "2023 : les faillites de banques régionales"}
+    cards: [liquidity, credit, fed_policy, stress_alarm]
+    beginner:
+      en:
+        happened: "Silicon Valley Bank had put its deposits in bonds that lost value when rates rose. When customers learned this, they withdrew their money in a day, and the bank failed, followed by two others."
+        fed: "Regulators guaranteed all deposits at the failed banks and the Fed opened a new lending program for banks, but it kept raising rates to fight inflation."
+        lesson: "Fast rate hikes can break weak spots in the financial system. Rescue tools and inflation-fighting can be used at the same time."
+      fr:
+        happened: "Silicon Valley Bank avait placé ses dépôts dans des obligations qui ont perdu de la valeur quand les taux ont monté. Quand les clients l'ont appris, ils ont retiré leur argent en une journée et la banque a fait faillite, suivie de deux autres."
+        fed: "Les autorités ont garanti tous les dépôts des banques en faillite et la Fed a ouvert un nouveau programme de prêts aux banques, mais elle a continué de monter ses taux contre l'inflation."
+        lesson: "Des hausses de taux rapides peuvent casser les points faibles du système financier. Outils de sauvetage et lutte contre l'inflation peuvent servir en même temps."
+    pro:
+      en:
+        happened: "SVB combined a concentrated, mostly uninsured tech deposit base with large unrealised losses on long-duration securities; after a loss-making securities sale and capital raise were announced on 8 March, about 42 billion dollars left in one day and the bank was closed on 10 March. Signature Bank followed on 12 March and First Republic was seized and sold to JPMorgan on 1 May; Credit Suisse was taken over by UBS on 19 March."
+        fed: "A systemic risk exception protected all deposits at SVB and Signature; the Bank Term Funding Program (12 March) lent for up to one year against Treasuries and agency debt valued at par, and discount window borrowing hit a record. The FOMC still hiked 25 bp on 22 March and 3 May, paused in June and reached 5.25-5.5% in July."
+        lesson: "Interest rate risk plus run-prone uninsured deposits turned a monetary tightening into a liquidity crisis; separating financial stability tools from the rate stance contained contagion without halting the fight against inflation. The Fed's own review (Barr, April 2023) also faulted supervision."
+      fr:
+        happened: "SVB cumulait une base de dépôts technologiques concentrée et en majorité non assurée, et de lourdes moins-values latentes sur des titres longs ; après l'annonce le 8 mars d'une vente de titres à perte et d'une levée de capital, environ 42 milliards de dollars sont partis en une journée et la banque a été fermée le 10 mars. Signature Bank a suivi le 12 mars et First Republic a été saisie et vendue à JPMorgan le 1er mai ; Credit Suisse a été repris par UBS le 19 mars."
+        fed: "Une exception pour risque systémique a protégé tous les dépôts de SVB et de Signature ; le Bank Term Funding Program (12 mars) prêtait jusqu'à un an contre des Treasuries et titres d'agences pris à leur valeur nominale, et le recours au guichet d'escompte a atteint un record. Le FOMC a pourtant monté ses taux de 25 pb le 22 mars et le 3 mai, fait une pause en juin et atteint 5,25-5,5 % en juillet."
+        lesson: "Le risque de taux, ajouté à des dépôts non assurés prompts à fuir, a transformé un resserrement monétaire en crise de liquidité ; séparer les outils de stabilité financière de l'orientation des taux a contenu la contagion sans arrêter la lutte contre l'inflation. La propre revue de la Fed (Barr, avril 2023) a aussi mis en cause la supervision."
+    timeline:
+      - {date: "2023-03-08", en: "SVB announces a loss on securities sales and a capital raise, sparking a deposit run.", fr: "SVB annonce une perte sur des ventes de titres et une levée de capital, ce qui déclenche une fuite des dépôts."}
+      - {date: "2023-03-10", en: "California regulators close Silicon Valley Bank and appoint the FDIC as receiver.", fr: "Les régulateurs californiens ferment Silicon Valley Bank et nomment la FDIC administrateur."}
+      - {date: "2023-03-12", en: "Signature Bank is closed; all deposits are guaranteed and the Fed creates the Bank Term Funding Program.", fr: "Signature Bank est fermée ; tous les dépôts sont garantis et la Fed crée le Bank Term Funding Program."}
+      - {date: "2023-03-22", en: "The FOMC raises rates by 25 bp to 4.75-5% despite the banking stress.", fr: "Le FOMC relève ses taux de 25 pb à 4,75-5 % malgré les tensions bancaires."}
+      - {date: "2023-05-01", en: "First Republic Bank is seized and sold to JPMorgan Chase.", fr: "First Republic Bank est saisie et vendue à JPMorgan Chase."}
+      - {date: "2023-07-26", en: "The last hike of the cycle takes the funds target to 5.25-5.5%.", fr: "La dernière hausse du cycle porte la cible des fonds fédéraux à 5,25-5,5 %."}
+    debate:
+      en: "Economists argue over how much blame goes to supervision and the 2018-19 tailoring of rules for mid-sized banks versus the speed of the Fed's own hikes. Another debate is whether the systemic risk exception and the par-value BTFP extended an implicit guarantee to all uninsured deposits, and how much the resulting tightening of bank lending substituted for further rate hikes."
+      fr: "Les économistes débattent de la part de responsabilité de la supervision et de l'allègement des règles pour les banques moyennes en 2018-19, face à la rapidité des hausses de la Fed elle-même. Autre débat : l'exception pour risque systémique et le BTFP à la valeur nominale ont-ils étendu une garantie implicite à tous les dépôts non assurés, et dans quelle mesure le resserrement du crédit bancaire qui a suivi a-t-il remplacé de nouvelles hausses de taux ?"
+    reading:
+      - "Board of Governors of the Federal Reserve System (2023), \"Review of the Federal Reserve's Supervision and Regulation of Silicon Valley Bank\", April 2023."
+      - "FDIC (2023), \"Options for Deposit Insurance Reform\", Federal Deposit Insurance Corporation."
+      - "Federal Reserve Board (2023), \"Federal Reserve Board announces it will make available additional funding to eligible depository institutions\", press release, 12 March 2023."

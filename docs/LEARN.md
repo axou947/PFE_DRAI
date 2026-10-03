@@ -14,8 +14,8 @@ US only for now. Other zones show a note and keep their other tabs.
 | **Today** | the US economy on the analysis date: key indicators with their 3- and 12-month change, trend and rank in their own history; the Fed's next meeting and the odds of a cut, hold or hike; six recession warning lights | same, plus the implied rate path, every Taylor rule, the nearest historical months and the split by our regime |
 | **Concepts** | 26 cards (16 macro, 7 micro, 3 on our model): what it is, why it can be good, why it can be bad, what usually comes next, with today's readings and a chart | same cards plus the mechanics (equations) and reading list |
 | **Map** | cause and effect between the concepts; cards at an extreme of their history today are highlighted | same, with the label of each link |
-| **History** | 8 episodes (1973 oil shock, Volcker, 1994, dot-com, 2008, 2019, Covid, 2022 inflation): what happened, what the Fed did, the lesson, on a chart | same at the pro level |
-| **Lab** | Taylor rule calculator, real rate (Fisher) calculator, mortgage payment calculator | same, plus u* and r* sliders, the rules' history against the actual rate, and the Phillips curve scatter |
+| **History** | 16 episodes from the 1973 oil shock to the 2023 bank failures, on one timeline of the Fed's rate; the past episodes whose start looks most like the analysis date; for each: what happened, what the Fed did, the lesson, a dated timeline, the episode's numbers from FRED (rate path, inflation and unemployment peaks, VIX, months of recession) and its starting conditions next to today's | same, plus the curve and oil, what economists still debate, what our regime model said (from 2004) and a reading list |
+| **Lab** | five tabs: Fed rule (Taylor calculator); rates and bonds (real rate, bond price when rates move, recession odds from the yield curve); household (mortgage, what a past dollar is worth today, real pay rise); public debt (debt path from deficit, interest and growth) | same, plus u* and r* sliders and the rules' history, bond coupon, duration and convexity, the curve model's monthly history, the debt-stabilising primary balance and the Phillips curve |
 | **Glossary** | about 50 terms, searchable, linked to their card | pro definitions |
 | **Quiz** | one question per card, with the explanation | pro questions |
 | **Ask GAMA** | GAMA, the AI tutor: the question box and examples are there, but **the tutor is under construction**: clicking shows "coming soon" and sends nothing anywhere | same |
@@ -66,6 +66,23 @@ jobless claims 4-week average against its 52-week low (amber +15%, red +30%), pa
 50k, red negative), real GDP year on year (amber under 1%, red negative) and our stress alarm. Thresholds are in
 `config/settings.yaml` under `learn.checklist`. They describe, they do not date recessions.
 
+## History: closest episodes and numbers
+
+The "closest episode" box compares the analysis date with the first day of every episode that had already started (no
+look-ahead in the time machine; the episode under way is left out) on five features: policy rate, core PCE inflation,
+unemployment, 10y-3m spread and the Fed's 12-month change. Each difference is divided by that feature's standard deviation
+since 1985 and the root mean square is the distance. Resemblance is not a forecast. Episode numbers are read from the same
+FRED series inside the episode window (revised data). Episode texts, timelines and reading lists are in
+`config/learn/episodes.yaml`.
+
+## Lab formulas
+
+- Bond: exact repricing of an annual-coupon bond; modified duration and convexity by finite differences.
+- Yield-curve recession odds: New York Fed probit (Estrella and Trubin 2006), P = Φ(-0.5333 - 0.6330 × (10y - 3m)), fitted
+  on 1959-2006; it signalled a recession in 2022-24 that had not come by the time of writing.
+- Purchasing power: CPI-U ratio (CPIAUCSL). Real pay: (1 + w) / (1 + π) - 1 with average hourly earnings and CPI.
+- Public debt: d(t+1) = d(t)(1 + r)/(1 + g) + primary deficit; stabilising primary balance d(r - g)/(1 + g).
+
 ## Limits
 
 - FRED serves today's vintages: revised data. A past date in the time machine therefore shows what we know now about that
@@ -87,6 +104,8 @@ it used.
 | `pfe_drai/learn/data.py` | FRED download and cache, simulated economy, indicator transforms |
 | `pfe_drai/learn/fed.py` | the three Fed lenses and the next meeting |
 | `pfe_drai/learn/today.py` | readings, recession lights, cards in focus |
+| `pfe_drai/learn/history.py` | episode numbers, closest episodes, regime mix |
+| `pfe_drai/learn/lab.py` | calculator formulas |
 | `pfe_drai/learn/cards.py` | cards, glossary, episodes, quiz, search |
 | `app/learn_page.py` | the two tabs |
 | `config/learn/` | indicators, FOMC calendar, cards, glossary, episodes |

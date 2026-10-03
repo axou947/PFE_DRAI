@@ -11,7 +11,7 @@ from streamlit.testing.v1 import AppTest
 from pfe_drai.config import load_settings
 from pfe_drai.learn import cards as learn_cards
 from pfe_drai.learn import data as learn_data
-from pfe_drai.learn import fed, today
+from pfe_drai.learn import fed, history, lab, today
 from pfe_drai.publish.snapshot import config_fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,6 +81,11 @@ def test_glossary_and_history_lessons_are_complete(learn_settings):
         for level in learn_cards.LEVELS:
             for lang in learn_cards.LANGS:
                 assert all(ep[level][lang][k] for k in ("happened", "fed", "lesson")), (ep["id"], level, lang)
+        assert len(ep["timeline"]) >= 3 and ep["reading"], ep["id"]
+        dates = [pd.Timestamp(e["date"]) for e in ep["timeline"]]
+        assert dates == sorted(dates), ep["id"]
+        assert all(isinstance(e[lang], str) and e[lang] for e in ep["timeline"] for lang in learn_cards.LANGS), ep["id"]
+        assert ep["debate"]["en"] and ep["debate"]["fr"], ep["id"]
 
 
 def test_search_finds_a_card_by_a_word_of_its_text(learn_settings):
@@ -104,10 +109,15 @@ def test_every_learn_text_key_exists_in_both_languages(learn_settings):
     dynamic += [f"learn.fed.rule.{r}" for r in ("taylor_1993", "balanced", "inertial")]
     dynamic += [f"learn.trend.{x}" for x in ("rising", "falling", "stable")]
     dynamic += [f"learn.check.{x}" for x in ("sahm", "curve", "claims", "payrolls", "gdp", "alarm")]
+    dynamic += [f"learn.lab.tab.{x}" for x in ("fed", "rates", "household", "debt", "phillips")]
+    dynamic += [f"learn.history.n.{x}" for x in ("inflation_high", "unemployment_high", "vix_high")]
     for level in learn_cards.LEVELS:
         dynamic += [f"learn.intro.{level}", f"learn.map.help.{level}", f"learn.quiz.help.{level}"]
         dynamic += [f"learn.lab.taylor_help.{level}", f"learn.lab.fisher_help.{level}"]
         dynamic += [f"learn.ask.help.{level}", f"learn.ask.example.{level}"]
+        dynamic += [f"learn.history.analogue_help.{level}", f"learn.lab.intro.{level}"]
+        dynamic += [f"learn.lab.{x}_help.{level}" for x in ("bond", "curve", "wage", "debt")]
+        dynamic += [f"learn.lab.ppower_help.{level}"]
         dynamic += [f"learn.ask.sample{i}.{level}" for i in (1, 2, 3)]
         dynamic += [f"learn.check.{x}.{level}" for x in ("sahm", "curve", "claims", "payrolls", "gdp", "alarm")]
     missing = [k for k in dynamic if k not in en]
@@ -184,6 +194,39 @@ def test_base_rates_never_use_an_outcome_after_the_day(economy, learn_settings):
     assert len(recent) and frame.loc[recent, "outcome"].isna().all()
     assert frame["outcome"].dropna().isin(fed.OUTCOMES).all()
     assert not np.isnan(frame["change"].dropna()).any()
+
+
+def test_episode_numbers_and_analogues_never_look_ahead(economy, learn_settings):
+    _, _, values = economy
+    episodes = learn_cards.load_episodes(learn_settings)
+    gfc = next(e for e in episodes if e["id"] == "gfc")
+    n = history.numbers(values, gfc)
+    assert n["rate_low"] <= n["rate_start"] <= n["rate_high"] and n["unemployment_high"] > 0
+    date = pd.Timestamp("2012-06-29")
+    close = history.analogues(values, episodes, date, top=20)
+    started = {e["id"] for e in episodes if pd.Timestamp(e["start"]) <= date}
+    assert close and {r["id"] for r in close} <= started  # nothing that had not started yet
+    assert "euro_2011" not in {r["id"] for r in close}  # the episode under way is left out
+    assert [r["distance"] for r in close] == sorted(r["distance"] for r in close)
+    assert history.regime_mix(None, "2008-01-01", "2009-01-01") == {}
+    mix = history.regime_mix(pd.Series(["stress", "stress", "expansion"], pd.date_range("2020-01-01", periods=3)), "2020", "2021")
+    assert mix == pytest.approx({"stress": 2 / 3, "expansion": 1 / 3})
+
+
+def test_lab_formulas():
+    # New York Fed probit: a flat curve gives about 30%, an inverted one more.
+    assert lab.curve_recession_probability(0.0) == pytest.approx(0.297, abs=1e-3)
+    assert lab.curve_recession_probability(-1.0) > 0.5 > lab.curve_recession_probability(1.5)
+    b = lab.bond(4.0, 4.0, 10, 1.0)
+    assert b["price"] == pytest.approx(100.0)  # at par when coupon = yield
+    assert b["duration"] == pytest.approx(8.11, abs=0.01)
+    assert b["change_pct"] == pytest.approx(b["estimate_pct"], abs=0.05) and b["change_pct"] < 0
+    assert lab.debt_path(100, 0, 4, 4, 5)[-1] == pytest.approx(100)  # r = g and no deficit: flat
+    assert lab.stabilising_balance(100, 5, 3) == pytest.approx(100 * 2 / 103)
+    assert lab.real_change(5, 5) == pytest.approx(0)
+    assert lab.mortgage_payment(300_000, 6, 30) == pytest.approx(1798.65, abs=0.01)
+    cpi = pd.Series([100.0, 200.0], pd.to_datetime(["2000-06-30", "2020-06-30"]))
+    assert lab.purchasing_power(cpi, 100, "2000-06-30", "2020-06-30") == pytest.approx(200)
 
 
 # ---------------------------------------------------------------- the two tabs, headless

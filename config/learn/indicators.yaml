@@ -70,6 +70,7 @@ indicators:
   real_10y:      {series: DFII10, unit: pct, ref: 0}
   breakeven_10y: {series: T10YIE, unit: pct, ref: 2.0}
   fwd_5y5y:      {series: T5YIFR, unit: pct, ref: 2.0}
+  cpi_level:     {series: CPIAUCSL, unit: index}
   cpi_yoy:       {transform: yoy, series: CPIAUCSL, unit: pct, ref: 2.0}
   core_cpi_yoy:  {transform: yoy, series: CPILFESL, unit: pct, ref: 2.0}
   pce_yoy:       {transform: yoy, series: PCEPI, unit: pct, ref: 2.0}
