@@ -1,9 +1,9 @@
 # Displayed Slowdown (v2.3): diagnosis and pre-registration
 
-**Status, 2026-10-03: pre-registered, not run on real data.** The published model stays **v2.2**
-([SLOWDOWN.md](SLOWDOWN.md)) and its settings fingerprint does not change. This page is committed and pushed
-before Henry runs anything. The one real run's output goes under "Results", whatever it says, and nothing
-above that heading changes afterwards.
+**Status, 2026-10-03: NOT ADOPTED.** The one real run selected no candidate on the first part (results at the
+bottom), so the published model stays **v2.2** and its settings fingerprint does not change. This page was committed and
+pushed before Henry ran anything. The run's output is under "Results", and nothing above that heading changed afterwards
+except this status line.
 
 ## The problem
 
@@ -177,4 +177,56 @@ world).
 
 ## Results
 
-Not run yet.
+### The one real run (Henry, 2026-10-03)
+
+`python -m pfe_drai --provider fred slowdown --v23`, out-of-sample 2009-04-03 to 2026-10-02, model combined.
+P(stress) identical in every display: yes.
+
+Displayed Slowdown against the reference's slowdown days (bal. acc. = balanced accuracy; found = share of reference
+slowdown days shown as Slowdown; right = share of shown Slowdown days that are reference slowdown days; ref. days =
+their share of all days; switches = regime switches a year; spell = median displayed Slowdown spell, days):
+
+| | display | bal. acc. | found | right | ref. days | shown | switches | spell |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| **first part (selection)**, CFNAIMA3 | jump (v2.2) | 0.473 | 7.1% | 43.2% | 57.2% | 9.4% | 2.29 | 34 |
+| | rule | 0.476 | 31.5% | 53.6% | 57.2% | 33.6% | 3.89 | 21 |
+| | rule_named | 0.480 | 31.1% | 54.2% | 57.2% | 32.8% | 4.35 | 21 |
+| | gbm | 0.480 | 26.8% | 53.7% | 57.2% | 28.5% | 8.01 | 7 |
+| **second part (decision)**, CFNAIMA3 | jump (v2.2) | 0.515 | 17.4% | 55.7% | 50.8% | 15.7% | 3.66 | 31 |
+| | rule | 0.735 | 77.2% | 72.5% | 50.8% | 53.8% | 4.92 | 70 |
+| | rule_named | 0.737 | 76.8% | 72.9% | 50.8% | 53.2% | 5.60 | 60 |
+| | gbm | 0.727 | 75.2% | 72.2% | 50.8% | 52.5% | 9.83 | 26 |
+| **whole period**, CFNAIMA3 | jump (v2.2) | 0.492 | 11.9% | 51.0% | 54.0% | 12.5% | 2.97 | 34 |
+| | rule | 0.599 | 52.9% | 65.2% | 54.0% | 43.7% | 4.40 | 39 |
+| | rule_named | 0.602 | 52.5% | 65.8% | 54.0% | 43.0% | 4.97 | 34 |
+| | gbm | 0.596 | 49.4% | 65.7% | 54.0% | 40.5% | 8.92 | 11 |
+| **whole period, GDP below potential** | jump (v2.2) | 0.505 | 13.5% | 26.5% | 25.0% | 12.5% | 2.97 | 34 |
+| | rule | 0.523 | 46.8% | 27.0% | 25.0% | 43.7% | 4.40 | 39 |
+| | rule_named | 0.525 | 46.2% | 27.1% | 25.0% | 43.0% | 4.97 | 34 |
+| | gbm | 0.521 | 43.2% | 26.9% | 25.0% | 40.5% | 8.92 | 11 |
+
+Selection: `rule` qualifies on the first part (3.89 switches a year, 21-day spell); `rule_named` (4.35) and `gbm` (8.01)
+switch too often. `rule` beats v2.2 by 0.003, short of the 0.02 margin, so **no candidate is selected** and the
+decision stops at condition 1. **Decision: v2.3 is not adopted; v2.2 stays.** Nothing was retuned.
+
+What it shows, said plainly:
+
+- **2009–2017: no display matches CFNAI.** Every display, v2.2's included, is below or at chance (0.47–0.48). In those
+  years CFNAI is below its 1967–today trend on 57% of days while the growth score's median comes from a history that
+  starts in 2004; whatever the display, the app and the reference disagree about what "below trend" means then.
+- **2018–2026: the rule-based displays match CFNAI well** (0.735 against v2.2's 0.515). This part was never used to
+  choose, so it is the most interesting number of the run, but the protocol chose on the first part and the first part
+  said no. It is not a pass.
+- **Even without the selection step, `rule` would have failed** two other conditions: GDP below potential, +0.018
+  against the 0.02 required (0.523 against 0.505, both close to chance), and 4.40 regime switches a year on the whole
+  period against at most 4.
+- **The second reference says the same as the first part:** against GDP growth below the CBO's potential, no display
+  is clearly better than chance (0.505–0.525). Below-potential quarters are 25% of days, against 54% for CFNAI: the two
+  references disagree with each other about most of the 2010s.
+- Detection and calibration were untouched by construction and the run confirmed it (P(stress) identical).
+
+What it means for the app: the honest label is that **Slowdown is the growth score below its own median**, a
+persistent reading of growth inputs, and not a match for an outside measure of the economy over the whole period.
+Any later attempt needs a new pre-registration, and the whole 2009–2026 period now counts as seen for displayed
+Slowdown against both CFNAI and GDP below potential. A real blind test would have to be a forward one (a live shadow
+run, as for the challengers, CHALLENGERS.md), scored on months that have not happened yet.
