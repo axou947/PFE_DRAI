@@ -1,7 +1,7 @@
 # Sahm rule and high-yield credit: simulated tests and pre-registration
 
-**Status, 2026-10-03:** high-yield credit is **NOT ADOPTED**. It failed on simulated data, so it gets no real run.
-The Sahm rule is **pre-registered, step 1 not run yet.** The published model stays **v2.2** and its
+**Status, 2026-10-03:** **neither is adopted.** High-yield credit failed on simulated data, so it got no real run.
+The Sahm rule failed step 1 of its pre-registered real test (results at the bottom). The published model stays **v2.2** and its
 settings fingerprint does not change. This page is committed and pushed before Henry runs anything. Results go
 under "Results", and nothing above that heading changes afterwards.
 
@@ -101,4 +101,30 @@ v2.2 stays. Nothing is retuned after either run.
 
 ## Results
 
-### Step 1 (real data): not run yet
+### Step 1 (real data, run once by Henry, 2026-10-03)
+
+`python -m pfe_drai --provider fred sahm`, 1999-01-04 to 2009-04-02 (2,578 days), reference `CFNAIMA3 < 0`
+(below-trend growth on 50% of days).
+
+| candidate | balanced accuracy | days below | spells / yr | median spell |
+|---|---:|---:|---:|---:|
+| **v2.2 (published)** | **0.757** | 71% | 1.76 | 36 |
+| v2.2 + Sahm gap | 0.731 | 76% | 1.07 | 43 |
+
+- Balanced accuracy at least 0.02 above v2.2's: **failed** (gain −0.026).
+- Slowdown changes at most 2 times a year: passed (1.07).
+
+**Decision: step 1 FAILED. The Sahm rule is not adopted and step 2 is not run.** v2.2 stays, as published.
+The v2.2 row reproduces the 0.757 of the v2.2 growth holdout (SLOWDOWN.md), so the data and the code agree with
+that earlier run.
+
+What it shows, said plainly:
+
+- **The Sahm gap makes the growth score worse at matching CFNAI on real data** (0.731 against 0.757), and calls more
+  days below trend (76% against 71%, where the reference has 50%). The Sahm gap is a recession alarm: it stays near
+  0 for years and then jumps. The likely reason (inferred, not tested): robust scaling over a history of mostly calm years turns small moves of
+  unemployment into large scores, which pulls the growth score down too often.
+- It is steadier (1.07 spells a year against 1.76), which is not what this score lacked.
+- The out-of-sample period (2009–2026) was not looked at for this candidate. Nothing is retuned: a different use of
+  unemployment (for example the Sahm signal at 0.5 as an on/off input, not a scaled score) would be a new
+  pre-registration with its own reason.

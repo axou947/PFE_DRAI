@@ -200,7 +200,8 @@ overheating:
         breakeven: [breakeven_level, breakeven_change]
         short_rate: [short_rate_change]
 
-# Sahm rule in the growth score (docs/SAHM_HY.md): the pre-registered test, not the model. Kept outside
+# Sahm rule in the growth score (docs/SAHM_HY.md): the pre-registered test, not the model.
+# NOT ADOPTED 2026-10-03: step 1 failed on the real 1999-2009 holdout (balanced accuracy 0.731 vs 0.757). Kept outside
 # features/models/validation on purpose, so the published model's settings fingerprint does not change.
 sahm:
   series: unrate                  # unemployment rate, FRED UNRATE as first releases (ALFRED)
