@@ -55,6 +55,7 @@ python -m pfe_drai --region uk data          # même chose pour une autre zone :
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)
 python -m pfe_drai health --offline          # le job quotidien est-il en bonne santé ? jour manquant, intégrité, horodatage (docs/OPERATIONS.md)
 python -m pfe_drai --provider fred health     # + fraîcheur de chaque série de données (clés requises)
+python -m pfe_drai board                      # vue mondiale : chaque zone publiée côte à côte, telle que publiée, + tableau des challengers (aucune clé)
 python -m pfe_drai --provider fred track-record --out preview  # aperçu de la page publique du track record (docs/TRACK_RECORD.md)
 python -m pfe_drai --provider fred world --date 2020-03-16   # marchés mondiaux : performance et état de stress (docs/WORLD.md)
 python -m pfe_drai thesis --lang fr --format html --out thesis  # rapport méthode et résultats (docs/thesis/), chiffres lus dans les enregistrements
@@ -62,7 +63,7 @@ python -m pfe_drai thesis --check             # les résultats imprimés dans do
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
-API : `GET /regime`, `/regime/explain`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
+API : `GET /regime`, `/regime/explain`, `/board`, `/challengers`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
 
 ## Méthode
 

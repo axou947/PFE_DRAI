@@ -22,6 +22,7 @@ from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
 from pfe_drai.learn.cards import REGIME_CARD  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
 from pfe_drai.pipeline import Pipeline  # noqa: E402
+from pfe_drai.publish import board as global_board  # noqa: E402
 from pfe_drai.publish.page import page_html  # noqa: E402
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf  # noqa: E402
 from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, rank_scenarios  # noqa: E402
@@ -164,9 +165,10 @@ state = pipeline.state(model, as_of)
 st.title(t("app.title", lang))
 st.caption(f"{t('app.subtitle', lang)} · {fmt_date(state.date, lang)}")
 
-tab_dash, tab_learn_b, tab_learn_p, tab_world, tab_hist, tab_track, tab_alerts, tab_scen = st.tabs(
+tab_dash, tab_board, tab_learn_b, tab_learn_p, tab_world, tab_hist, tab_track, tab_alerts, tab_scen = st.tabs(
     [
         t("tab.dashboard", lang),
+        t("tab.board", lang),
         t("tab.learn_beginner", lang),
         t("tab.learn_pro", lang),
         t("tab.world", lang),
@@ -1085,6 +1087,89 @@ with tab_hist:
         st.dataframe(pd.read_csv(index_path).iloc[::-1], hide_index=True, width="stretch")
     else:
         st.info(t("hist.no_track_record", lang))
+
+# ================================================================ GLOBAL BOARD
+with tab_board:
+    # As published on each region's latest evening (publish/board.py): no data download, nothing recomputed.
+    st.subheader(t("board.title", lang))
+    st.caption(f"{t('board.intro', lang)} {t('board.app_help', lang)}")
+    gb = global_board.board()
+    cols = st.columns(len(gb["regions"]))
+    for col, r in zip(cols, gb["regions"], strict=True):
+        with col:
+            name = t(f"board.name.{r['region']}", lang)
+            if r["date"] is None:
+                st.metric(name, "–")
+                st.caption(t("board.none", lang))
+                continue
+            change = r.get("p_stress_change")
+            st.metric(
+                name,
+                reg(r["regime"]),
+                None if change is None else t("board.pts", lang, v=fmt_num(change * 100, lang, 1)),
+                delta_color="inverse",
+                help=f"{t('tr.lg.p', lang)} · {t('board.col.week', lang)}",
+            )
+            alarm_text = t("tr.on", lang) if r.get("alarm_on") else t("tr.off", lang)
+            st.caption(
+                f"{fmt_date(r['date'], lang)} · {t('tr.lg.p', lang)} {fmt_pct(r['p_stress'], lang)} · "
+                f"{t('tr.lg.alarm', lang)} {'🚨 ' if r.get('alarm_on') else ''}{alarm_text}"
+            )
+            if r.get("late"):
+                st.warning(t("board.late", lang, region=name, date=fmt_date(r["date"], lang)))
+    table = []
+    for r in gb["regions"]:
+        if r["date"] is None:
+            continue
+        since_key = "board.since_start" if r["regime_since_record_start"] else "board.since"
+        table.append(
+            {
+                t("board.col.region", lang): t(f"board.name.{r['region']}", lang),
+                t("tr.live.latest", lang): fmt_date(r["date"], lang),
+                t("tr.col.regime", lang): f"{reg(r['regime'])} ({fmt_pct(r['p_regime'], lang)})"
+                if r.get("p_regime") is not None
+                else reg(r["regime"]),
+                t("tr.lg.p", lang): fmt_pct(r["p_stress"], lang) if r.get("p_stress") is not None else "–",
+                t("tr.lg.alarm", lang): t("tr.on", lang) if r.get("alarm_on") else t("tr.off", lang),
+                t("board.col.since", lang): t(since_key, lang, date=fmt_date(r["regime_since"], lang), n=r["regime_days"]),
+                t("board.col.record", lang): t("board.days", lang, n=r["days"])
+                + (
+                    f" · {t('tr.live.chain_ok', lang)}"
+                    if r["chain_ok"]
+                    else f" · {t('tr.live.chain_broken', lang, n=r['problems'])}"
+                ),
+            }
+        )
+    if table:
+        st.dataframe(pd.DataFrame(table), hide_index=True, width="stretch")
+    st.caption(t("board.note", lang))
+
+    st.subheader(t("board.ch.title", lang))
+    card = global_board.read_scorecard(settings)
+    if not card or not card.get("since"):
+        st.info(t("board.ch.none", lang))
+    else:
+        st.caption(t("board.ch.since", lang, since=fmt_date(card["since"], lang), last=fmt_date(card["last_market_day"], lang)))
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        t("board.ch.model", lang): m["name"],
+                        t("tr.col.days", lang): m["days"],
+                        t("board.ch.chain", lang): "✓" if m["chain_ok"] else "✗",
+                        t("board.ch.alarm_days", lang): m["alarm_days"],
+                        t("board.ch.scored", lang): m["episodes_scored"],
+                        t("board.ch.detected", lang): m["detected"],
+                        t("tr.col.latency", lang): m["median_latency"],
+                        t("board.ch.false", lang): m["false_alarms"],
+                        t("board.ch.pending", lang): m["pending"] + m["false_alarms_pending"],
+                    }
+                    for m in card["models"].values()
+                ]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
 
 # ================================================================ TRACK RECORD
 with tab_track:

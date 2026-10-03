@@ -6,6 +6,7 @@ report     committee note (md, html or pdf)
 publish    write today's track record entry (real data only) and its data-health record
 health     is the daily job healthy? record, calendar, timestamps, source freshness (live data); exit 0 ok, 1 warning, 2 failure
 notify     message when the published alarm or regime changed; --dry-run prints it, --test sends a test (docs/ALERTS.md)
+board      every published region side by side, as published, and the challenger scorecard (no data download)
 track-record  build the public track-record page (track_record/index.html, fr.html); --out for a preview
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
@@ -268,6 +269,42 @@ def cmd_track_record(args):
     for page in result["pages"]:
         print(page)
     if not live.chain_ok:
+        sys.exit(1)
+
+
+def cmd_board(args):
+    from .publish.board import board, read_scorecard
+
+    lang = args.lang
+    body = board(load_settings(args.config))
+    for r in body["regions"]:
+        name = t(f"board.name.{r['region']}", lang)
+        if r["date"] is None:
+            print(f"{name:<20} {t('board.none', lang)}")
+            continue
+        change = "" if r["p_stress_change"] is None else f" ({r['p_stress_change'] * 100:+.1f} pts / 1w)"
+        alarm = t("tr.on", lang) if r["alarm_on"] else t("tr.off", lang)
+        key = "board.since_start" if r["regime_since_record_start"] else "board.since"
+        since = t(key, lang, date=r["regime_since"], n=r["regime_days"])
+        regime = t(f"regime.{r['regime']}", lang)
+        print(
+            f"{name:<20} {r['date']}  {regime:<14} P(stress) {fmt_pct(r['p_stress'], lang)}{change}"
+            f"  {t('tr.lg.alarm', lang)}: {alarm}  {t('board.col.since', lang)}: {since}"
+            f"  chain {'ok' if r['chain_ok'] else 'BROKEN'}{'  LATE' if r['late'] else ''}"
+        )
+    card = read_scorecard(load_settings(args.config))
+    print()
+    if not card or not card.get("since"):
+        print(t("board.ch.none", lang))
+    else:
+        print(t("board.ch.since", lang, since=card["since"], last=card["last_market_day"]))
+        for m in card["models"].values():
+            lat = "–" if m["median_latency"] is None else f"{m['median_latency']:+.0f}"
+            print(
+                f"  {m['name']:<18} {m['days']} days, {m['detected']}/{m['episodes_scored']} detected, latency {lat}, "
+                f"{m['false_alarms']} false alarms, chain {'ok' if m['chain_ok'] else 'BROKEN'}"
+            )
+    if not all(r["chain_ok"] for r in body["regions"]):
         sys.exit(1)
 
 
@@ -824,6 +861,7 @@ def main(argv=None):
         ("publish", cmd_publish),
         ("health", cmd_health),
         ("notify", cmd_notify),
+        ("board", cmd_board),
         ("track-record", cmd_track_record),
         ("episodes", cmd_episodes),
         ("states", cmd_states),

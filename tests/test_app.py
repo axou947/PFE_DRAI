@@ -60,3 +60,11 @@ def test_dashboard_explains_the_regime_in_both_languages():
     assert not at.exception
     assert {"Why this regime", "What would flip the rule", "What drives the stress alarm"} <= {h.value for h in at.subheader}
     assert any("not a cause" in c.value or "does not identify a cause" in c.value for c in at.caption)
+
+
+def test_global_board_tab_reads_the_published_record():
+    at = AppTest.from_file(str(APP), default_timeout=900)
+    at.run()
+    assert not at.exception
+    assert {"Vue mondiale", "Tableau des challengers"} <= {h.value for h in at.subheader}
+    assert any(m.label == "États-Unis" for m in at.metric)

@@ -198,6 +198,34 @@ def regime_explain(model: str | None = None, date: str | None = None, lang: Lang
     return body
 
 
+@app.get("/board")
+def global_board(lang: Lang = "fr"):
+    """Every published region's latest day side by side, as published (no data download, nothing recomputed).
+
+    One row per region whose model passed its pre-registered test (US, UK, Japan, emerging markets): regime,
+    P(stress), alarm, change since a week earlier, and the published days in the current regime.
+    """
+    from pfe_drai.publish.board import board
+
+    body = board()
+    for row in body["regions"]:
+        row["region_label"] = t(f"board.name.{row['region']}", lang)
+        row["regime_label"] = t(f"regime.{row['regime']}", lang) if row.get("regime") else None
+    return body
+
+
+@app.get("/challengers")
+def challenger_scorecard():
+    """The challenger scorecard as the daily job wrote it (docs/CHALLENGERS.md); 404 before the first one."""
+    from pfe_drai.config import load_settings
+    from pfe_drai.publish.board import read_scorecard
+
+    card = read_scorecard(load_settings())
+    if card is None:
+        raise HTTPException(404, "No challenger scorecard published yet")
+    return card
+
+
 @app.get("/regime/states")
 def regime_states(model: str | None = None, date: str | None = None, lang: Lang = "fr"):
     """How the model's unsupervised states map to the regimes (docs/REGIMES.md).

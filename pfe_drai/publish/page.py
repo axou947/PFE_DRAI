@@ -16,6 +16,7 @@ import pandas as pd
 from .. import health as _health
 from .. import nyse
 from ..i18n import fmt_date, fmt_pct, t
+from . import board as _board
 from .record import (
     LiveRecord,
     backtest_record,
@@ -561,6 +562,121 @@ def _verify_section(live: LiveRecord, lang: str) -> str:
     )
 
 
+def _board_section(board: dict | None, lang: str) -> str:
+    """Every published region side by side, as published (publish/board.py)."""
+    if not board or not board.get("regions"):
+        return ""
+    out = [f'<h2 id="board">{_e(t("board.title", lang))}</h2>', f'<p class="muted">{_e(t("board.intro", lang))}</p>']
+    rows, late = [], []
+    for r in board["regions"]:
+        name = _e(t(f"board.name.{r['region']}", lang))
+        if r["date"] is None:
+            rows.append([name, _e(t("board.none", lang))] + ["–"] * 6)
+            continue
+        if r.get("late"):
+            late.append(t("board.late", lang, region=t(f"board.name.{r['region']}", lang), date=_date(r["date"], lang)))
+        regime = _e(t(f"regime.{r['regime']}", lang)) if r.get("regime") else "–"
+        if r.get("p_regime") is not None:
+            regime += f' <span class="muted">({_e(_pct(r["p_regime"], lang))})</span>'
+        change = r.get("p_stress_change")
+        week = (
+            "–"
+            if change is None
+            else _e(t("board.pts", lang, v=f"{change * 100:+.1f}".replace(".", "," if lang == "fr" else ".")))
+        )
+        if r.get("week_ago_regime") and r["week_ago_regime"] != r.get("regime"):
+            week += "<br>" + _e(t("board.was", lang, regime=t(f"regime.{r['week_ago_regime']}", lang)))
+        alarm = (
+            f'<span class="alarm-on">{_e(t("tr.on", lang))}</span>'
+            + (f" {_e(t('tr.live.since', lang, date=_date(r.get('alarm_since'), lang)))}" if r.get("alarm_since") else "")
+            if r.get("alarm_on")
+            else _e(t("tr.off", lang))
+        )
+        if r.get("regime_since_record_start"):
+            since = _e(t("board.since_start", lang, date=_date(r["regime_since"], lang), n=r["regime_days"]))
+        else:
+            since = _e(t("board.since", lang, date=_date(r["regime_since"], lang), n=r["regime_days"]))
+        chain = '<span class="ok"></span>' if r["chain_ok"] else '<span class="ko"></span>'
+        prefix = f"{r['folder']}/" if r.get("folder") and r["folder"] != "." else ""
+        record = (
+            f"{_e(t('board.days', lang, n=r['days']))} {chain} · "
+            f'<a href="{_e(prefix)}index.csv">index.csv</a> · <a href="{_e(prefix + r["file"])}">json</a>'
+        )
+        day = _e(_date(r["date"], lang)) + (
+            f' <span class="warnmark">{_e(t("board.late_tag", lang))}</span>' if r.get("late") else ""
+        )
+        rows.append([name, day, regime, _e(_pct(r.get("p_stress"), lang)), week, alarm, since, record])
+    headers = [
+        (t("board.col.region", lang), False),
+        (t("tr.live.latest", lang), False),
+        (t("tr.col.regime", lang), False),
+        (t("tr.lg.p", lang), True),
+        (t("board.col.week", lang), True),
+        (t("tr.lg.alarm", lang), False),
+        (t("board.col.since", lang), False),
+        (t("board.col.record", lang), False),
+    ]
+    out.append(_table(headers, rows))
+    if late:
+        out.append('<div class="notice">' + "<br>".join(_e(x) for x in late) + "</div>")
+    out.append(f'<p class="small muted">{_e(t("board.note", lang))}</p>')
+    return "".join(out)
+
+
+def _challengers_section(card: dict | None, repo: str, lang: str) -> str:
+    """The challenger scorecard as the daily job wrote it (track_record/challengers/scorecard.json)."""
+    out = [
+        f'<h2 id="challengers"><span class="badge live">{_e(t("tr.badge.live", lang))}</span>'
+        f"{_e(t('board.ch.title', lang))}</h2>",
+        f'<p class="muted">{t("board.ch.intro", lang, doc=f"{repo}/blob/main/docs/CHALLENGERS.md")}</p>',
+    ]
+    if not card or not card.get("since"):
+        out.append(f'<div class="card">{_e(t("board.ch.none", lang))}</div>')
+        return "".join(out)
+    rows = []
+    for m in card["models"].values():
+        lat = m.get("median_latency")
+        pending = m.get("pending", 0) + m.get("false_alarms_pending", 0)
+        rows.append(
+            [
+                _e(m["name"]),
+                _e(m["days"]),
+                '<span class="ok"></span>' if m["chain_ok"] else '<span class="ko"></span>',
+                _e(m["alarm_days"]),
+                _e(m["episodes_scored"]),
+                _e(m["detected"]),
+                "–" if lat is None else _e(f"{lat:+.0f}"),
+                _e(m["false_alarms"]),
+                _e(pending),
+            ]
+        )
+    headers = [
+        (t("board.ch.model", lang), False),
+        (t("tr.col.days", lang), True),
+        (t("board.ch.chain", lang), False),
+        (t("board.ch.alarm_days", lang), True),
+        (t("board.ch.scored", lang), True),
+        (t("board.ch.detected", lang), True),
+        (t("tr.col.latency", lang), True),
+        (t("board.ch.false", lang), True),
+        (t("board.ch.pending", lang), True),
+    ]
+    since = t("board.ch.since", lang, since=_date(card["since"], lang), last=_date(card.get("last_market_day"), lang))
+    out.append(f'<p class="small muted">{_e(since)}</p>')
+    out.append(_table(headers, rows))
+    first = [e for e in card.get("episodes", []) if e.get("first")]
+    if first:
+        items = "".join(f"<li>{_e(_date(e['start'], lang))}: {_e(', '.join(e['first']))}</li>" for e in first)
+        out.append(f"<h3>{_e(t('board.ch.first', lang))}</h3><ul>{items}</ul>")
+    folder = card.get("folder")
+    if folder:
+        out.append(
+            f'<p class="small muted"><a href="{_e(folder)}/scorecard.md">scorecard.md</a> · '
+            f'<a href="{_e(folder)}/scorecard.json">scorecard.json</a></p>'
+        )
+    return "".join(out)
+
+
 def _backtest_section(bt: dict | None, bt_meta: dict, repo: str, lang: str) -> str:
     if bt is None:
         return (
@@ -774,11 +890,15 @@ def render(
     versions: list[dict] | None = None,
     theme: str | None = None,
     health: dict | None = None,
+    board: dict | None = None,
+    challengers: dict | None = None,
 ) -> str:
     """The whole page in `lang` (fr or en). `switch`: link to the other language's page (not inside the app).
     `theme`: "light" or "dark" to force it (the app); None follows the reader's system.
 
     `versions`: every backtest record (list_backtests), shown with the days the published model changed.
+    `board`: every published region's latest day (publish/board.py); `challengers`: the challenger scorecard.
+    Either one is left out of the page when None.
     """
     repo = settings["publish"].get("repository_url", "").rstrip("/")
     other = "fr" if lang == "en" else "en"
@@ -789,8 +909,10 @@ def render(
         + "</div>"
         f'<p class="muted">{_e(t("tr.subtitle", lang))}</p>'
         f'<p class="small muted">{_e(t("disclaimer", lang))} {_e(t("tr.no_signal", lang))}</p></header>',
+        _board_section(board, lang),
         _live_section(live, score, settings["validation"]["stress_probability_threshold"], lang, settings, health or {}),
         _verify_section(live, lang),
+        _challengers_section(challengers, repo, lang) if challengers is not None or board is not None else "",
         _backtest_section(bt, bt_meta, repo, lang),
         _versions_section(versions or [], bt["config_sha256"] if bt else None, live, repo, lang),
         f'<h2>{_e(t("tr.method.title", lang))}</h2><div class="card">{_method(settings, repo, lang)}</div>',
@@ -815,12 +937,17 @@ def write_pages(
     settings: dict,
     versions: list[dict] | None = None,
     health: dict | None = None,
+    board: dict | None = None,
+    challengers: dict | None = None,
 ) -> list[Path]:
     folder.mkdir(parents=True, exist_ok=True)
     paths = []
     for lang, name in LANGS.items():
         path = folder / name
-        path.write_text(render(live, score, bt, bt_meta, settings, lang, versions=versions, health=health), encoding="utf-8")
+        page = render(
+            live, score, bt, bt_meta, settings, lang, versions=versions, health=health, board=board, challengers=challengers
+        )
+        path.write_text(page, encoding="utf-8")
         paths.append(path)
     return paths
 
@@ -853,7 +980,16 @@ def build_site(pipeline, records_dir: Path, out_dir: Path | None = None) -> dict
     score = _score(pipeline, live)
     versions = _versions(records_dir, out_dir)
     pages = write_pages(
-        out_dir, live, score, bt, _meta(path, base), pipeline.settings, versions, _health.read_records(records_dir)
+        out_dir,
+        live,
+        score,
+        bt,
+        _meta(path, base),
+        pipeline.settings,
+        versions,
+        _health.read_records(records_dir),
+        board=_board.board(pipeline.settings, records_dir),
+        challengers=_board.read_scorecard(pipeline.settings, records_dir),
     )
     return {"backtest": path, "backtest_written": written, "pages": pages, "live": live, "score": score}
 
@@ -878,6 +1014,8 @@ def page_html(pipeline, records_dir: Path, lang: str, theme: str | None = None) 
         versions=versions,
         theme=theme,
         health=_health.read_records(records_dir),
+        board=_board.board(pipeline.settings, records_dir),
+        challengers=_board.read_scorecard(pipeline.settings, records_dir),
     )
 
 
