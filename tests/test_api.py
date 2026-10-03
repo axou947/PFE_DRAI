@@ -80,3 +80,16 @@ def test_calibration(client):
     assert body["calibrator"]["weights"]["max"] >= 0
     regime = client.get("/regime", params={"model": "combined", "date": "2020-03-20"}).json()
     assert regime["alarm"]["on"] is True and regime["calibration"]["combination"] == "calibrated"
+
+
+def test_regime_explain(client):
+    body = client.get("/regime/explain", params={"model": "combined", "date": "2020-03-16", "lang": "en"}).json()
+    assert body["date"] == "2020-03-16" and body["rule"]["label"] in ("expansion", "overheating", "slowdown", "stress")
+    for info in body["dimensions"].values():
+        assert abs(sum(c["contribution"] for c in info["contributions"]) - info["score"]) < 1e-9
+    assert body["text"]["rule"].startswith("The rule reads")
+    assert -1 <= min((r["change"] for r in body["alarm"]["drivers"]["inputs"]), default=0) <= 1
+    fr = client.get("/regime/explain", params={"model": "kmeans", "lang": "fr"}).json()
+    assert fr["text"]["rule"].startswith("La règle donne")
+    assert client.get("/regime/explain", params={"model": "nope"}).status_code == 400
+    assert client.get("/regime/explain", params={"date": "1990-01-01"}).status_code == 404

@@ -16,7 +16,8 @@ from app.learn_page import open_card as learn_open_card  # noqa: E402
 from app.learn_page import render as render_learn  # noqa: E402
 from pfe_drai.config import available_regions, load_settings, resolve  # noqa: E402
 from pfe_drai.data import available_providers  # noqa: E402
-from pfe_drai.features.build import active_features, score_dimension  # noqa: E402
+from pfe_drai.explain import dimension_inputs, explain, sentences  # noqa: E402
+from pfe_drai.features.build import active_features  # noqa: E402
 from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
 from pfe_drai.learn.cards import REGIME_CARD  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
@@ -57,6 +58,12 @@ def get_pipeline(provider: str, zone: str = "us") -> Pipeline:
 @st.cache_data(show_spinner=False)
 def get_probs(provider: str, model: str, zone: str = "us") -> pd.DataFrame:
     return get_pipeline(provider, zone).probabilities(model)
+
+
+@st.cache_data(show_spinner=False)
+def get_explanation(provider: str, model: str, zone: str, date: str, threshold: float) -> dict:
+    # `threshold` is part of the key: the sidebar slider changes the alarm the explanation reads.
+    return explain(get_pipeline(provider, zone), model, date)
 
 
 @st.cache_data(show_spinner=False, ttl=3600)
@@ -322,6 +329,51 @@ with tab_dash:
             st.plotly_chart(base_layout(fig, 520).update_layout(legend_itemsizing="constant"), width="stretch")
             st.caption(t("dash.states_cube", lang))
 
+    # Why this regime (pfe_drai/explain.py, docs/EXPLAIN.md): template sentences, no generated text.
+    explanation = get_explanation(provider, model, zone, as_of.date().isoformat(), threshold)
+    why = sentences(explanation, lang)
+    st.subheader(t("explain.title", lang))
+    st.markdown(why["rule"] + (f" {why['model']}" if why["model"] else ""))
+    for dim in ["stress", "growth", "inflation"]:
+        st.markdown(f"- {why['dimensions'][dim]}")
+    fig = go.Figure()
+    for dim in ["stress", "growth", "inflation"]:
+        rows = explanation["dimensions"][dim]["contributions"]
+        names = [t(f"feature.{r['feature']}", lang) for r in rows]
+        fig.add_bar(
+            y=names,
+            x=[r["contribution"] for r in rows],
+            orientation="h",
+            name=t(f"dimension.{dim}", lang),
+            marker_color=DIM_COLORS[dim],
+            customdata=[[r["z"], r["change_week"]] for r in rows],
+            hovertemplate="%{y}: %{x:+.2f} (z %{customdata[0]:+.2f}, 1w %{customdata[1]:+.2f})<extra></extra>",
+        )
+        fig.add_scatter(
+            y=names,
+            x=[r["week_ago"] for r in rows],
+            mode="markers",
+            name=t("explain.week_ago", lang),
+            marker=dict(symbol="line-ns-open", size=14, color=TEXT, line=dict(width=2)),
+            showlegend=dim == "stress",
+            hovertemplate="%{y}: %{x:+.2f}<extra>" + t("explain.week_ago", lang) + "</extra>",
+        )
+    n_rows = sum(len(d["contributions"]) for d in explanation["dimensions"].values())
+    fig.update_yaxes(autorange="reversed")
+    fig.update_xaxes(title=t("explain.contribution", lang))
+    fig.add_vline(x=0, line_color=MUTED, line_width=1)
+    st.plotly_chart(base_layout(fig, 90 + 30 * n_rows, bargap=0.3), width="stretch")
+    in_scores = {f for d in dimension_inputs(pipeline.settings).values() for f in d}
+    models_only = [t(f"feature.{f}", lang) for f in active_features(pipeline.settings) if f not in in_scores]
+    only = t("explain.models_only", lang, names=", ".join(models_only)) if models_only else ""
+    st.caption(f"{t('explain.intro', lang)} {only}".strip())
+
+    st.subheader(t("explain.flip_title", lang))
+    st.markdown(why["nearest"])
+    for line in why["what_if"]:
+        st.markdown(f"- {line}")
+    st.caption(" ".join(x for x in (t("explain.what_if_help", lang), why["held"], why["hidden"]) if x))
+
     c1, c2 = st.columns(2)
     with c1:
         st.subheader(t("dash.changes", lang))
@@ -338,33 +390,12 @@ with tab_dash:
         for k, v in sorted(moves.items(), key=lambda kv: -abs(kv[1]))[:3]:
             st.markdown(f"- {t(f'feature.{k}', lang)} : {fmt_num(v, lang)}")
     with c2:
-        st.subheader(t("dash.flip", lang))
-        for dim, dist in state.flip.items():
-            if dist <= 0:
-                st.markdown(f"- {t('dash.flip_crossed', lang, dimension=t(f'dimension.{dim}', lang))}")
-            else:
-                st.markdown(f"- {t(f'dash.flip_{dim}', lang, value=fmt_num(dist, lang).lstrip('+'))}")
-
-    st.subheader(t("dash.drivers", lang))
-    names = list(active_features(pipeline.settings))
-    fig = go.Figure()
-    # A feature outside every score (features.growth.inputs, docs/SLOWDOWN.md) still feeds the models.
-    for dim in ["stress", "growth", "inflation", None]:
-        feats = [f for f in names if score_dimension(f, pipeline.settings) == dim]
-        if not feats:
-            continue
-        fig.add_bar(
-            y=[t(f"feature.{f}", lang) for f in feats],
-            x=[state.drivers[f] for f in feats],
-            orientation="h",
-            name=t(f"dimension.{dim}", lang) if dim else t("dash.models_only", lang),
-            marker_color=DIM_COLORS[dim] if dim else MUTED,
-            hovertemplate="%{y}: %{x:+.2f}<extra></extra>",
-        )
-    fig.update_yaxes(autorange="reversed")
-    fig.add_vline(x=0, line_color=MUTED, line_width=1)
-    st.plotly_chart(base_layout(fig, 420, bargap=0.25), width="stretch")
-    st.caption(t("dash.drivers_help", lang))
+        st.subheader(t("explain.alarm_title", lang))
+        if why["alarm"]:
+            st.markdown(why["alarm"])
+        st.caption(why["occlusion"])
+        for line in why["occlusion_items"]:
+            st.markdown(f"- {line}")
 
     st.subheader(t("dash.timeline", lang))
     equity = pipeline.prices["equity"].loc[probs.index[0] : as_of]

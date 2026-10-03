@@ -9,6 +9,7 @@ notify     message when the published alarm or regime changed; --dry-run prints 
 track-record  build the public track-record page (track_record/index.html, fr.html); --out for a preview
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
+explain    why the regime: contributions to each score, what would flip the rule, alarm drivers (docs/EXPLAIN.md)
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
 slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
@@ -275,6 +276,34 @@ def cmd_episodes(args):
     print(f"{'start':<12} {'end':<12} {'trigger':<11} {'max drawdown':>13}")
     for ep in p.episodes:
         print(f"{ep.start.date()!s:<12} {ep.end.date()!s:<12} {ep.trigger:<11} {ep.max_drawdown:>13.1%}")
+
+
+def cmd_explain(args):
+    from .explain import explain, sentences
+
+    p = _pipeline(args)
+    exp = explain(p, args.model, args.date)
+    if args.json:
+        print(json.dumps(exp, indent=2, ensure_ascii=False))
+        return
+    text = sentences(exp, args.lang)
+    model = t(f"model.{exp['model']}", args.lang)
+    print(f"{t('explain.title', args.lang)} ({exp['date']}, {model})\n")
+    print(text["rule"] + (f" {text['model']}" if text["model"] else ""))
+    for dim, line in text["dimensions"].items():
+        print(f"- {line}")
+        for c in exp["dimensions"][dim]["contributions"]:
+            name = t(f"feature.{c['feature']}", args.lang)
+            print(f"    {name:<46} {c['contribution']:>+7.3f}   {c['change_week']:>+7.3f}")
+    print(f"\n{t('explain.flip_title', args.lang)}\n{text['nearest']}")
+    for line in text["what_if"]:
+        print(f"- {line}")
+    for line in (text["held"], text["hidden"]):
+        if line:
+            print(line)
+    print(f"\n{t('explain.alarm_title', args.lang)}\n{text['alarm']}\n{text['occlusion']}")
+    for line in text["occlusion_items"]:
+        print(f"- {line}")
 
 
 def cmd_states(args):
@@ -625,6 +654,7 @@ def main(argv=None):
         ("track-record", cmd_track_record),
         ("episodes", cmd_episodes),
         ("states", cmd_states),
+        ("explain", cmd_explain),
         ("holdout", cmd_holdout),
         ("calibration", cmd_calibration),
         ("slowdown", cmd_slowdown),
@@ -676,6 +706,9 @@ def main(argv=None):
             sp.add_argument(
                 "--check", action="store_true", help="check the docs' printed results against the records; no output files"
             )
+        if name == "explain":
+            sp.add_argument("--date", help="YYYY-MM-DD (default: latest)")
+            sp.add_argument("--json", action="store_true", help="the full explanation as JSON")
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
             sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])
