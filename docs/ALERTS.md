@@ -67,7 +67,7 @@ the workflow, or `notify` by hand, finds that file and skips what was already se
 the other did not, only the failed one is retried. `--force` sends again. If the file was never committed
 (the step failed after sending), run `notify --dry-run` first and decide before re-sending.
 
-A failed send logs the channel name and the error class (for example `ConnectError`), never the message
+A failed send logs the channel name and the error class and the step (for example `ConnectError`, or `SMTPAuthenticationError at login`), never the message
 text, address or URL.
 
 ## Privacy

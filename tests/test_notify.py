@@ -268,3 +268,19 @@ def test_alerts_do_not_change_the_model_fingerprint(cfg):
     from pfe_drai.publish.snapshot import config_fingerprint
 
     assert config_fingerprint(cfg).startswith("7d25ca34")
+
+
+def test_email_failure_names_the_step_and_class_only(monkeypatch):
+    class Refusing(FakeSMTP):
+        def login(self, user, password):
+            raise smtplib.SMTPAuthenticationError(535, b"bad pw-secret-value for user-secret-name")
+
+    monkeypatch.setattr(smtplib, "SMTP", Refusing)
+    result = notify.deliver("s", "t", "h", ["email"], SECRETS)
+    assert result == {"email": "SMTPAuthenticationError at login"}
+
+    def cut(*args, **kwargs):
+        raise smtplib.SMTPServerDisconnected("Connection unexpectedly closed")
+
+    monkeypatch.setattr(smtplib, "SMTP", cut)
+    assert notify.deliver("s", "t", "h", ["email"], SECRETS) == {"email": "SMTPServerDisconnected at connect"}

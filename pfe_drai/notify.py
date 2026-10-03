@@ -130,6 +130,13 @@ def _error_name(exc: BaseException) -> str:
     return type(exc).__name__  # never the message: it can hold a host, an address or a URL
 
 
+class StageError(Exception):
+    """A send step failed: keeps only the step name and the error class (never the message)."""
+
+    def __init__(self, stage: str, cause: BaseException):
+        super().__init__(f"{_error_name(cause)} at {stage}")
+
+
 def send_email(subject: str, text: str, html: str, recipients: list[str], env) -> None:
     host, sender = env.get("ALERT_SMTP_HOST", ""), env.get("ALERT_EMAIL_FROM", "")
     port = int(env.get("ALERT_SMTP_PORT") or 587)
@@ -140,13 +147,20 @@ def send_email(subject: str, text: str, html: str, recipients: list[str], env) -
         message["Subject"], message["From"], message["To"] = subject, sender, to
         message.set_content(text)
         message.add_alternative(html, subtype="html")
-        factory = smtplib.SMTP_SSL if port == 465 else smtplib.SMTP
-        with factory(host, port, timeout=30) as server:
-            if port != 465:
-                server.starttls(context=ssl.create_default_context())
-            if env.get("ALERT_SMTP_USER"):
-                server.login(env["ALERT_SMTP_USER"], env.get("ALERT_SMTP_PASSWORD", ""))
-            server.send_message(message)
+        stage = "connect"
+        try:
+            factory = smtplib.SMTP_SSL if port == 465 else smtplib.SMTP
+            with factory(host, port, timeout=30) as server:
+                if port != 465:
+                    stage = "starttls"
+                    server.starttls(context=ssl.create_default_context())
+                if env.get("ALERT_SMTP_USER"):
+                    stage = "login"
+                    server.login(env["ALERT_SMTP_USER"], env.get("ALERT_SMTP_PASSWORD", ""))
+                stage = "send"
+                server.send_message(message)
+        except Exception as exc:  # noqa: BLE001
+            raise StageError(stage, exc) from None
 
 
 def send_webhook(subject: str, text: str, env, client: httpx.Client | None = None) -> None:
@@ -187,7 +201,7 @@ def deliver(subject, text, html, channels, env, source: SubscriberSource | None 
                 raise ValueError("unknown channel")
             result[name] = "sent"
         except Exception as exc:  # noqa: BLE001 - alerting must never raise into the daily job
-            result[name] = _error_name(exc)
+            result[name] = str(exc) if isinstance(exc, StageError) else _error_name(exc)
     return result
 
 
