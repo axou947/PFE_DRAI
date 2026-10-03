@@ -48,6 +48,7 @@ python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du dét
 python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
 python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix des indicateurs de croissance, 1999-2009 (docs/SLOWDOWN.md)
 python -m pfe_drai --provider fred slowdown     # Ralentissement : avant / après, contre l'indice d'activité de la Fed de Chicago
+python -m pfe_drai --provider fred overheating  # Surchauffe : un vote par indicateur ou par source, contre l'inflation PCE de base (docs/INFLATION.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon
 python -m pfe_drai --region uk data          # même chose pour une autre zone : euro, uk, japan, em (docs/REGIONS.md)
 python -m pfe_drai --provider fred publish    # entrée du jour dans track_record/ (données réelles uniquement)

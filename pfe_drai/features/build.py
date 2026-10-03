@@ -154,9 +154,42 @@ def growth_score(z: pd.DataFrame, settings: dict) -> pd.Series:
     return growth.rename("growth")
 
 
+def _inflation_cfg(settings: dict | None) -> dict:
+    return (settings or {}).get("features", {}).get("inflation", {})
+
+
+def inflation_groups(settings: dict | None) -> list[list[str]]:
+    """How the inflation inputs vote (features.inflation, docs/INFLATION.md).
+
+    weighting `inputs` (until v2.2): one vote per input. `sources`: one vote per data source, the inputs
+    of one source averaged first, so two inputs read off the same series (the breakeven's level and its
+    change) count once. Sources a region does not have are left out.
+    """
+    active = [f for f, d in active_features(settings).items() if d == "inflation"]
+    cfg = _inflation_cfg(settings)
+    if cfg.get("weighting", "inputs") != "sources":
+        return [[f] for f in active]
+    groups = [[f for f in inputs if f in active] for inputs in cfg["sources"].values()]
+    listed = {f for inputs in cfg["sources"].values() for f in inputs}
+    return [g for g in groups if g] + [[f] for f in active if f not in listed]
+
+
+def inflation_weights(settings: dict | None) -> dict[str, float]:
+    """Weight of each inflation input in the inflation score (they add up to 1)."""
+    groups = inflation_groups(settings)
+    return {f: 1 / (len(groups) * len(g)) for g in groups for f in g}
+
+
+def inflation_score(z: pd.DataFrame, settings: dict | None) -> pd.Series:
+    """Average over the sources of the average of each source's z-scores (features.inflation)."""
+    parts = [z[g].mean(axis=1) for g in inflation_groups(settings)]
+    return pd.concat(parts, axis=1).mean(axis=1).rename("inflation")
+
+
 def dimension_scores(z: pd.DataFrame, settings: dict | None = None) -> pd.DataFrame:
     scores = {dim: z[[f for f, d in active_features(settings).items() if d == dim]].mean(axis=1) for dim in DIMENSIONS}
     scores["growth"] = growth_score(z, settings or {"features": {}})
+    scores["inflation"] = inflation_score(z, settings)
     return pd.DataFrame(scores)
 
 

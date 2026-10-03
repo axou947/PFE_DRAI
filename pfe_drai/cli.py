@@ -13,6 +13,7 @@ explain    why the regime: contributions to each score, what would flip the rule
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
 slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
+overheating  inflation score, one vote per input against one vote per source, against core PCE (docs/INFLATION.md)
 data       history covered by each series and where the backtest starts
 world      country equity markets: return and market stress state on a date (docs/WORLD.md)
 thesis     methods and results document built from docs/ and the records (docs/thesis/); --check compares docs and records
@@ -386,6 +387,83 @@ def cmd_holdout(args):
         print(f"\nSelected by the pre-registered rule: {res.rows.loc[res.chosen, 'candidate']}")
 
 
+def _print_detection(runs: list[dict]) -> None:
+    """Detection and calibration of a before/after run side by side, then every episode's latency."""
+    det = [
+        ("stress episodes detected", lambda r: f"{r['detected']}/{r['n_episodes']}"),
+        ("median latency (days)", lambda r: f"{r['median_latency']:.1f}"),
+        ("median latency, all episodes", lambda r: f"{r['median_latency_all']:.1f}"),
+        ("false positives a year", lambda r: f"{r['false_positives_per_year']:.2f}"),
+        ("calm days in false alarm", lambda r: f"{r['false_alarm_share']:.1%}"),
+        ("regime switches a year", lambda r: f"{r['switches_per_year']:.1f}"),
+        ("Brier", lambda r: f"{r['brier']:.3f}"),
+        ("ECE", lambda r: f"{r['ece']:.3f}"),
+    ]
+    for label, fmt in det:
+        print(f"{label:<54} " + " ".join(f"{fmt(r):>9}" for r in runs))
+    lat = [r["episodes"].set_index("start")["latency_days"] for r in runs]
+    print("\nLatency per episode (business days; negative = signal already on):")
+    for start in lat[0].index:
+        cells = ["missed" if v != v or v is None else f"{int(v):+d}" for v in (lat[0].get(start), lat[1].get(start))]
+        print(f"  {start.date()!s:<12} {cells[0]:>7} {cells[1]:>7}")
+
+
+def cmd_overheating(args):
+    from .config import _deep_merge
+    from .validation.overheating import decide, overheating_report
+
+    p = _pipeline(args)
+    model = args.model or p.settings["models"]["default"]
+    cfg = p.settings["overheating"]
+
+    def variant(name):
+        return p.with_settings(_deep_merge(p.settings, {"features": {"inflation": cfg[name]["inflation"]}}))
+
+    # The published inflation score (one vote per input) against the pre-registered v2.3, on the same data.
+    runs = {"before": variant("before"), "after": variant("tested")}
+    results = {name: {"overheating": overheating_report(q, model), "detection": q.evaluate(model)} for name, q in runs.items()}
+    reference = results["after"]["overheating"]["reference"]
+    data = "real" if p.provider.is_live else "SIMULATED"
+    index = runs["after"].probabilities(model).index
+    print(
+        f"Inflation score, one vote per input (before) and per source (after) ({data} data, provider {p.provider.name}, "
+        f"model {model}), out-of-sample from {index[0].date()} to {index[-1].date()}. "
+        f"Reference: {reference or 'none (no core inflation series)'}. See docs/INFLATION.md."
+    )
+    rows = [
+        ("rule: days in Overheating", "overheating_share", "{:.1%}"),
+        ("rule: Overheating spells a year", "spells_per_year", "{:.2f}"),
+        ("rule: median Overheating spell (days)", "median_spell", "{:.0f}"),
+        ("inflation above threshold vs reference (bal. acc.)", "inflation_ba", "{:.3f}"),
+        ("refits with a state named Overheating, >= 50% agr.", "state_share", "{:.0%}"),
+        ("displayed: days shown as Overheating", "shown_share", "{:.1%}"),
+        ("displayed Overheating vs reference (bal. acc.)", "shown_ba", "{:.3f}"),
+        ("displayed: reference overheating days found", "shown_recall", "{:.1%}"),
+        ("displayed: Overheating days that are reference", "shown_precision", "{:.1%}"),
+        ("reference: days of high inflation", "reference_share", "{:.1%}"),
+    ]
+    print(f"\n{'':<54} {'before':>9} {'after':>9}")
+    for label, key, fmt in rows:
+        cells = [results[n]["overheating"]["summary"][key] for n in ("before", "after")]
+        print(f"{label:<54} " + " ".join(f"{'-' if c != c else fmt.format(c):>9}" for c in cells))
+    _print_detection([results[n]["detection"] for n in ("before", "after")])
+    if reference is None:
+        print("\nNo reference series for this provider: the decision needs --provider fred.")
+        return
+    decision = decide(
+        *(
+            {"overheating": results[n]["overheating"]["summary"], "detection": results[n]["detection"]}
+            for n in ("before", "after")
+        ),
+        p.settings,
+    )
+    print("\nPre-registered decision (docs/INFLATION.md):")
+    for label, ok in decision["checks"].items():
+        print(f"  [{'x' if ok else ' '}] {label}")
+    verdict = "ADOPT one vote per source (v2.3)" if decision["adopt"] else "KEEP one vote per input (v2.2)"
+    print(f"Decision: {verdict}.")
+
+
 def cmd_slowdown(args):
     import pandas as pd
 
@@ -453,23 +531,7 @@ def cmd_slowdown(args):
     for label, key, fmt in rows:
         cells = [results[n]["slowdown"]["summary"][key] for n in ("before", "after")]
         print(f"{label:<54} " + " ".join(f"{'-' if c != c else fmt.format(c):>9}" for c in cells))
-    det = [
-        ("stress episodes detected", lambda r: f"{r['detected']}/{r['n_episodes']}"),
-        ("median latency (days)", lambda r: f"{r['median_latency']:.1f}"),
-        ("median latency, all episodes", lambda r: f"{r['median_latency_all']:.1f}"),
-        ("false positives a year", lambda r: f"{r['false_positives_per_year']:.2f}"),
-        ("calm days in false alarm", lambda r: f"{r['false_alarm_share']:.1%}"),
-        ("regime switches a year", lambda r: f"{r['switches_per_year']:.1f}"),
-        ("Brier", lambda r: f"{r['brier']:.3f}"),
-        ("ECE", lambda r: f"{r['ece']:.3f}"),
-    ]
-    for label, fmt in det:
-        print(f"{label:<54} " + " ".join(f"{fmt(results[n]['detection']):>9}" for n in ("before", "after")))
-    lat = [results[n]["detection"]["episodes"].set_index("start")["latency_days"] for n in ("before", "after")]
-    print("\nLatency per episode (business days; negative = signal already on):")
-    for start in lat[0].index:
-        cells = ["missed" if v != v or v is None else f"{int(v):+d}" for v in (lat[0].get(start), lat[1].get(start))]
-        print(f"  {start.date()!s:<12} {cells[0]:>7} {cells[1]:>7}")
+    _print_detection([results[n]["detection"] for n in ("before", "after")])
     states = results["after"]["slowdown"]["states"]
     if len(states):
         print("\nAfter: Slowdown in the jump model at each refit (first day predicted, states named Slowdown, best agreement):")
@@ -658,6 +720,7 @@ def main(argv=None):
         ("holdout", cmd_holdout),
         ("calibration", cmd_calibration),
         ("slowdown", cmd_slowdown),
+        ("overheating", cmd_overheating),
         ("data", cmd_data),
         ("world", cmd_world),
         ("thesis", cmd_thesis),

@@ -3,12 +3,13 @@
 Read-only. It reuses the pipeline's z-scores, scores and walk-forward fits and changes nothing that is
 published or backtested (docs/EXPLAIN.md). Three parts:
 
-1. Score decomposition. A dimension score is the plain average of its inputs' z-scores, so each input
-   contributes z / n. The growth score is then averaged over `features.growth.smooth_days` days, so an
-   input's contribution to it is the same average of its z / n. Contributions sum to the score exactly.
+1. Score decomposition. A dimension score is a weighted average of its inputs' z-scores, so each input
+   contributes z x w. The weights are 1 / n, except the inflation inputs when they vote by source
+   (features.inflation, docs/INFLATION.md). The growth score is then averaged over `features.growth.smooth_days` days, so an
+   input's contribution to it is the same average of its z x w. Contributions sum to the score exactly.
 2. Flip conditions. Which step of the rule (regimes.rule_labels) gives today's label, how far each score is
    from the threshold that would change it, and per input how much its z-score would have to move alone.
-   The score is linear in each z, so the needed move is (distance to the threshold) x n. For growth, the
+   The score is linear in each z, so the needed move is (distance to the threshold) / w. For growth, the
    move is held over the averaging window. Moves beyond the z-score clip cannot happen and are hidden.
 3. Alarm drivers. The highest stress source on the day and, for it, an occlusion: each input alone is put
    back to its value of a week earlier, the same fitted model is evaluated again, and the change in its
@@ -21,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from .features import DIMENSIONS, FEATURES
-from .features.build import active_features, align, dimension_scores, growth_inputs, raw_features
+from .features.build import active_features, align, dimension_scores, growth_inputs, inflation_weights, raw_features
 from .features.market import INPUT_SETS
 from .i18n import fmt_date, fmt_num, fmt_pct, t
 from .models import get_model
@@ -55,6 +56,13 @@ def dimension_inputs(settings: dict) -> dict[str, list[str]]:
     return inputs
 
 
+def input_weights(settings: dict) -> dict[str, dict[str, float]]:
+    """Weight of each input in its dimension score: equal, except the inflation sources (docs/INFLATION.md)."""
+    weights = {dim: {f: 1 / len(inputs) for f in inputs} for dim, inputs in dimension_inputs(settings).items()}
+    weights["inflation"] = inflation_weights(settings)
+    return weights
+
+
 def smooth_days(settings: dict) -> int:
     days = settings["features"].get("growth", {}).get("smooth_days", 0) or 0
     return int(days) if days > 1 else 1
@@ -64,8 +72,8 @@ def contributions(pipeline) -> dict[str, pd.DataFrame]:
     """Each input's contribution to each dimension score, on every day. Rows sum to the score."""
     z = pipeline.features
     out = {}
-    for dim, inputs in dimension_inputs(pipeline.settings).items():
-        part = z[inputs] / len(inputs)
+    for dim, weights in input_weights(pipeline.settings).items():
+        part = z[list(weights)] * pd.Series(weights)
         if dim == "growth":
             part = part.rolling(smooth_days(pipeline.settings), min_periods=1).mean()
         out[dim] = part
@@ -161,13 +169,13 @@ def what_ifs(pipeline, date: pd.Timestamp, flips: dict[str, dict | None]) -> tup
     window = smooth_days(settings)
     scales = _raw_scales(pipeline, date)
     possible, hidden = [], []
-    for dim, inputs in dimension_inputs(settings).items():
+    for dim, weights in input_weights(settings).items():
         flip = flips[dim]
         if flip is None:
             continue
         rows = z.iloc[max(0, pos - window + 1) : pos + 1] if dim == "growth" else z.iloc[pos : pos + 1]
-        for f in inputs:
-            dz = flip["score_change"] * len(inputs)
+        for f, w in weights.items():
+            dz = flip["score_change"] / w
             after = rows[f] + dz
             item = {
                 "feature": f,
@@ -335,6 +343,7 @@ def explain(pipeline, model: str | None = None, date=None) -> dict:
     days = {"today": date, "week_ago": scores.index[max(0, pos - WEEK)], "month_ago": scores.index[max(0, pos - MONTH)]}
     parts = contributions(pipeline)
     inputs = dimension_inputs(settings)
+    weights = input_weights(settings)
 
     dimensions = {}
     for dim in DIMENSIONS:
@@ -346,6 +355,7 @@ def explain(pipeline, model: str | None = None, date=None) -> dict:
                 {
                     "feature": f,
                     "z": float(pipeline.features.at[date, f]),
+                    "weight": weights[dim][f],
                     "contribution": c["today"],
                     "week_ago": c["week_ago"],
                     "month_ago": c["month_ago"],

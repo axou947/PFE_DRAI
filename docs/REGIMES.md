@@ -19,6 +19,10 @@ dimension scores. A high score means "more" of the dimension.
 | Growth | 6-month equity momentum, 10y-2y curve slope, industrial production (1 year), jobless claims (3 months, sign flipped) |
 | Inflation | CPI (1 year), 10-year breakeven level, breakeven change (3 months), 2-year rate change (6 months) |
 
+Each score is the plain average of its inputs' z-scores. One vote per source for inflation (CPI, the
+breakeven, the 2-year rate) was tested and not adopted: it made Overheating worse on simulated data
+([INFLATION.md](INFLATION.md)).
+
 ## 2. The rule that defines the four regimes
 
 > **v2.2, adopted 2026-10-01 ([SLOWDOWN.md](SLOWDOWN.md)):** a real Slowdown regime. The growth
