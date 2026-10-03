@@ -1,6 +1,6 @@
 # UK, Japan and emerging markets: data decisions and pre-registration
 
-**Status: pre-registered on 2026-10-03, before any real run of these three regions. Not run yet.**
+**Status: pre-registered on 2026-10-03, then RUN once the same day: the UK, Japan and emerging markets all PASS the seven conditions (Japan narrowly, see Results).** They stay unpublished until a separate PR switches `publish.enabled` on, as fixed below.
 
 Three experimental regions are added the way the euro area was ([EURO.md](EURO.md)): `--region uk`, `--region japan` and
 `--region em`, each an overlay of `config/settings.yaml` in `config/regions/<region>.yaml`. The US model (v2.2), its frozen
@@ -213,6 +213,70 @@ from 2002, India and China join when their series start. Only coverage was seen,
 composites keep half. Re-run by Henry the same day: the long-term yield composite now starts on 2003-05-05; EMB (December 2007) binds, so the
 emerging-market features start on 2009-03-20 and the out-of-sample period on 2014-03-24.
 
-### Real backtests
+### Real backtests (run once by Henry, 2026-10-03)
 
-Not run yet.
+`--region <region> backtest`, then `calibration` and `states` on the same data, after the coverage above. Out-of-sample: UK and
+Japan 2003-05-21 to 2026-09-25 (5,816 days), emerging markets 2014-03-24 to 2026-10-02 (3,147 days).
+
+| region / model | episodes | detected | median latency | all episodes | FP/yr | calm days in alarm | Brier | ECE |
+|---|---|---|---|---|---|---|---|---|
+| UK, combined (the model) | 15 | 15 | 0.0 | 0.0 | 0.90 | 6.6% | 0.100 | 0.061 |
+| UK, v2 (same alarm, uncalibrated P) | 15 | 15 | 0.0 | 0.0 | 0.90 | 6.6% | 0.115 | 0.095 |
+| UK, onset alone | 15 | 15 | 0.0 | 0.0 | 0.60 | 2.6% | 0.100 | 0.083 |
+| UK, v1 (jump + gbm) | 15 | 2 | 5.5 | 60.0 | 0.34 | 3.9% | 0.142 | 0.139 |
+| Japan, combined (the model) | 22 | 20 | 0.0 | 0.0 | 0.99 | 9.0% | 0.203 | 0.039 |
+| Japan, v2 | 22 | 20 | 0.0 | 0.0 | 0.99 | 9.0% | 0.236 | 0.209 |
+| Japan, onset alone | 22 | 20 | 0.0 | 0.0 | 0.64 | 2.6% | 0.208 | 0.183 |
+| Japan, v1 | 22 | 4 | 9.0 | 60.0 | 0.39 | 6.5% | 0.307 | 0.303 |
+| EM, combined (the model) | 15 | 15 | -3.0 | -3.0 | 1.04 | 5.0% | 0.190 | 0.077 |
+| EM, v2 | 15 | 15 | -3.0 | -3.0 | 1.04 | 5.0% | 0.218 | 0.193 |
+| EM, onset alone | 15 | 15 | -3.0 | -3.0 | 1.04 | 5.0% | 0.220 | 0.201 |
+| EM, v1 | 15 | 0 | n/a | 60.0 | 0.00 | 0.0% | 0.291 | 0.286 |
+
+Latency per episode, `combined` (business days, negative = signal already on):
+
+- UK: 2006-06-13 -13; 2007-08-15 -11; 2008-01-15 -16; 2010-05-06 +1; 2011-08-04 +2; 2012-05-17 +4; 2013-06-24 -4; 2014-10-16 +7;
+  2014-12-15 +1; 2015-08-20 +3; 2018-03-22 -20; 2018-10-24 -2; 2020-02-27 +0; 2022-10-11 -7; 2025-04-07 +2.
+- Japan: 2003-11-17 -4; 2004-05-10 +2; 2004-08-05 -12; 2006-05-22 +0; 2007-08-10 +5; 2010-05-19 -7; 2011-03-11 +3; 2012-05-02
+  **missed**; 2013-05-29 +5; 2013-08-15 -4; 2014-02-03 +1; 2014-10-15 +0; 2015-08-21 +1; 2018-02-08 -1; 2018-07-02 **missed**;
+  2018-10-22 +0; 2020-02-27 -1; 2022-02-23 -17; 2022-04-26 -3; 2022-09-27 +4; 2024-08-01 +2; 2026-03-20 -4.
+- Emerging markets: 2014-10-01 -2; 2015-06-04 -3; 2016-11-14 +1; 2018-02-08 +2; 2018-04-24 -19; 2019-05-09 +0; 2019-08-05 +1;
+  2020-02-25 -18; 2021-03-24 -10; 2021-07-26 -10; 2023-09-26 -20; 2024-12-31 +1; 2025-04-04 +2; 2026-03-12 -3; 2026-06-15 -4
+  (the only episode opened by the volatility line).
+
+Calibration (`calibration`): observed frequency of the stress event UK 13.5%, Japan 29.7%, EM 29.8%. Brier skill of the calibrated
+P(stress): UK 0.15, Japan 0.03, EM 0.09 (the uncalibrated detector score: 0.02, -0.13, -0.04). The calibrator's weight on the
+alarm score rose from 0.06 to 0.27 (UK), 0.00 to 0.18 (Japan) and stayed between 0.23 and 0.34 (EM); in the euro run it stayed
+between 0.00 and 0.13.
+
+States (`states`): the Slowdown state is named in 47 of 47 refits (UK), 47 of 47 (Japan) and 26 of 26 (EM); agreement with the rule
+is a median 75% (lowest 15%), 77% (lowest 25%) and 63% (lowest 9%).
+
+### Decision rule applied (the conditions are those fixed above, not edited)
+
+| # | Condition | UK | Japan | Emerging markets |
+|---|---|---|---|---|
+| 1 | at least 6 episodes | 15, yes | 22, yes | 15, yes |
+| 2 | at least 80% detected | 15 of 15, yes | 20 of 22 (91%), yes | 15 of 15, yes |
+| 3 | median latency at most 5 days | 0.0, yes | 0.0, yes | -3.0, yes |
+| 4 | at most 1.5 false alarms a year | 0.90, yes | 0.99, yes | 1.04, yes |
+| 5 | at most 10% of calm days in alarm | 6.6%, yes | 9.0%, yes | 5.0%, yes |
+| 6 | ECE at most 0.08 and Brier skill above 0 | 0.061 and 0.15, yes | 0.039 and 0.03, yes | 0.077 and 0.09, yes |
+| 7 | Slowdown named in at least half of the refits | 47 of 47, yes | 47 of 47, yes | 26 of 26, yes |
+
+**Verdict: uk-v1, japan-v1 and em-v1 pass.** As pre-registered, each may be published daily in `track_record/<region>/` through a
+separate PR that switches its `publish.enabled` and adds a `continue-on-error` step to the daily workflow.
+
+### What this does and does not show
+
+- **The detection comes from the onset detector.** The jump and gbm models detect 2 (UK), 4 (Japan) and 0 (EM) episodes on their
+  own; in emerging markets the jump model has no Stress state in 19 of 26 refits (only 66 rule Stress days in its training data).
+  The regions' alarms are the US onset detector learnt on each region's own episodes, walk-forward.
+- **Japan passes narrowly**: Brier skill 0.03 and 9.0% of calm days in alarm, against limits of 0 and 10%. Its episode rule dates
+  22 episodes, many of them shallow (11 between -10% and -15%), and its stress event covers 29.7% of days.
+- **Emerging markets pass with an ECE of 0.077** against a limit of 0.08, on a shorter out-of-sample period (2014 to 2026).
+- **Pre-registered reading.** Condition 6 holds in the UK and Japan with local-currency equity, which makes the dollar-priced ETF the
+  more likely cause of the euro failure. This is an indication, not a test: no euro series in euros was run, and doing so needs its
+  own pre-registration. Emerging markets also hold condition 6 in dollars, which fits currency moves being part of what
+  emerging-market stress is.
+- The real episodes of the three regions are now seen. Any retuning needs its own pre-registration with a reason written beforehand.

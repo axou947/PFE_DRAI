@@ -110,7 +110,7 @@ API : `GET /regime`, `/regime/history`, `/regime/states`, `/metrics`, `/calibrat
 
 - **Autres zones (expérimentales)** : `--region euro`, `uk`, `japan` ou `em` applique le même modèle aux données de la zone
   (BCE/Eurostat ; Banque d'Angleterre, ministère des Finances japonais, OCDE, BRI : aucune nouvelle clé). Chaque zone a sa règle
-  de décision pré-enregistrée et n'est publiée que si elle la passe ; la zone euro ne l'a pas passée.
+  de décision pré-enregistrée et n'est publiée que si elle la passe ; la zone euro ne l'a pas passée, le Royaume-Uni, le Japon et les émergents l'ont passée (2026-10-03).
   Voir [docs/EURO.md](docs/EURO.md) et [docs/REGIONS.md](docs/REGIONS.md).
 
 Détails : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
