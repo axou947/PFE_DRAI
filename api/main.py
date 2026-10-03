@@ -179,6 +179,25 @@ def world_link_view(date: str | None = None, window: int = 252, lang: Lang = "fr
     }
 
 
+@app.get("/regime/explain")
+def regime_explain(model: str | None = None, date: str | None = None, lang: Lang = "fr"):
+    """Why the regime on `date` (default: latest) is what it is (docs/EXPLAIN.md).
+
+    Each input's contribution to the three scores (today, a week and a month ago), the rule step that
+    decides, the move each input would need alone to flip the rule, the highest stress source and the
+    inputs that moved it since last week (occlusion). `text` holds the same in plain sentences.
+    """
+    from pfe_drai.explain import explain, sentences
+
+    p = pipeline()
+    probs = p.probabilities(_model(model))
+    if date and pd.Timestamp(date) < probs.index[0]:
+        raise HTTPException(404, t("api.not_found", lang))
+    body = explain(p, _model(model), date)
+    body["text"] = sentences(body, lang)
+    return body
+
+
 @app.get("/regime/states")
 def regime_states(model: str | None = None, date: str | None = None, lang: Lang = "fr"):
     """How the model's unsupervised states map to the regimes (docs/REGIMES.md).

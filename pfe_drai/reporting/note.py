@@ -4,6 +4,7 @@ import html
 
 import pandas as pd
 
+from ..explain import explain, note_lines
 from ..i18n import fmt_date, fmt_num, fmt_pct, t
 from ..scenarios import Fund, impact_table, load_funds, load_library, rank_scenarios
 
@@ -102,6 +103,8 @@ def build_note(
         ),
         "dimensions": dims,
         "drivers": [{"name": t(f"feature.{k}", lang), "value": fmt_num(v, lang)} for k, v in drivers],
+        # 4 to 6 template sentences on what drives the reading (pfe_drai/explain.py, docs/EXPLAIN.md).
+        "why": note_lines(explain(pipeline, state.model, state.date), lang),
         "changes": changes,
         "scenarios": scen_rows,
         "impact_assets": [{"name": t(f"asset.{a}", lang), "weight": fmt_pct(fund.weights.get(a, 0.0), lang)} for a in assets],
@@ -141,6 +144,7 @@ def to_markdown(note: dict) -> str:
     lines += [f"| {d['name']} | {d['score']} | {d['change']} |" for d in note["dimensions"]]
     lines += ["", f"{t('note.top_drivers', lang)} :" if lang == "fr" else f"{t('note.top_drivers', lang)}:", ""]
     lines += [f"- {d['name']} : {d['value']}" if lang == "fr" else f"- {d['name']}: {d['value']}" for d in note["drivers"]]
+    lines += ["", f"### {t('note.why', lang)}", ""] + [f"- {line}" for line in note["why"]]
     lines += ["", f"## {t('note.s3', lang)}", ""] + [f"- {c}" for c in note["changes"]]
     lines += [
         "",
@@ -210,6 +214,8 @@ def to_html(note: dict) -> str:
         ),
         f"<p>{e(t('note.top_drivers', lang))}</p>",
         table([t("note.col.indicator", lang), t("note.col.score", lang)], [(d["name"], d["value"]) for d in note["drivers"]]),
+        f"<h3>{e(t('note.why', lang))}</h3>",
+        "<ul>" + "".join(f"<li>{e(line)}</li>" for line in note["why"]) + "</ul>",
         f"<h2>{e(t('note.s3', lang))}</h2>",
         "<ul>" + "".join(f"<li>{e(c)}</li>" for c in note["changes"]) + "</ul>",
         f"<h2>{e(t('note.s4', lang))}</h2>",
@@ -296,6 +302,9 @@ def to_pdf(note: dict) -> bytes:
     rows([(f"{d['name']} ({d['change']})", d["score"]) for d in note["dimensions"]])
     para(t("note.top_drivers", lang), 10, "I")
     rows([(d["name"], d["value"]) for d in note["drivers"]])
+    para(t("note.why", lang), 10, "I")
+    for line in note["why"]:
+        para(f"- {line}")
     heading(t("note.s3", lang))
     for c in note["changes"]:
         para(f"- {c}")
