@@ -1,0 +1,144 @@
+id: fed_policy
+theme: macro
+icon: "🏛️"
+title: {en: Interest rates and the Fed, fr: Les taux d'intérêt et la Fed}
+indicators: [policy_rate, effr, bill_3m, us2y]
+chart: [policy_rate, us2y]
+leads_to:
+  - {card: yield_curve, en: "moves the short end of the curve", fr: "fait bouger le court de la courbe"}
+  - {card: housing, en: "mortgage rates follow", fr: "les taux immobiliers suivent"}
+  - {card: firm_investment, en: "cost of capital", fr: "coût du capital"}
+  - {card: dollar, en: "higher US rates attract capital", fr: "des taux US plus hauts attirent les capitaux"}
+  - {card: credit, en: "tighter financial conditions", fr: "conditions financières plus strictes"}
+facts:
+  en:
+    - The Fed sets a target range for the overnight federal funds rate, eight times a year at FOMC meetings.
+    - "It has a dual mandate: maximum employment and stable prices (2% inflation)."
+    - Raising rates cools demand and inflation; cutting rates supports activity, with effects that take months to years.
+  fr:
+    - La Fed fixe une fourchette cible pour le taux des fonds fédéraux au jour le jour, huit fois par an lors des réunions du FOMC.
+    - "Elle a un double mandat : le plein emploi et des prix stables (2 % d'inflation)."
+    - Monter les taux refroidit la demande et l'inflation ; les baisser soutient l'activité, avec des effets qui prennent des mois, voire des années.
+beginner:
+  en:
+    summary: The price of borrowing money, set by the US central bank.
+    what: >-
+      The Fed decides the interest rate banks pay to borrow from each other overnight. That rate spreads to almost
+      every loan: credit cards, car loans, mortgages, business loans. It meets eight times a year to decide whether to
+      raise it (a "hike"), lower it (a "cut") or leave it unchanged (a "hold").
+    good: >-
+      Higher rates reward savers and stop the economy from overheating when prices rise too fast. Lower rates help
+      people and firms borrow to buy a home, invest or hire, which is useful when the economy is weak.
+    bad: >-
+      Rates that are too high for too long make loans painful and can push the economy into a recession. Rates that
+      are too low for too long can feed inflation or bubbles in house or stock prices.
+    next: >-
+      The Fed watches two things: prices and jobs. If inflation is high and jobs are plentiful, it tends to hike.
+      If unemployment rises and inflation is calm, it tends to cut. "Hawkish" means leaning towards higher rates;
+      "dovish" means leaning towards lower rates.
+  fr:
+    summary: Le prix de l'argent emprunté, fixé par la banque centrale américaine.
+    what: >-
+      La Fed fixe le taux auquel les banques se prêtent entre elles pour une nuit. Ce taux se diffuse à presque tous
+      les crédits : cartes, crédits auto, prêts immobiliers, prêts aux entreprises. Elle se réunit huit fois par an
+      pour décider de le monter (une « hausse »), de le baisser (une « baisse ») ou de ne rien changer (un « statu quo »).
+    good: >-
+      Des taux plus hauts récompensent l'épargne et évitent la surchauffe quand les prix montent trop vite. Des taux
+      plus bas aident ménages et entreprises à emprunter pour acheter un logement, investir ou embaucher, ce qui est
+      utile quand l'économie est faible.
+    bad: >-
+      Des taux trop hauts trop longtemps rendent les crédits douloureux et peuvent provoquer une récession. Des taux
+      trop bas trop longtemps peuvent nourrir l'inflation ou des bulles sur l'immobilier ou la Bourse.
+    next: >-
+      La Fed surveille deux choses : les prix et l'emploi. Si l'inflation est haute et les emplois nombreux, elle a
+      tendance à monter ses taux. Si le chômage monte et que l'inflation est calme, elle a tendance à les baisser.
+      « Hawkish » (faucon) veut dire penchant vers des taux plus hauts ; « dovish » (colombe), vers des taux plus bas.
+pro:
+  en:
+    summary: The FOMC's policy rate, its reaction function and how markets price its next moves.
+    what: >-
+      The FOMC sets a 25 bp target range for the federal funds rate and steers the effective rate (EFFR) inside it
+      with administered rates: interest on reserve balances (IORB) and the overnight reverse repo rate (ON RRP) in an
+      ample-reserves framework. Communication tools are the statement, the press conference, the minutes and, four
+      times a year, the Summary of Economic Projections (the "dot plot"). Markets price the expected path through fed
+      funds futures, SOFR futures and OIS; short Treasury bills give a public, noisier read of the same expectations.
+    good: >-
+      A credible, rule-like reaction function anchors expectations, so smaller rate moves achieve more (the
+      expectations channel). Front-loaded tightening when expectations threaten to drift (1994, 2022) can preserve
+      the expansion; timely easing when inflation is anchored and unemployment rises (1995, 1998, 2019 "insurance
+      cuts") can extend it.
+    bad: >-
+      Policy errors come from lags and mismeasurement: real-time output gaps and r* are uncertain (Orphanides 2001),
+      so policy can be too loose (1970s) or tight for too long. Fast hiking cycles expose duration and funding
+      mismatches (Orange County 1994, SVB 2023). At the lower bound the rate tool runs out and the Fed relies on its
+      balance sheet and guidance.
+    next: >-
+      Watch the gap between the policy rate and rule-based benchmarks, the market-implied path versus the dots, and
+      the data the statement highlights. Hiking cycles historically end once core inflation is clearly falling and
+      the real policy rate is positive; the first cut tends to follow a rise in unemployment or a financial shock.
+      Recessions often begin within 6 to 18 months of the last hike, but several cycles ended in soft landings
+      (1995, 2019).
+    mechanics: |
+      - Range: EFFR trades inside [lower, upper], usually a few bp above IORB minus spread; ON RRP sets a floor for money funds.
+      - Implied move from a bill of maturity $T$: $y_T - \text{basis} \approx \bar{r}_{[0,T]}$, the average expected overnight rate (see the Fed odds box).
+      - FedWatch-style odds: expected change $\div$ 25 bp = probability of one move when below 1.
+    reading: |
+      - Federal Reserve, "The Fed Explained" (2021), chapters 3 and 4.
+      - Orphanides, A. (2001), "Monetary Policy Rules Based on Real-Time Data", American Economic Review.
+      - Bernanke, B. (2020), "The New Tools of Monetary Policy", American Economic Review.
+  fr:
+    summary: Le taux directeur du FOMC, sa fonction de réaction et la façon dont les marchés anticipent ses prochains mouvements.
+    what: >-
+      Le FOMC fixe une fourchette de 25 pb pour le taux des fonds fédéraux et pilote le taux effectif (EFFR) à
+      l'intérieur grâce à des taux administrés : la rémunération des réserves (IORB) et le taux des prises en pension
+      au jour le jour (ON RRP), dans un régime de réserves abondantes. Ses outils de communication : le communiqué, la
+      conférence de presse, les minutes et, quatre fois par an, les projections économiques (le « dot plot »). Les
+      marchés valorisent le chemin attendu via les futures sur fed funds, les futures SOFR et les OIS ; les bons du
+      Trésor courts en donnent une lecture publique, plus bruitée.
+    good: >-
+      Une fonction de réaction crédible, proche d'une règle, ancre les anticipations : de petits mouvements de taux
+      suffisent (canal des anticipations). Un resserrement rapide quand les anticipations menacent de dériver (1994,
+      2022) peut préserver l'expansion ; un assouplissement à temps quand l'inflation est ancrée et le chômage monte
+      (1995, 1998, baisses « d'assurance » de 2019) peut la prolonger.
+    bad: >-
+      Les erreurs viennent des délais et des mesures : l'écart de production et r* en temps réel sont incertains
+      (Orphanides 2001), donc la politique peut être trop accommodante (années 1970) ou restrictive trop longtemps. Des
+      hausses rapides révèlent les déséquilibres de duration et de financement (Orange County 1994, SVB 2023). À la
+      borne basse, l'outil taux est épuisé et la Fed recourt à son bilan et au guidage.
+    next: >-
+      Regarder l'écart entre le taux directeur et les règles de référence, le chemin implicite du marché face aux
+      « dots », et les données mises en avant par le communiqué. Les cycles de hausse s'arrêtent historiquement quand
+      l'inflation core baisse nettement et que le taux réel est positif ; la première baisse suit souvent une hausse du
+      chômage ou un choc financier. Les récessions commencent souvent 6 à 18 mois après la dernière hausse, mais
+      plusieurs cycles ont fini en atterrissage en douceur (1995, 2019).
+    mechanics: |
+      - Fourchette : l'EFFR cote à l'intérieur de [bas, haut], en général quelques pb au-dessus de l'IORB moins un écart ; l'ON RRP fixe un plancher pour les fonds monétaires.
+      - Mouvement implicite d'un bon d'échéance $T$ : $y_T - \text{base} \approx \bar{r}_{[0,T]}$, la moyenne du taux au jour le jour attendu (voir l'encadré des probabilités Fed).
+      - Probabilités à la FedWatch : variation attendue $\div$ 25 pb = probabilité d'un mouvement quand elle est inférieure à 1.
+    reading: |
+      - Réserve fédérale, « The Fed Explained » (2021), chapitres 3 et 4.
+      - Orphanides, A. (2001), « Monetary Policy Rules Based on Real-Time Data », American Economic Review.
+      - Bernanke, B. (2020), « The New Tools of Monetary Policy », American Economic Review.
+quiz:
+  beginner:
+    - en:
+        q: Inflation is high and almost everyone who wants a job has one. What is the Fed most likely to do?
+        options: [Cut rates, Raise rates, Print money to buy bonds]
+        answer: 1
+        why: Both signals say the economy runs hot, so the Fed tends to raise rates to cool demand.
+      fr:
+        q: L'inflation est haute et presque tous ceux qui veulent un emploi en ont un. Que fera probablement la Fed ?
+        options: [Baisser ses taux, Monter ses taux, Créer de la monnaie pour acheter des obligations]
+        answer: 1
+        why: Les deux signaux montrent une économie en surchauffe, donc la Fed tend à monter ses taux pour calmer la demande.
+  pro:
+    - en:
+        q: The 3-month bill trades 30 bp above the effective fed funds rate and the usual bill basis is 10 bp, with one FOMC meeting halfway through the bill's life. What move is priced at that meeting?
+        options: [About +20 bp, About +40 bp, About -20 bp]
+        answer: 1
+        why: "The average rate is 20 bp above today's; a move halfway through counts for half the period, so the move is about 20 / 0.5 = 40 bp."
+      fr:
+        q: Le bon à 3 mois cote 30 pb au-dessus du taux effectif des fonds fédéraux, la base habituelle est de 10 pb, et une réunion du FOMC tombe à mi-vie du bon. Quel mouvement est anticipé à cette réunion ?
+        options: [Environ +20 pb, Environ +40 pb, Environ -20 pb]
+        answer: 1
+        why: "Le taux moyen est 20 pb au-dessus de celui du jour ; un mouvement à mi-parcours ne compte que pour la moitié de la période, donc environ 20 / 0,5 = 40 pb."

@@ -1,0 +1,129 @@
+id: fiscal
+theme: macro
+icon: "🧾"
+title: {en: Public debt and deficits, fr: Dette publique et déficits}
+indicators: [debt_gdp, us10y, real_10y]
+chart: [debt_gdp]
+leads_to:
+  - {card: yield_curve, en: "more bond supply can lift long rates", fr: "plus d'émissions peuvent monter les taux longs"}
+  - {card: growth, en: "spending supports demand in the short run", fr: "la dépense soutient la demande à court terme"}
+  - {card: inflation, en: "large deficits at full employment add to inflation", fr: "de gros déficits au plein emploi ajoutent à l'inflation"}
+facts:
+  en:
+    - The deficit is what the government borrows in a year; the debt is the total it owes.
+    - Deficits support the economy in a recession; large deficits when the economy is already strong can add to inflation and push rates up.
+    - What makes debt sustainable is the gap between the interest rate on it and the economy's growth rate.
+  fr:
+    - Le déficit, c'est ce que l'État emprunte en un an ; la dette, le total qu'il doit.
+    - Les déficits soutiennent l'économie en récession ; de gros déficits quand l'économie est déjà forte peuvent ajouter à l'inflation et faire monter les taux.
+    - Ce qui rend une dette soutenable, c'est l'écart entre le taux d'intérêt payé et le taux de croissance de l'économie.
+beginner:
+  en:
+    summary: How much the US government borrows, and why it matters.
+    what: >-
+      When the government spends more than it collects in taxes, it borrows by selling Treasury bonds. The yearly gap
+      is the deficit; everything it owes is the debt. US public debt is now about the size of a whole year of the
+      country's production (GDP).
+    good: >-
+      In a recession, borrowing to pay unemployment benefits or to support firms helps people and shortens the crisis.
+      Spending on roads, research or education can raise future growth.
+    bad: >-
+      Big deficits when the economy is already strong can push prices up and make interest rates higher for everyone.
+      The more debt, the more taxes go to paying interest instead of schools or hospitals.
+    next: >-
+      Markets watch whether the debt keeps growing faster than the economy. If they worry, they ask for higher interest
+      rates on long-term bonds. That can make the Fed's job harder.
+  fr:
+    summary: Combien l'État américain emprunte, et pourquoi c'est important.
+    what: >-
+      Quand l'État dépense plus qu'il ne perçoit d'impôts, il emprunte en vendant des obligations du Trésor. L'écart
+      annuel est le déficit ; tout ce qu'il doit est la dette. La dette publique américaine représente aujourd'hui
+      environ une année entière de production du pays (le PIB).
+    good: >-
+      En récession, emprunter pour verser des allocations chômage ou soutenir les entreprises aide les gens et raccourcit
+      la crise. Dépenser pour les routes, la recherche ou l'éducation peut augmenter la croissance future.
+    bad: >-
+      De gros déficits quand l'économie est déjà forte peuvent faire monter les prix et les taux d'intérêt pour tout le
+      monde. Plus la dette est grande, plus les impôts servent à payer des intérêts plutôt que des écoles ou des hôpitaux.
+    next: >-
+      Les marchés regardent si la dette grandit plus vite que l'économie. S'ils s'inquiètent, ils demandent des taux
+      plus hauts sur les obligations longues. Cela peut compliquer la tâche de la Fed.
+pro:
+  en:
+    summary: Debt dynamics, r minus g, fiscal multipliers and the term premium.
+    what: >-
+      The gross federal debt to GDP ratio (OMB, FRED) includes intragovernmental holdings; debt held by the public is
+      smaller (about 100% of GDP in 2025). The primary balance excludes interest. Debt dynamics depend on r - g (the
+      average effective interest rate minus nominal growth): with r < g, a constant primary deficit can coexist with a
+      stable debt ratio (Blanchard 2019).
+    good: >-
+      Countercyclical fiscal policy has large multipliers at the zero lower bound and in slack (Auerbach and
+      Gorodnichenko 2012), and automatic stabilisers dampen recessions without decision lags. Public investment can
+      raise potential output.
+    bad: >-
+      Fiscal expansion at full employment adds to demand-pull inflation and forces tighter monetary policy (2021-22
+      debate). Rising issuance and deficit uncertainty raise the term premium (2023), and interest costs compound once
+      r exceeds g, as refinancing at higher rates proceeds.
+    next: >-
+      Watch Treasury refunding announcements (bill versus coupon mix), auction tails and the term premium. Fiscal
+      dominance (the central bank forced to accommodate deficits) is the tail risk; US institutions and the dollar's
+      reserve role have kept it remote, but sustained r > g with primary deficits makes the debt path unstable.
+    mechanics: |
+      - Debt dynamics: $\Delta d_t = (r - g)\,d_{t-1} - pb_t$ ($d$ = debt/GDP, $pb$ = primary balance/GDP).
+      - Stabilising primary balance: $pb^* = (r - g)\,d$.
+      - Multiplier: $\Delta Y / \Delta G$, larger with slack and accommodative monetary policy.
+    reading: |
+      - Blanchard, O. (2019), "Public Debt and Low Interest Rates", American Economic Review.
+      - Auerbach, A. and Gorodnichenko, Y. (2012), "Measuring the Output Responses to Fiscal Policy", AEJ: Economic Policy.
+      - Congressional Budget Office, "The Budget and Economic Outlook" (annual).
+  fr:
+    summary: Dynamique de la dette, r moins g, multiplicateurs budgétaires et prime de terme.
+    what: >-
+      Le ratio de dette fédérale brute sur PIB (OMB, FRED) inclut la dette détenue par d'autres administrations ; la
+      dette détenue par le public est plus faible (environ 100 % du PIB en 2025). Le solde primaire exclut les intérêts.
+      La dynamique dépend de r - g (taux d'intérêt effectif moyen moins croissance nominale) : avec r < g, un déficit
+      primaire constant peut aller avec un ratio de dette stable (Blanchard 2019).
+    good: >-
+      Une politique budgétaire contracyclique a de forts multiplicateurs à la borne basse et en période de sous-emploi
+      (Auerbach et Gorodnichenko 2012), et les stabilisateurs automatiques amortissent les récessions sans délai de
+      décision. L'investissement public peut relever la production potentielle.
+    bad: >-
+      Une relance au plein emploi ajoute à l'inflation par la demande et force une politique monétaire plus stricte
+      (débat 2021-22). Plus d'émissions et l'incertitude sur les déficits font monter la prime de terme (2023), et le coût
+      des intérêts s'emballe quand r dépasse g, à mesure que la dette se refinance à des taux plus hauts.
+    next: >-
+      Suivre les annonces de refinancement du Trésor (part des bons courts contre obligations), les adjudications et la
+      prime de terme. La dominance budgétaire (banque centrale forcée d'accommoder les déficits) est le risque extrême ;
+      les institutions américaines et le rôle de réserve du dollar l'ont tenue à distance, mais un r > g durable avec des
+      déficits primaires rend la trajectoire instable.
+    mechanics: |
+      - Dynamique : $\Delta d_t = (r - g)\,d_{t-1} - sp_t$ ($d$ = dette/PIB, $sp$ = solde primaire/PIB).
+      - Solde primaire stabilisant : $sp^* = (r - g)\,d$.
+      - Multiplicateur : $\Delta Y / \Delta G$, plus grand en sous-emploi et avec une politique monétaire accommodante.
+    reading: |
+      - Blanchard, O. (2019), « Public Debt and Low Interest Rates », American Economic Review.
+      - Auerbach, A. et Gorodnichenko, Y. (2012), « Measuring the Output Responses to Fiscal Policy », AEJ: Economic Policy.
+      - Congressional Budget Office, « The Budget and Economic Outlook » (annuel).
+quiz:
+  beginner:
+    - en:
+        q: The deficit is...
+        options: [Everything the government owes, What the government borrows in one year, The interest rate on bonds]
+        answer: 1
+        why: The deficit is the yearly gap; the debt is the accumulated total.
+      fr:
+        q: Le déficit, c'est...
+        options: [Tout ce que l'État doit, Ce que l'État emprunte en une année, Le taux d'intérêt des obligations]
+        answer: 1
+        why: Le déficit est l'écart annuel ; la dette, le total accumulé.
+  pro:
+    - en:
+        q: "Debt is 100% of GDP, r - g = +1 pt. Which primary balance keeps the ratio stable?"
+        options: [A 1% of GDP deficit, A 1% of GDP surplus, A balanced primary budget]
+        answer: 1
+        why: "pb* = (r - g) x d = 1% x 1 = 1% of GDP surplus."
+      fr:
+        q: "La dette vaut 100 % du PIB, r - g = +1 pt. Quel solde primaire stabilise le ratio ?"
+        options: [Un déficit de 1 % du PIB, Un excédent de 1 % du PIB, Un budget primaire équilibré]
+        answer: 1
+        why: "sp* = (r - g) x d = 1 % x 1 = excédent de 1 % du PIB."

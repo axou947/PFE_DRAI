@@ -1,0 +1,129 @@
+id: qe_qt
+theme: macro
+icon: "🖨️"
+title: {en: QE and QT (the Fed's balance sheet), fr: QE et QT (le bilan de la Fed)}
+indicators: [fed_assets, m2_yoy, us10y]
+chart: [fed_assets]
+leads_to:
+  - {card: yield_curve, en: "lowers or raises long rates via the term premium", fr: "baisse ou monte les taux longs via la prime de terme"}
+  - {card: liquidity, en: "adds or drains reserves", fr: "ajoute ou retire des réserves"}
+  - {card: real_rates, en: "QE pushes real yields down", fr: "le QE fait baisser les taux réels"}
+facts:
+  en:
+    - Quantitative easing (QE) is when the central bank creates reserves to buy bonds, pushing long-term rates down.
+    - Quantitative tightening (QT) is the reverse - letting bonds mature without replacing them, which drains reserves.
+    - The Fed used QE in 2008-2014 and 2020-2022, when its policy rate was near zero; QT followed in 2017-2019 and from 2022.
+  fr:
+    - L'assouplissement quantitatif (QE), c'est quand la banque centrale crée des réserves pour acheter des obligations, ce qui fait baisser les taux longs.
+    - Le resserrement quantitatif (QT) est l'inverse - laisser les obligations arriver à échéance sans les remplacer, ce qui retire des réserves.
+    - La Fed a fait du QE en 2008-2014 et 2020-2022, quand son taux directeur était proche de zéro ; le QT a suivi en 2017-2019 et à partir de 2022.
+beginner:
+  en:
+    summary: When the Fed buys or sells bonds on a massive scale.
+    what: >-
+      When rates are already near zero, the Fed has another tool: it creates money to buy government bonds and
+      mortgage bonds. This is QE. It makes long-term borrowing cheaper. QT is the reverse: the Fed slowly shrinks its
+      pile of bonds.
+    good: >-
+      QE helped calm markets in 2008 and 2020 and made mortgages and business loans cheaper when the economy needed
+      it most.
+    bad: >-
+      Too much QE for too long can push up the prices of stocks and houses more than wages, and may add to inflation.
+      QT, if too fast, can make money markets tense, as in September 2019.
+    next: >-
+      The Fed usually starts QE in a crisis, after cutting rates to zero, and starts QT once the economy is strong and
+      rates have gone up. It moves slowly and announces it in advance to avoid surprises.
+  fr:
+    summary: Quand la Fed achète ou vend des obligations en masse.
+    what: >-
+      Quand les taux sont déjà proches de zéro, la Fed a un autre outil : elle crée de la monnaie pour acheter des
+      obligations d'État et des obligations immobilières. C'est le QE. Il rend l'emprunt à long terme moins cher. Le QT
+      est l'inverse : la Fed réduit lentement son stock d'obligations.
+    good: >-
+      Le QE a aidé à calmer les marchés en 2008 et 2020 et a rendu les prêts immobiliers et aux entreprises moins chers
+      quand l'économie en avait le plus besoin.
+    bad: >-
+      Trop de QE trop longtemps peut faire monter actions et immobilier plus que les salaires, et peut ajouter à
+      l'inflation. Un QT trop rapide peut tendre les marchés monétaires, comme en septembre 2019.
+    next: >-
+      La Fed commence en général le QE en crise, après avoir baissé ses taux à zéro, et le QT une fois l'économie solide
+      et les taux remontés. Elle avance lentement et prévient à l'avance pour éviter les surprises.
+pro:
+  en:
+    summary: Large-scale asset purchases, portfolio balance, signalling and reserve scarcity.
+    what: >-
+      LSAPs swap reserves for duration: the Fed absorbs interest-rate risk, lowering the term premium (portfolio
+      balance channel) and signalling a longer period of low policy rates (signalling channel). Estimates put QE1 at
+      about 50 to 100 bp off 10-year yields (Gagnon et al. 2011), with diminishing effects later. QT runs passively
+      through monthly redemption caps; the Fed aims to stop at an "ample" reserves level, above the point where money
+      market rates spike (the reserve demand curve).
+    good: >-
+      In dysfunctional markets (March 2020) purchases restore Treasury market functioning quickly. At the lower bound
+      QE adds stimulus when rates cannot. QT gives room to use the balance sheet again in the next crisis.
+    bad: >-
+      QE blurs the line with fiscal policy (financing deficits at low cost), creates interest-rate risk for the
+      central bank (remittance losses since 2022), and its exit can be disruptive (2013 taper tantrum). QT that drains
+      reserves below the ample level causes repo spikes (September 2019).
+    next: >-
+      Watch reserves relative to bank assets and the ON RRP facility balance: when the RRP is drained, QT drains
+      reserves directly and repo rates start trading above IORB, a sign to slow or end QT. Balance-sheet policy now
+      complements, rather than substitutes for, the rate path.
+    mechanics: |
+      - Fed balance sheet: assets (Treasuries, MBS) = liabilities (currency, reserves, ON RRP, Treasury General Account).
+      - Term premium effect: $\Delta TP_{10y} \approx -\beta \times$ (duration removed / market size).
+      - Reserve demand curve: repo - IORB rises sharply once reserves fall below the ample level.
+    reading: |
+      - Gagnon, J. et al. (2011), "The Financial Market Effects of the Federal Reserve's Large-Scale Asset Purchases", International Journal of Central Banking.
+      - Lopez-Salido, D. and Vissing-Jorgensen, A. (2023), "Reserve Demand, Interest Rate Control, and Quantitative Tightening", working paper.
+  fr:
+    summary: Achats d'actifs massifs, rééquilibrage de portefeuille, signal et rareté des réserves.
+    what: >-
+      Les achats d'actifs échangent des réserves contre de la duration : la Fed absorbe le risque de taux, ce qui baisse
+      la prime de terme (canal du rééquilibrage de portefeuille) et signale des taux directeurs bas plus longtemps (canal
+      du signal). Les estimations attribuent au QE1 environ 50 à 100 pb de baisse du taux à 10 ans (Gagnon et al. 2011),
+      avec des effets décroissants ensuite. Le QT se fait passivement via des plafonds mensuels de remboursement ; la Fed
+      vise à s'arrêter à un niveau de réserves « abondant », au-dessus du point où les taux monétaires s'envolent (la
+      courbe de demande de réserves).
+    good: >-
+      Quand les marchés dysfonctionnent (mars 2020), les achats rétablissent vite le fonctionnement du marché du Trésor.
+      À la borne basse, le QE ajoute de la relance quand les taux ne le peuvent plus. Le QT redonne de la marge pour
+      réutiliser le bilan à la crise suivante.
+    bad: >-
+      Le QE brouille la frontière avec la politique budgétaire (financer les déficits à bas coût), crée un risque de
+      taux pour la banque centrale (pertes de versements au Trésor depuis 2022), et sa sortie peut être brutale (taper
+      tantrum de 2013). Un QT qui fait passer les réserves sous le niveau abondant provoque des pics sur le repo
+      (septembre 2019).
+    next: >-
+      Suivre les réserves rapportées aux actifs bancaires et le solde de la facilité ON RRP : une fois l'ON RRP vidée, le
+      QT retire directement des réserves et les taux du repo passent au-dessus de l'IORB, signe qu'il faut ralentir ou
+      arrêter le QT. La politique de bilan complète désormais le chemin des taux plutôt que de le remplacer.
+    mechanics: |
+      - Bilan de la Fed : actifs (Trésor, MBS) = passifs (billets, réserves, ON RRP, compte du Trésor).
+      - Effet sur la prime de terme : $\Delta TP_{10a} \approx -\beta \times$ (duration retirée / taille du marché).
+      - Courbe de demande de réserves : repo - IORB monte fortement quand les réserves passent sous le niveau abondant.
+    reading: |
+      - Gagnon, J. et al. (2011), « The Financial Market Effects of the Federal Reserve's Large-Scale Asset Purchases », International Journal of Central Banking.
+      - Lopez-Salido, D. et Vissing-Jorgensen, A. (2023), « Reserve Demand, Interest Rate Control, and Quantitative Tightening », working paper.
+quiz:
+  beginner:
+    - en:
+        q: When does the Fed usually start QE?
+        options: [When inflation is too high, When rates are already near zero in a crisis, Every January]
+        answer: 1
+        why: QE is the extra tool used once the usual rate tool is exhausted.
+      fr:
+        q: Quand la Fed lance-t-elle en général un QE ?
+        options: [Quand l'inflation est trop haute, "En crise, quand les taux sont déjà proches de zéro", Chaque mois de janvier]
+        answer: 1
+        why: Le QE est l'outil de plus qu'on utilise quand l'outil des taux est épuisé.
+  pro:
+    - en:
+        q: Repo rates start trading persistently above IORB during QT. What does it suggest?
+        options: [Reserves are becoming scarce, The Fed should accelerate QT, Inflation is falling]
+        answer: 0
+        why: It is the classic sign that reserves approach the steep part of the demand curve, as in September 2019.
+      fr:
+        q: Pendant un QT, les taux du repo passent durablement au-dessus de l'IORB. Qu'est-ce que cela suggère ?
+        options: [Les réserves deviennent rares, La Fed devrait accélérer le QT, L'inflation baisse]
+        answer: 0
+        why: C'est le signe classique que les réserves approchent de la partie pentue de la courbe de demande, comme en septembre 2019.

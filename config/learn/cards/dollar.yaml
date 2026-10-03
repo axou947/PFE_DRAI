@@ -1,0 +1,129 @@
+id: dollar
+theme: macro
+icon: "💲"
+title: {en: The US dollar, fr: Le dollar américain}
+indicators: [dollar_yoy, real_10y]
+chart: [dollar_yoy]
+leads_to:
+  - {card: inflation, en: "a strong dollar makes imports cheaper", fr: "un dollar fort rend les importations moins chères"}
+  - {card: pricing_power, en: "squeezes US exporters' sales abroad", fr: "pèse sur les ventes des exportateurs américains"}
+  - {card: liquidity, en: "dollar funding stress spreads worldwide", fr: "le stress de financement en dollars se propage au monde"}
+facts:
+  en:
+    - The dollar's value against other currencies moves with US interest rates, growth and global fear.
+    - A strong dollar lowers US import prices and inflation but hurts US exporters and countries that borrow in dollars.
+    - In global crises the dollar usually rises, because investors seek the safety and liquidity of US Treasuries.
+  fr:
+    - La valeur du dollar face aux autres monnaies dépend des taux d'intérêt américains, de la croissance et de la peur mondiale.
+    - Un dollar fort baisse le prix des importations et l'inflation aux États-Unis, mais pénalise les exportateurs américains et les pays endettés en dollars.
+    - Dans les crises mondiales, le dollar monte en général, car les investisseurs cherchent la sécurité et la liquidité du Trésor américain.
+beginner:
+  en:
+    summary: What one dollar buys in other currencies.
+    what: >-
+      The dollar is the currency the whole world uses for trade and savings. When it is "strong", one dollar buys more
+      euros or yen. Its value changes every second, depending on interest rates and confidence.
+    good: >-
+      A strong dollar makes imported goods and holidays abroad cheaper for Americans and helps keep inflation down.
+      A weaker dollar helps American firms sell abroad.
+    bad: >-
+      A very strong dollar hurts US factories that export, and countries that borrowed in dollars have to pay back more
+      in their own money. A collapsing dollar would raise US import prices.
+    next: >-
+      When the Fed raises rates more than other central banks, the dollar tends to rise. In a world crisis, money runs
+      to the dollar for safety, even when the crisis started in the US, as in 2008.
+  fr:
+    summary: Ce qu'un dollar achète en autres monnaies.
+    what: >-
+      Le dollar est la monnaie que le monde entier utilise pour le commerce et l'épargne. Quand il est « fort », un
+      dollar achète plus d'euros ou de yens. Sa valeur change à chaque seconde, selon les taux d'intérêt et la confiance.
+    good: >-
+      Un dollar fort rend les produits importés et les vacances à l'étranger moins chers pour les Américains et aide à
+      contenir l'inflation. Un dollar plus faible aide les entreprises américaines à vendre à l'étranger.
+    bad: >-
+      Un dollar très fort pénalise les usines américaines qui exportent, et les pays qui ont emprunté en dollars doivent
+      rembourser davantage dans leur propre monnaie. Un dollar qui s'effondre ferait monter le prix des importations.
+    next: >-
+      Quand la Fed monte ses taux plus que les autres banques centrales, le dollar tend à monter. Dans une crise mondiale,
+      l'argent se réfugie dans le dollar, même quand la crise part des États-Unis, comme en 2008.
+pro:
+  en:
+    summary: Rate differentials, the dollar smile and the global dollar cycle.
+    what: >-
+      The Fed's broad trade-weighted dollar index (H.10) covers 26 currencies. Short-run moves track real rate
+      differentials (uncovered interest parity holds poorly in the short run: the forward premium puzzle) and risk
+      sentiment. The "dollar smile": the dollar rises both in global risk-off episodes (safe-haven demand) and when US
+      growth outperforms, and weakens when global growth broadens.
+    good: >-
+      Dollar strength tightens US financial conditions without rate hikes and lowers import prices (pass-through about
+      0.1 to 0.2 to core goods), helping disinflation. A weaker dollar eases global financial conditions and supports US
+      multinational earnings (about 40% of S&P 500 sales are foreign).
+    bad: >-
+      Dollar appreciation tightens conditions abroad through dollar-denominated debt (the "global financial cycle",
+      Rey 2013; Bruno and Shin), triggering capital outflows from emerging markets. Dollar funding stress (cross-currency
+      basis) amplified 2008 and 2020, until the Fed opened swap lines.
+    next: >-
+      Watch the US-rest-of-world real rate gap and global risk appetite. Easing cycles that start while others hold
+      usually weaken the dollar; synchronized global recessions strengthen it. Fed swap lines and the FIMA repo facility
+      cap dollar funding stress.
+    mechanics: |
+      - UIP: $E[\Delta s] = i - i^*$; the data often reject it at short horizons (carry trade profits).
+      - Real exchange rate: $q = s + p^* - p$; competitiveness depends on $q$, not $s$.
+      - Cross-currency basis: deviation from covered interest parity, a gauge of dollar funding stress.
+    reading: |
+      - Rey, H. (2013), "Dilemma not Trilemma: The Global Financial Cycle and Monetary Policy Independence", Jackson Hole.
+      - Bruno, V. and Shin, H. S. (2015), "Cross-Border Banking and Global Liquidity", Review of Economic Studies.
+      - Gopinath, G. et al. (2020), "Dominant Currency Paradigm", American Economic Review.
+  fr:
+    summary: Écarts de taux, « sourire du dollar » et cycle mondial du dollar.
+    what: >-
+      L'indice large du dollar pondéré par les échanges de la Fed (H.10) couvre 26 devises. À court terme, il suit les
+      écarts de taux réels (la parité des taux d'intérêt non couverte tient mal à court terme : l'énigme de la prime à
+      terme) et le sentiment de risque. Le « sourire du dollar » : il monte à la fois quand le monde a peur (demande de
+      valeur refuge) et quand la croissance américaine surperforme, et faiblit quand la croissance mondiale s'élargit.
+    good: >-
+      Un dollar fort resserre les conditions financières américaines sans hausse de taux et baisse le prix des
+      importations (transmission d'environ 0,1 à 0,2 aux biens core), ce qui aide la désinflation. Un dollar plus faible
+      assouplit les conditions financières mondiales et soutient les bénéfices des multinationales américaines (environ
+      40 % des ventes du S&P 500 sont à l'étranger).
+    bad: >-
+      L'appréciation du dollar resserre les conditions à l'étranger via la dette libellée en dollars (le « cycle
+      financier mondial », Rey 2013 ; Bruno et Shin), ce qui provoque des sorties de capitaux des émergents. Le stress
+      de financement en dollars (base croisée des devises) a amplifié 2008 et 2020, jusqu'à l'ouverture des lignes de
+      swap de la Fed.
+    next: >-
+      Suivre l'écart de taux réels entre les États-Unis et le reste du monde et l'appétit global pour le risque. Un cycle
+      de baisse qui commence quand les autres attendent affaiblit en général le dollar ; une récession mondiale
+      synchronisée le renforce. Les lignes de swap de la Fed et la facilité de repo FIMA plafonnent le stress de
+      financement en dollars.
+    mechanics: |
+      - PTINC : $E[\Delta s] = i - i^*$ ; les données la rejettent souvent à court terme (profits du carry trade).
+      - Taux de change réel : $q = s + p^* - p$ ; la compétitivité dépend de $q$, pas de $s$.
+      - Base croisée : écart à la parité couverte des taux, une jauge du stress de financement en dollars.
+    reading: |
+      - Rey, H. (2013), « Dilemma not Trilemma: The Global Financial Cycle and Monetary Policy Independence », Jackson Hole.
+      - Bruno, V. et Shin, H. S. (2015), « Cross-Border Banking and Global Liquidity », Review of Economic Studies.
+      - Gopinath, G. et al. (2020), « Dominant Currency Paradigm », American Economic Review.
+quiz:
+  beginner:
+    - en:
+        q: A stronger dollar makes imported goods in the US...
+        options: [More expensive, Cheaper, Unchanged]
+        answer: 1
+        why: Each dollar buys more foreign currency, so foreign goods cost fewer dollars.
+      fr:
+        q: Un dollar plus fort rend les produits importés aux États-Unis...
+        options: [Plus chers, Moins chers, Au même prix]
+        answer: 1
+        why: Chaque dollar achète plus de devises, donc les produits étrangers coûtent moins de dollars.
+  pro:
+    - en:
+        q: In a global risk-off shock that starts in the US, the dollar has historically...
+        options: [Fallen sharply, Usually risen, Stayed flat]
+        answer: 1
+        why: Safe-haven and dollar funding demand dominate; the dollar rose in late 2008 and March 2020.
+      fr:
+        q: Dans un choc de défiance mondial parti des États-Unis, le dollar a historiquement...
+        options: [Chuté fortement, Le plus souvent monté, Pas bougé]
+        answer: 1
+        why: La demande de valeur refuge et de financement en dollars domine ; le dollar a monté fin 2008 et en mars 2020.

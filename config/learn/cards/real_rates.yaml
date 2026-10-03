@@ -1,0 +1,129 @@
+id: real_rates
+theme: macro
+icon: "⚖️"
+title: {en: Real interest rates and inflation expectations, fr: Taux réels et anticipations d'inflation}
+indicators: [real_10y, breakeven_10y, fwd_5y5y, us10y]
+chart: [real_10y, breakeven_10y]
+leads_to:
+  - {card: firm_investment, en: "the true cost of investing", fr: "le vrai coût d'investir"}
+  - {card: housing, en: "affordability", fr: "accessibilité au logement"}
+  - {card: dollar, en: "higher real yields support the dollar", fr: "des taux réels plus hauts soutiennent le dollar"}
+facts:
+  en:
+    - The real interest rate is the nominal rate minus expected inflation.
+    - It is the real rate, not the nominal one, that drives saving, investment and asset prices.
+    - Market measures (TIPS yields and breakevens) show real rates and inflation expectations every day.
+  fr:
+    - Le taux d'intérêt réel est le taux nominal moins l'inflation anticipée.
+    - C'est le taux réel, pas le nominal, qui oriente l'épargne, l'investissement et le prix des actifs.
+    - Les mesures de marché (taux des TIPS et points morts) donnent chaque jour les taux réels et les anticipations d'inflation.
+beginner:
+  en:
+    summary: What your money really earns once inflation is taken out.
+    what: >-
+      If your savings account pays 5% but prices rise 3%, you only get 2% richer in what you can actually buy. That 2%
+      is the "real" rate. Expected inflation is what people think prices will do in the coming years.
+    good: >-
+      Positive real rates reward saving and keep inflation in check. Low real rates make it cheaper to borrow for a
+      home or a business and support the economy after a shock.
+    bad: >-
+      Very negative real rates quietly eat savings and can inflate bubbles. Real rates that jump quickly make debts
+      heavier and can push stock and house prices down.
+    next: >-
+      When the Fed wants to slow the economy, its goal is to push real rates up. When inflation expectations start to
+      rise, the Fed usually reacts quickly, because expectations can become self-fulfilling.
+  fr:
+    summary: Ce que votre argent rapporte vraiment une fois l'inflation retirée.
+    what: >-
+      Si votre livret rapporte 5 % mais que les prix montent de 3 %, vous ne vous enrichissez que de 2 % en pouvoir
+      d'achat. Ces 2 % sont le taux « réel ». L'inflation anticipée, c'est ce que les gens pensent que les prix feront
+      dans les années qui viennent.
+    good: >-
+      Des taux réels positifs récompensent l'épargne et tiennent l'inflation. Des taux réels bas rendent moins cher
+      l'emprunt pour un logement ou une entreprise et soutiennent l'économie après un choc.
+    bad: >-
+      Des taux réels très négatifs grignotent l'épargne sans bruit et peuvent gonfler des bulles. Des taux réels qui
+      bondissent alourdissent les dettes et peuvent faire baisser actions et immobilier.
+    next: >-
+      Quand la Fed veut ralentir l'économie, son but est de faire monter les taux réels. Quand les anticipations
+      d'inflation commencent à monter, la Fed réagit en général vite, car elles peuvent devenir autoréalisatrices.
+pro:
+  en:
+    summary: Ex-ante real yields, breakeven inflation and the neutral rate r*.
+    what: >-
+      The 10-year TIPS yield is a market real rate; the breakeven (nominal minus TIPS) approximates expected CPI
+      inflation plus an inflation risk premium minus a TIPS liquidity premium. The 5y5y forward breakeven strips out
+      near-term energy noise and is the Fed's preferred market gauge of anchoring. The neutral real rate r* (the rate
+      consistent with full employment and stable inflation) is unobservable; Holston-Laubach-Williams and
+      Lubik-Matthes estimates put it near 0.5 to 1.5% in recent years.
+    good: >-
+      A real policy rate above r* is restrictive and drives disinflation; below r* is accommodative and supports
+      recovery. Stable 5y5y breakevens near 2.3 to 2.5% (CPI basis, about 2% PCE) signal credible policy, allowing the Fed
+      to look through supply shocks.
+    bad: >-
+      Sharp rises in real yields (2013 taper tantrum, 2022) hit long-duration assets: equity valuations (lower
+      discounted cash flows), housing and growth stocks. Rising breakevens with falling real yields signal fading
+      credibility; falling breakevens in a crisis signal deflation risk (2008, 2020).
+    next: >-
+      Real rate shocks transmit through the term premium and the dollar. A sustained real policy rate well above r*
+      historically precedes slowing credit and activity; the Fed tends to cut once real rates are restrictive and
+      inflation converges, keeping the real rate from rising further as inflation falls ("passive tightening").
+    mechanics: |
+      - Fisher: $(1 + i) = (1 + r)(1 + \pi^e)$, so $r \approx i - \pi^e$.
+      - Breakeven: $BE = y^{nom} - y^{TIPS} = \pi^e + \text{IRP} - \text{LP}$.
+      - Policy stance: real policy rate $= i - \pi^e$ compared with $r^*$.
+    reading: |
+      - Laubach, T. and Williams, J. (2003), "Measuring the Natural Rate of Interest", Review of Economics and Statistics.
+      - D'Amico, S., Kim, D. and Wei, M. (2018), "Tips from TIPS", Journal of Financial and Quantitative Analysis.
+  fr:
+    summary: Taux réels ex ante, inflation point mort et taux neutre r*.
+    what: >-
+      Le taux des TIPS à 10 ans est un taux réel de marché ; le point mort (nominal moins TIPS) approxime l'inflation
+      CPI attendue plus une prime de risque d'inflation moins une prime de liquidité des TIPS. Le point mort à terme
+      5 ans dans 5 ans gomme le bruit de l'énergie à court terme : c'est la jauge d'ancrage de marché préférée de la
+      Fed. Le taux réel neutre r* (compatible avec le plein emploi et une inflation stable) est inobservable ; les
+      estimations Holston-Laubach-Williams et Lubik-Matthes le placent vers 0,5 à 1,5 % ces dernières années.
+    good: >-
+      Un taux directeur réel au-dessus de r* est restrictif et fait baisser l'inflation ; en dessous, il est
+      accommodant et soutient la reprise. Des points morts 5y5y stables vers 2,3 à 2,5 % (base CPI, environ 2 % en
+      PCE) signalent une politique crédible, qui permet à la Fed de passer outre un choc d'offre.
+    bad: >-
+      Les fortes hausses de taux réels (taper tantrum 2013, 2022) frappent les actifs de longue duration : valorisation
+      des actions (flux actualisés plus bas), immobilier, valeurs de croissance. Des points morts en hausse avec des
+      taux réels en baisse signalent une crédibilité qui s'effrite ; des points morts qui chutent en crise signalent
+      un risque de déflation (2008, 2020).
+    next: >-
+      Les chocs de taux réel se transmettent par la prime de terme et le dollar. Un taux directeur réel durablement
+      au-dessus de r* précède historiquement un ralentissement du crédit et de l'activité ; la Fed baisse en général
+      ses taux une fois le taux réel restrictif et l'inflation revenue, pour éviter qu'il ne monte encore à mesure que
+      l'inflation baisse (« resserrement passif »).
+    mechanics: |
+      - Fisher : $(1 + i) = (1 + r)(1 + \pi^e)$, donc $r \approx i - \pi^e$.
+      - Point mort : $BE = y^{nom} - y^{TIPS} = \pi^e + \text{prime d'inflation} - \text{prime de liquidité}$.
+      - Orientation : taux directeur réel $= i - \pi^e$ comparé à $r^*$.
+    reading: |
+      - Laubach, T. et Williams, J. (2003), « Measuring the Natural Rate of Interest », Review of Economics and Statistics.
+      - D'Amico, S., Kim, D. et Wei, M. (2018), « Tips from TIPS », Journal of Financial and Quantitative Analysis.
+quiz:
+  beginner:
+    - en:
+        q: Your bank pays 4% a year and inflation is 5%. Your real return is...
+        options: [+9%, +1%, "-1%"]
+        answer: 2
+        why: 4% minus 5% = -1%. Your money grows, but buys a little less each year.
+      fr:
+        q: Votre banque paie 4 % par an et l'inflation est de 5 %. Votre rendement réel est de...
+        options: [+9 %, +1 %, "-1 %"]
+        answer: 2
+        why: 4 % moins 5 % = -1 %. Votre argent grossit mais achète un peu moins chaque année.
+  pro:
+    - en:
+        q: The 10-year nominal yield is unchanged while the 10-year breakeven rises 30 bp. What happened to the TIPS real yield?
+        options: [Rose 30 bp, Fell 30 bp, Unchanged]
+        answer: 1
+        why: Nominal = real + breakeven; with the nominal unchanged, a higher breakeven means a lower real yield.
+      fr:
+        q: Le taux nominal à 10 ans est inchangé et le point mort à 10 ans monte de 30 pb. Le taux réel des TIPS a...
+        options: [Monté de 30 pb, Baissé de 30 pb, Pas bougé]
+        answer: 1
+        why: Nominal = réel + point mort ; nominal inchangé et point mort plus haut, donc taux réel plus bas.

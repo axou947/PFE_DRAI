@@ -1,0 +1,207 @@
+# Learn pages glossary (docs/LEARN.md): one term, a beginner and a pro definition, FR and EN.
+# card: the concept card that explains the term in depth (optional).
+terms:
+  - term: {en: Basis point (bp), fr: Point de base (pb)}
+    beginner: {en: "One hundredth of a percent: 0.25% = 25 bp.", fr: "Un centième de pour cent : 0,25 % = 25 pb."}
+    pro: {en: "0.01 percentage point; Fed moves are usually 25 bp, sometimes 50 or 75.", fr: "0,01 point de pourcentage ; la Fed bouge en général de 25 pb, parfois 50 ou 75."}
+    card: fed_policy
+  - term: {en: Breakeven inflation, fr: Inflation point mort}
+    beginner: {en: "The inflation investors expect, read from bond prices.", fr: "L'inflation attendue par les investisseurs, lue dans le prix des obligations."}
+    pro: {en: "Nominal Treasury yield minus TIPS yield of the same maturity: expected CPI plus inflation risk premium minus TIPS liquidity premium.", fr: "Taux du Trésor nominal moins taux TIPS de même échéance : CPI attendu plus prime de risque d'inflation moins prime de liquidité des TIPS."}
+    card: real_rates
+  - term: {en: Central bank, fr: Banque centrale}
+    beginner: {en: "The public bank that sets interest rates and issues the currency; in the US, the Federal Reserve.", fr: "La banque publique qui fixe les taux d'intérêt et émet la monnaie ; aux États-Unis, la Réserve fédérale."}
+    pro: {en: "Monetary authority with a mandate (dual for the Fed), operating through the policy rate, its balance sheet and communication.", fr: "Autorité monétaire avec un mandat (double pour la Fed), qui agit par le taux directeur, son bilan et sa communication."}
+    card: fed_policy
+  - term: {en: Core inflation, fr: Inflation sous-jacente (core)}
+    beginner: {en: "Inflation without food and energy, whose prices jump around a lot.", fr: "L'inflation sans l'alimentation et l'énergie, dont les prix bougent beaucoup."}
+    pro: {en: "Price index excluding food and energy (CPI or PCE); a better guide to the persistent trend than headline.", fr: "Indice des prix hors alimentation et énergie (CPI ou PCE) ; meilleur guide de la tendance persistante que l'indice total."}
+    card: inflation
+  - term: {en: CPI, fr: CPI (indice des prix à la consommation)}
+    beginner: {en: "The price of a typical basket of things households buy, tracked every month.", fr: "Le prix d'un panier type d'achats des ménages, suivi chaque mois."}
+    pro: {en: "BLS consumer price index for urban consumers; fixed-basket (Laspeyres-type) with periodic weight updates.", fr: "Indice des prix du BLS pour les consommateurs urbains ; panier fixe (type Laspeyres) avec des poids mis à jour périodiquement."}
+    card: inflation
+  - term: {en: Credit spread, fr: Spread de crédit}
+    beginner: {en: "The extra interest a risky borrower pays compared with the government.", fr: "Les intérêts en plus qu'un emprunteur risqué paie par rapport à l'État."}
+    pro: {en: "Yield over a Treasury (or swap) of matching duration; compensates expected loss plus risk and liquidity premia.", fr: "Rendement au-dessus d'un titre du Trésor (ou swap) de même duration ; rémunère la perte attendue plus des primes de risque et de liquidité."}
+    card: credit
+  - term: {en: Default, fr: Défaut}
+    beginner: {en: "When a borrower cannot pay what it owes on time.", fr: "Quand un emprunteur ne peut pas payer ce qu'il doit à temps."}
+    pro: {en: "Missed payment, distressed exchange or bankruptcy; rating agencies' default rates are licensed data.", fr: "Paiement manqué, échange forcé ou faillite ; les taux de défaut des agences de notation sont des données sous licence."}
+    card: corporate_debt
+  - term: {en: Deficit, fr: Déficit}
+    beginner: {en: "What the government spends beyond its tax income in a year.", fr: "Ce que l'État dépense en plus de ses recettes en un an."}
+    pro: {en: "Overall balance; the primary deficit excludes interest and drives debt dynamics with r - g.", fr: "Solde global ; le déficit primaire exclut les intérêts et pilote la dynamique de la dette avec r - g."}
+    card: fiscal
+  - term: {en: Deflation, fr: Déflation}
+    beginner: {en: "Prices falling across the whole economy.", fr: "Les prix qui baissent dans toute l'économie."}
+    pro: {en: "Sustained negative change in a broad price index; dangerous with debt and a policy rate at its lower bound.", fr: "Variation négative durable d'un indice de prix large ; dangereuse avec de la dette et un taux directeur à sa borne basse."}
+    card: deflation
+  - term: {en: Dovish, fr: Dovish (colombe)}
+    beginner: {en: "Leaning towards lower interest rates to support jobs.", fr: "Penchant vers des taux plus bas pour soutenir l'emploi."}
+    pro: {en: "Reaction function or communication that weights the employment gap more, or signals a lower rate path than expected.", fr: "Fonction de réaction ou communication qui pèse davantage l'écart d'emploi, ou signale un chemin de taux plus bas que prévu."}
+    card: fed_policy
+  - term: {en: Effective fed funds rate (EFFR), fr: Taux effectif des fonds fédéraux (EFFR)}
+    beginner: {en: "The actual overnight rate banks pay each other, inside the Fed's target range.", fr: "Le taux réel au jour le jour entre banques, à l'intérieur de la fourchette de la Fed."}
+    pro: {en: "Volume-weighted median of overnight fed funds trades (New York Fed); steered by IORB and ON RRP.", fr: "Médiane pondérée par les volumes des prêts au jour le jour en fonds fédéraux (Fed de New York) ; pilotée par l'IORB et l'ON RRP."}
+    card: fed_policy
+  - term: {en: FOMC, fr: FOMC}
+    beginner: {en: "The Fed committee that votes on interest rates, eight times a year.", fr: "Le comité de la Fed qui vote les taux, huit fois par an."}
+    pro: {en: "Federal Open Market Committee: 7 governors plus 5 rotating Reserve Bank presidents (New York permanent).", fr: "Federal Open Market Committee : 7 gouverneurs plus 5 présidents de Fed régionales par rotation (New York en permanence)."}
+    card: fed_policy
+  - term: {en: Dot plot, fr: Dot plot}
+    beginner: {en: "A chart where each Fed official shows where they think rates should go.", fr: "Un graphique où chaque responsable de la Fed indique où les taux devraient aller selon lui."}
+    pro: {en: "Part of the Summary of Economic Projections (4 meetings a year): each participant's appropriate year-end policy rate.", fr: "Partie des projections économiques (4 réunions par an) : le taux directeur de fin d'année jugé approprié par chaque participant."}
+    card: fed_policy
+  - term: {en: GDP, fr: PIB}
+    beginner: {en: "The value of everything a country produces in a year.", fr: "La valeur de tout ce qu'un pays produit en un an."}
+    pro: {en: "Gross domestic product, C + I + G + NX; real GDP removes price changes (chained dollars).", fr: "Produit intérieur brut, C + I + G + X - M ; le PIB réel retire l'effet des prix (dollars chaînés)."}
+    card: growth
+  - term: {en: Hawkish, fr: Hawkish (faucon)}
+    beginner: {en: "Leaning towards higher interest rates to fight inflation.", fr: "Penchant vers des taux plus hauts pour combattre l'inflation."}
+    pro: {en: "Weighting inflation risks more, or signalling a higher rate path than markets price.", fr: "Pondérer davantage les risques d'inflation, ou signaler un chemin de taux plus haut que celui du marché."}
+    card: fed_policy
+  - term: {en: Hike, fr: Hausse de taux}
+    beginner: {en: "When the Fed raises its interest rate.", fr: "Quand la Fed monte son taux d'intérêt."}
+    pro: {en: "An increase in the target range, usually by 25 bp at an FOMC meeting.", fr: "Une hausse de la fourchette cible, en général de 25 pb lors d'une réunion du FOMC."}
+    card: fed_policy
+  - term: {en: Inflation, fr: Inflation}
+    beginner: {en: "Prices rising across the economy over time.", fr: "Les prix qui montent dans toute l'économie avec le temps."}
+    pro: {en: "Rate of change of a broad price index; the Fed targets 2% on PCE.", fr: "Taux de variation d'un indice de prix large ; la Fed vise 2 % sur le PCE."}
+    card: inflation
+  - term: {en: Inverted yield curve, fr: Courbe des taux inversée}
+    beginner: {en: "When short-term rates are higher than long-term rates, a classic warning sign.", fr: "Quand les taux courts sont plus hauts que les taux longs, un signal d'alerte classique."}
+    pro: {en: "Negative 10y-3m or 10y-2y spread; has preceded US recessions with variable lags.", fr: "Écart 10 ans - 3 mois ou 10 ans - 2 ans négatif ; a précédé les récessions américaines avec des délais variables."}
+    card: yield_curve
+  - term: {en: IORB, fr: IORB}
+    beginner: {en: "The interest the Fed pays banks on the money they keep at the Fed.", fr: "Les intérêts que la Fed verse aux banques sur l'argent qu'elles gardent chez elle."}
+    pro: {en: "Interest on reserve balances; the main administered rate keeping the EFFR in the target range.", fr: "Rémunération des réserves ; le principal taux administré qui maintient l'EFFR dans la fourchette."}
+    card: fed_policy
+  - term: {en: Liquidity, fr: Liquidité}
+    beginner: {en: "How easily you can sell something quickly without losing much.", fr: "La facilité à vendre vite quelque chose sans trop perdre."}
+    pro: {en: "Market liquidity (spreads, depth, price impact) versus funding liquidity (ability to borrow against assets).", fr: "Liquidité de marché (écarts, profondeur, impact) contre liquidité de financement (capacité d'emprunter contre des actifs)."}
+    card: liquidity
+  - term: {en: Natural rate of unemployment, fr: Taux de chômage naturel}
+    beginner: {en: "The unemployment level that does not push inflation up or down.", fr: "Le niveau de chômage qui ne pousse l'inflation ni vers le haut ni vers le bas."}
+    pro: {en: "NAIRU / u*; CBO's NROU is the long-term estimate used in this app's Taylor rules.", fr: "NAIRU / u* ; le NROU de la CBO est l'estimation de long terme utilisée dans les règles de Taylor de l'application."}
+    card: labour_market
+  - term: {en: Neutral rate (r*), fr: Taux neutre (r*)}
+    beginner: {en: "The interest rate that neither speeds up nor slows down the economy.", fr: "Le taux d'intérêt qui n'accélère ni ne freine l'économie."}
+    pro: {en: "Real short rate consistent with full employment and stable inflation; unobservable, estimated by HLW-type models.", fr: "Taux court réel compatible avec le plein emploi et une inflation stable ; inobservable, estimé par des modèles de type HLW."}
+    card: real_rates
+  - term: {en: Nominal, fr: Nominal}
+    beginner: {en: "Measured in today's dollars, without removing inflation.", fr: "Mesuré en dollars courants, sans retirer l'inflation."}
+    pro: {en: "In current prices; real = nominal deflated by a price index.", fr: "À prix courants ; réel = nominal déflaté par un indice de prix."}
+    card: real_rates
+  - term: {en: Output gap, fr: Écart de production}
+    beginner: {en: "How far the economy is above or below its normal capacity.", fr: "À quel point l'économie est au-dessus ou en dessous de sa capacité normale."}
+    pro: {en: "100 x (actual / potential real GDP - 1), potential from CBO.", fr: "100 x (PIB réel / PIB potentiel - 1), potentiel de la CBO."}
+    card: growth
+  - term: {en: PCE price index, fr: Indice des prix PCE}
+    beginner: {en: "The Fed's favourite measure of inflation.", fr: "La mesure d'inflation préférée de la Fed."}
+    pro: {en: "BEA personal consumption expenditures deflator; chain-weighted, broader scope than CPI, about 0.3 to 0.5 pt lower over time.", fr: "Déflateur des dépenses de consommation des ménages (BEA) ; pondérations chaînées, champ plus large que le CPI, environ 0,3 à 0,5 pt plus bas en moyenne."}
+    card: inflation
+  - term: {en: Phillips curve, fr: Courbe de Phillips}
+    beginner: {en: "The idea that low unemployment tends to come with higher inflation.", fr: "L'idée qu'un chômage bas va en général avec une inflation plus haute."}
+    pro: {en: "pi = pi_e - beta (u - u*) + supply shocks; flat in the 2010s, steeper at high utilisation.", fr: "pi = pi_e - beta (u - u*) + chocs d'offre ; plate dans les années 2010, plus pentue à forte utilisation."}
+    card: labour_market
+  - term: {en: Policy rate, fr: Taux directeur}
+    beginner: {en: "The central bank's main interest rate.", fr: "Le principal taux d'intérêt de la banque centrale."}
+    pro: {en: "For the Fed, the federal funds target range (midpoint shown in this app).", fr: "Pour la Fed, la fourchette cible des fonds fédéraux (milieu affiché dans l'application)."}
+    card: fed_policy
+  - term: {en: Productivity, fr: Productivité}
+    beginner: {en: "How much a worker produces in an hour.", fr: "Ce qu'un salarié produit en une heure."}
+    pro: {en: "Output per hour (BLS, nonfarm business); trend growth sets potential output and non-inflationary wage growth.", fr: "Production par heure (BLS, secteur marchand non agricole) ; sa tendance fixe la croissance potentielle et les hausses de salaires non inflationnistes."}
+    card: wages
+  - term: {en: QE, fr: QE (assouplissement quantitatif)}
+    beginner: {en: "The central bank creating money to buy bonds and lower long-term rates.", fr: "La banque centrale crée de la monnaie pour acheter des obligations et baisser les taux longs."}
+    pro: {en: "Large-scale asset purchases funded with reserves; works via term premium and signalling.", fr: "Achats d'actifs massifs financés par des réserves ; agit via la prime de terme et le signal."}
+    card: qe_qt
+  - term: {en: QT, fr: QT (resserrement quantitatif)}
+    beginner: {en: "The central bank shrinking its pile of bonds.", fr: "La banque centrale réduit son stock d'obligations."}
+    pro: {en: "Balance sheet run-off through redemption caps; drains reserves and adds duration to the market.", fr: "Réduction du bilan via des plafonds de remboursement ; retire des réserves et rend de la duration au marché."}
+    card: qe_qt
+  - term: {en: Real interest rate, fr: Taux d'intérêt réel}
+    beginner: {en: "The interest rate minus inflation: what your money really earns.", fr: "Le taux d'intérêt moins l'inflation : ce que votre argent rapporte vraiment."}
+    pro: {en: "Ex-ante r = i - expected inflation; market proxy: TIPS yields.", fr: "Ex ante r = i - inflation anticipée ; indicateur de marché : taux des TIPS."}
+    card: real_rates
+  - term: {en: Recession, fr: Récession}
+    beginner: {en: "A period when the economy shrinks and jobs are lost.", fr: "Une période où l'économie se contracte et où des emplois sont perdus."}
+    pro: {en: "Significant, broad and lasting decline in activity, dated by the NBER from peak to trough.", fr: "Baisse nette, large et durable de l'activité, datée par le NBER du pic au creux."}
+    card: recession
+  - term: {en: Regime, fr: Régime}
+    beginner: {en: "The app's one-word summary of the economic weather.", fr: "Le résumé en un mot de la météo économique dans l'application."}
+    pro: {en: "Label from a rule on three dimension scores (stress, inflation, growth), or a model state named after the closest regime centre.", fr: "Étiquette donnée par une règle sur trois scores (stress, inflation, croissance), ou état d'un modèle nommé d'après le centre de régime le plus proche."}
+    card: our_regimes
+  - term: {en: Sahm rule, fr: Règle de Sahm}
+    beginner: {en: "A warning that fires when unemployment rises half a point from its recent low.", fr: "Un signal qui s'allume quand le chômage monte d'un demi-point au-dessus de son plus bas récent."}
+    pro: {en: "3-month average unemployment minus its minimum of the prior 12 months, at least 0.5 pt.", fr: "Chômage moyen sur 3 mois moins son minimum des 12 mois précédents, au moins 0,5 pt."}
+    card: labour_market
+  - term: {en: Soft landing, fr: Atterrissage en douceur}
+    beginner: {en: "Inflation coming down without a recession.", fr: "L'inflation qui baisse sans récession."}
+    pro: {en: "Disinflation achieved with only a small rise in unemployment (1994-95; 2023-24 so far).", fr: "Désinflation obtenue avec seulement une petite hausse du chômage (1994-95 ; 2023-24 jusqu'ici)."}
+    card: fed_policy
+  - term: {en: Stagflation, fr: Stagflation}
+    beginner: {en: "High inflation with a stuck economy.", fr: "Une inflation forte avec une économie bloquée."}
+    pro: {en: "Inflation above target with output below potential, usually after an adverse supply shock.", fr: "Inflation au-dessus de la cible avec une production sous le potentiel, en général après un choc d'offre négatif."}
+    card: stagflation
+  - term: {en: Supply shock, fr: Choc d'offre}
+    beginner: {en: "A sudden change in how much can be produced, like a war cutting oil.", fr: "Un changement soudain de ce qu'on peut produire, comme une guerre qui coupe le pétrole."}
+    pro: {en: "Shift of aggregate supply: prices and output move in opposite directions.", fr: "Déplacement de l'offre globale : prix et production bougent en sens inverse."}
+    card: supply_demand
+  - term: {en: Taylor rule, fr: Règle de Taylor}
+    beginner: {en: "A simple formula that says where interest rates should be, given inflation and jobs.", fr: "Une formule simple qui dit où devraient être les taux, selon l'inflation et l'emploi."}
+    pro: {en: "i = r* + pi + 0.5 (pi - 2) + 0.5 gap (1993); variants weight the gap 1.0 or add inertia.", fr: "i = r* + pi + 0,5 (pi - 2) + 0,5 écart (1993) ; des variantes pondèrent l'écart à 1,0 ou ajoutent de l'inertie."}
+    card: fed_policy
+  - term: {en: Term premium, fr: Prime de terme}
+    beginner: {en: "The extra yield investors want for lending for a long time.", fr: "Le rendement en plus que les investisseurs demandent pour prêter longtemps."}
+    pro: {en: "Long yield minus the average expected short rate over its life; estimated (ACM, Kim-Wright), not observed.", fr: "Taux long moins la moyenne des taux courts attendus sur sa vie ; estimée (ACM, Kim-Wright), pas observée."}
+    card: yield_curve
+  - term: {en: TIPS, fr: TIPS}
+    beginner: {en: "US government bonds whose value rises with inflation.", fr: "Des obligations de l'État américain dont la valeur suit l'inflation."}
+    pro: {en: "Treasury Inflation-Protected Securities, principal indexed to CPI-U; their yield is a real yield.", fr: "Treasury Inflation-Protected Securities, principal indexé sur le CPI-U ; leur rendement est un taux réel."}
+    card: real_rates
+  - term: {en: Treasury bill, fr: Bon du Trésor}
+    beginner: {en: "A short loan (up to a year) to the US government.", fr: "Un prêt court (jusqu'à un an) à l'État américain."}
+    pro: {en: "Discount security up to 52 weeks; its yield tracks the expected average policy rate over its life plus a small basis.", fr: "Titre à escompte jusqu'à 52 semaines ; son taux suit la moyenne attendue du taux directeur sur sa vie plus une petite base."}
+    card: fed_policy
+  - term: {en: Unemployment rate, fr: Taux de chômage}
+    beginner: {en: "The share of people who want a job and cannot find one.", fr: "La part des personnes qui veulent un emploi et n'en trouvent pas."}
+    pro: {en: "U-3 from the household survey: unemployed / labour force; broader U-6 adds part-time for economic reasons.", fr: "U-3 de l'enquête ménages : chômeurs / population active ; le U-6, plus large, ajoute le temps partiel subi."}
+    card: labour_market
+  - term: {en: VIX, fr: VIX}
+    beginner: {en: "The fear index: how much investors expect US stocks to swing.", fr: "L'indice de la peur : combien les investisseurs s'attendent à ce que les actions américaines bougent."}
+    pro: {en: "Cboe 30-day model-free implied volatility of the S&P 500; data shown with Cboe citation.", fr: "Volatilité implicite à 30 jours du S&P 500, sans modèle, calculée par Cboe ; données affichées avec citation de Cboe."}
+    card: volatility
+  - term: {en: Volatility, fr: Volatilité}
+    beginner: {en: "How much prices jump around.", fr: "L'ampleur des variations de prix."}
+    pro: {en: "Annualised standard deviation of returns, realised (past) or implied (from options).", fr: "Écart-type annualisé des rendements, réalisé (passé) ou implicite (tiré des options)."}
+    card: volatility
+  - term: {en: Yield, fr: Rendement (taux)}
+    beginner: {en: "What a bond pays you each year, as a percentage of its price.", fr: "Ce qu'une obligation rapporte chaque année, en pourcentage de son prix."}
+    pro: {en: "Yield to maturity: the discount rate equating the bond's cash flows to its price; moves inversely to price.", fr: "Rendement à l'échéance : le taux d'actualisation qui égalise flux et prix ; varie en sens inverse du prix."}
+    card: yield_curve
+  - term: {en: Yield curve, fr: Courbe des taux}
+    beginner: {en: "Interest rates from short to long loans, drawn on one line.", fr: "Les taux d'intérêt des prêts courts aux prêts longs, sur une même ligne."}
+    pro: {en: "Treasury term structure; slope (10y-3m, 10y-2y) summarises expected policy and the term premium.", fr: "Structure par terme du Trésor ; la pente (10 ans - 3 mois, 10 ans - 2 ans) résume la politique attendue et la prime de terme."}
+    card: yield_curve
+  - term: {en: Z-score, fr: Z-score}
+    beginner: {en: "How unusual a number is compared with its own past: 0 is normal, 2 is very unusual.", fr: "À quel point un chiffre est inhabituel par rapport à son passé : 0 est normal, 2 très inhabituel."}
+    pro: {en: "(x - mean) / standard deviation over the past only (expanding window, no look-ahead), clipped at 4 in this app.", fr: "(x - moyenne) / écart-type sur le passé seulement (fenêtre expansive, sans regard vers le futur), borné à 4 dans l'application."}
+    card: our_regimes
+  - term: {en: Calibration, fr: Calibration}
+    beginner: {en: "Checking that a 30% forecast comes true about 30% of the time.", fr: "Vérifier qu'une prévision à 30 % se réalise environ 30 % du temps."}
+    pro: {en: "Agreement between forecast probabilities and observed frequencies; measured here by ECE and the Brier score.", fr: "Accord entre probabilités prévues et fréquences observées ; mesuré ici par l'ECE et le score de Brier."}
+    card: probabilities
+  - term: {en: Margin, fr: Marge}
+    beginner: {en: "What a firm keeps from each sale after paying its costs.", fr: "Ce qu'une entreprise garde de chaque vente après avoir payé ses coûts."}
+    pro: {en: "Profit over revenue; macro proxy: corporate profits after tax over GDP.", fr: "Profit sur chiffre d'affaires ; indicateur macro : profits des entreprises après impôt sur PIB."}
+    card: pricing_power
+  - term: {en: Saving rate, fr: Taux d'épargne}
+    beginner: {en: "The share of income households put aside.", fr: "La part du revenu que les ménages mettent de côté."}
+    pro: {en: "Personal saving / disposable personal income (BEA).", fr: "Épargne des ménages / revenu disponible (BEA)."}
+    card: consumer
+  - term: {en: Wage-price spiral, fr: Spirale prix-salaires}
+    beginner: {en: "Prices push wages up, wages push prices up, and so on.", fr: "Les prix poussent les salaires, les salaires poussent les prix, et ainsi de suite."}
+    pro: {en: "Self-sustaining inflation through indexation and expectations; requires accommodative policy to persist.", fr: "Inflation auto-entretenue par l'indexation et les anticipations ; ne dure qu'avec une politique accommodante."}
+    card: wages

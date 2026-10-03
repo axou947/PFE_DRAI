@@ -1,0 +1,131 @@
+id: growth
+theme: macro
+icon: "🌱"
+title: {en: Economic growth, fr: La croissance économique}
+indicators: [real_gdp_yoy, output_gap, indpro_yoy, retail_yoy]
+chart: [real_gdp_yoy, indpro_yoy]
+leads_to:
+  - {card: labour_market, en: "firms hire when demand grows", fr: "les entreprises embauchent quand la demande progresse"}
+  - {card: pricing_power, en: "strong demand supports margins", fr: "une demande forte soutient les marges"}
+  - {card: inflation, en: "growth above potential overheats", fr: "une croissance au-dessus du potentiel fait surchauffer"}
+facts:
+  en:
+    - Growth is the change in real GDP, the value of everything the economy produces after removing inflation.
+    - The US economy's long-run potential grows about 2% a year; growing faster than that for long tends to create inflation, slower tends to raise unemployment.
+    - Our model's growth dimension reads timely signals (jobless claims, industrial production, the yield curve, equity momentum) because GDP is published late.
+  fr:
+    - La croissance est la variation du PIB réel, la valeur de tout ce que l'économie produit, une fois l'inflation retirée.
+    - Le potentiel de long terme de l'économie américaine progresse d'environ 2 % par an ; croître durablement plus vite crée en général de l'inflation, plus lentement fait monter le chômage.
+    - La dimension croissance de notre modèle lit des signaux rapides (inscriptions au chômage, production industrielle, courbe des taux, élan des actions) car le PIB est publié tard.
+beginner:
+  en:
+    summary: Is the economy producing more than last year?
+    what: >-
+      GDP is the total value of what a country produces in a year: cars, haircuts, software, houses. "Real" growth
+      removes inflation, so it measures if we really make more, not just charge more.
+    good: >-
+      Steady growth means more jobs, rising incomes and profits. Around 2% a year is a healthy cruising speed for the
+      US.
+    bad: >-
+      Growth that is too fast can overheat the economy: not enough workers or materials, so prices jump. Growth that
+      falls below zero for a while is a recession: lost jobs and lower incomes.
+    next: >-
+      If growth is strong and inflation rises, the Fed may raise rates to slow things down. If growth weakens, the Fed
+      may cut rates to help. GDP is published months late, so analysts watch faster clues like weekly jobless claims.
+  fr:
+    summary: L'économie produit-elle plus que l'an dernier ?
+    what: >-
+      Le PIB est la valeur totale de ce qu'un pays produit en un an : voitures, coupes de cheveux, logiciels, maisons. La
+      croissance « réelle » retire l'inflation : elle mesure si l'on produit vraiment plus, pas si l'on facture plus cher.
+    good: >-
+      Une croissance régulière signifie plus d'emplois, des revenus et des profits en hausse. Environ 2 % par an est une
+      bonne vitesse de croisière pour les États-Unis.
+    bad: >-
+      Une croissance trop rapide peut faire surchauffer l'économie : pas assez de salariés ou de matériaux, donc les prix
+      bondissent. Une croissance négative pendant un moment, c'est une récession : emplois perdus et revenus en baisse.
+    next: >-
+      Si la croissance est forte et l'inflation monte, la Fed peut monter ses taux pour ralentir le rythme. Si la
+      croissance faiblit, elle peut les baisser pour aider. Le PIB est publié avec des mois de retard, donc les
+      analystes suivent des indices plus rapides comme les inscriptions hebdomadaires au chômage.
+pro:
+  en:
+    summary: Real output, potential growth, the output gap and nowcasting.
+    what: >-
+      Real GDP (BEA, quarterly, revised for years) decomposes into consumption (about 68%), investment, government and
+      net exports. CBO's potential GDP gives the output gap; potential growth = labour force growth plus trend
+      productivity, about 1.8 to 2% for the US. Timely proxies: industrial production, retail sales, claims, PMIs,
+      and nowcasts (Atlanta Fed GDPNow, New York Fed Staff Nowcast).
+    good: >-
+      Growth near potential with a closed output gap is the policy sweet spot. Productivity-led acceleration (late
+      1990s) raises potential and lets the economy grow faster without inflation; supply-side expansions (labour force
+      growth through immigration, 2023-24) do the same.
+    bad: >-
+      A positive output gap fuels inflation and asset imbalances; a negative one wastes resources and, if persistent,
+      lowers potential through hysteresis (lost skills, missing investment). Growth driven by credit or inventory
+      rebuilding is fragile.
+    next: >-
+      Growth momentum is persistent in the short run but mean-reverting over the cycle. Leading indicators (curve
+      slope, claims, building permits, new orders) turn before GDP. Our growth score averages robust z-scores of claims,
+      industrial production, the curve slope and equity momentum over 21 days, since GDP itself arrives too late to
+      date regimes.
+    mechanics: |
+      - $Y = C + I + G + (X - M)$.
+      - Output gap $= 100\,(Y/Y^* - 1)$; potential growth $\approx g_{labour} + g_{productivity}$.
+      - Our score (docs/SLOWDOWN.md): growth = 21-day average of the robust z-scores of its four inputs.
+    reading: |
+      - Congressional Budget Office, "CBO's Method for Estimating Potential Output".
+      - Higgins, P. (2014), "GDPNow: A Model for GDP 'Nowcasting'", Atlanta Fed Working Paper.
+      - Cerra, V. and Saxena, S. (2008), "Growth Dynamics: The Myth of Economic Recovery", American Economic Review.
+  fr:
+    summary: Production réelle, croissance potentielle, écart de production et nowcasting.
+    what: >-
+      Le PIB réel (BEA, trimestriel, révisé pendant des années) se décompose en consommation (environ 68 %),
+      investissement, dépenses publiques et exportations nettes. Le PIB potentiel de la CBO donne l'écart de production ;
+      croissance potentielle = croissance de la population active plus productivité tendancielle, environ 1,8 à 2 % aux
+      États-Unis. Indicateurs rapides : production industrielle, ventes au détail, inscriptions au chômage, PMI, et
+      nowcasts (GDPNow de la Fed d'Atlanta, Staff Nowcast de la Fed de New York).
+    good: >-
+      Une croissance proche du potentiel avec un écart de production fermé est l'idéal pour la politique monétaire. Une
+      accélération portée par la productivité (fin des années 1990) relève le potentiel et permet de croître plus vite
+      sans inflation ; une expansion par l'offre (population active portée par l'immigration, 2023-24) aussi.
+    bad: >-
+      Un écart positif nourrit l'inflation et les déséquilibres d'actifs ; un écart négatif gaspille des ressources et,
+      s'il dure, abaisse le potentiel par hystérèse (compétences perdues, investissement manquant). Une croissance portée
+      par le crédit ou la reconstitution des stocks est fragile.
+    next: >-
+      L'élan de croissance est persistant à court terme mais revient vers la moyenne sur le cycle. Les indicateurs
+      avancés (pente de la courbe, inscriptions au chômage, permis de construire, commandes) tournent avant le PIB.
+      Notre score de croissance fait la moyenne sur 21 jours des z-scores robustes des inscriptions au chômage, de la
+      production industrielle, de la pente de la courbe et de l'élan des actions, car le PIB arrive trop tard pour dater
+      les régimes.
+    mechanics: |
+      - $Y = C + I + G + (X - M)$.
+      - Écart de production $= 100\,(Y/Y^* - 1)$ ; croissance potentielle $\approx g_{travail} + g_{productivité}$.
+      - Notre score (docs/SLOWDOWN.md) : croissance = moyenne sur 21 jours des z-scores robustes de ses quatre entrées.
+    reading: |
+      - Congressional Budget Office, « CBO's Method for Estimating Potential Output ».
+      - Higgins, P. (2014), « GDPNow: A Model for GDP 'Nowcasting' », Atlanta Fed Working Paper.
+      - Cerra, V. et Saxena, S. (2008), « Growth Dynamics: The Myth of Economic Recovery », American Economic Review.
+quiz:
+  beginner:
+    - en:
+        q: GDP rose 5% but prices rose 4%. Real growth is about...
+        options: [9%, 5%, 1%]
+        answer: 2
+        why: "Real growth removes inflation: about 5% - 4% = 1%."
+      fr:
+        q: Le PIB a progressé de 5 % mais les prix de 4 %. La croissance réelle est d'environ...
+        options: [9 %, 5 %, 1 %]
+        answer: 2
+        why: La croissance réelle retire l'inflation, environ 5 % - 4 % = 1 %.
+  pro:
+    - en:
+        q: Labour force grows 0.5% a year and trend productivity 1.5%. Potential growth is about...
+        options: [1%, 2%, 3%]
+        answer: 1
+        why: Potential growth is roughly labour force growth plus productivity growth.
+      fr:
+        q: La population active progresse de 0,5 % par an et la productivité tendancielle de 1,5 %. La croissance potentielle est d'environ...
+        options: [1 %, 2 %, 3 %]
+        answer: 1
+        why: La croissance potentielle est en gros la croissance de la population active plus celle de la productivité.

@@ -25,6 +25,7 @@ puis le résultat est mis en cache dans `data_cache/`.
 | Écran | Contenu |
 |---|---|
 | **Tableau de bord** | régime actuel et probabilités (probabilité de stress calibrée), alarme de stress (active ou non, depuis quand), les 3 dimensions (stress, croissance, inflation), ce qui a changé en une semaine, ce qui ferait basculer, moteurs du régime, historique des régimes sur l'indice actions |
+| **Apprendre (débutant)** et **Apprendre (pro)** | deux onglets pédagogiques, même contenu à deux niveaux : l'économie américaine du jour (indicateurs, voyants de récession), probabilités de baisse, statu quo ou hausse de la Fed selon trois méthodes (bons du Trésor, règles de Taylor, précédents historiques), 26 fiches concepts macro et micro (pourquoi c'est bon, mauvais, ce qui vient ensuite), carte des liens de cause à effet, leçons d'histoire, laboratoire (calculateurs), glossaire, quiz ; le tuteur IA GAMA est affiché mais « bientôt disponible » (docs/LEARN.md) |
 | **Marchés mondiaux** | carte de 20 marchés actions (ETF pays cotés aux États-Unis à la place des indices sous licence) : performance de 1 jour à 1 an, ou état de stress de marché propre à chaque pays (calme, tendu, stress) ; zoom par zone, date libre et épisodes passés à revoir, détail d'un pays au clic, part des marchés en stress comparée au régime US, tableau exportable (docs/WORLD.md) |
 | **Historique** | latence de détection par épisode, fausses alertes par an, fiabilité de la probabilité de stress (courbe de calibration, Brier, ECE, avant et après calibration), comparaison des modèles, track record publié |
 | **Track record** | la page publique du track record : chaque jour publié (régime, probabilité de stress, alarme, empreinte SHA-256, horodatage Bitcoin), chaque épisode de stress et son délai de détection, chaque alarme, fausses alarmes comprises ; le backtest 2009-2026 à part, clairement séparé du réel (docs/TRACK_RECORD.md) |
@@ -135,7 +136,8 @@ dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#ajouter-une-source-de-données)
 ## Structure
 
 ```
-config/        settings.yaml (tous les réglages), scenarios.yaml, funds.yaml, markets.yaml (carte du monde)
+config/        settings.yaml (tous les réglages), scenarios.yaml, funds.yaml, markets.yaml (carte du monde),
+               learn/ (indicateurs, calendrier FOMC, fiches, glossaire, épisodes des pages Apprendre)
 pfe_drai/
   data/        sources : synthetic, csv, fred, yahoo ; catalogue des séries
   features/    12 indicateurs point-in-time -> scores stress / croissance / inflation
@@ -149,6 +151,7 @@ pfe_drai/
   alerts.py    règles d'alerte
   health.py    santé du job quotidien : jour manquant, intégrité, fraîcheur des sources (docs/OPERATIONS.md)
   nyse.py      calendrier de la Bourse de New York (jours fériés, jour attendu)
+  learn/       pages Apprendre : données FRED, probabilités Fed, fiches, glossaire, histoire (docs/LEARN.md)
   world.py     marchés mondiaux : prix des ETF pays, état de stress par pays, diffusion
   pipeline.py  enchaîne tout ; utilisé par l'app, l'API, la CLI et les tests
   i18n/        t(clé, langue) ; textes dans locales/fr.json et locales/en.json

@@ -1,0 +1,123 @@
+id: stress_alarm
+theme: model
+icon: "🚨"
+title: {en: Our stress alarm, fr: Notre alarme de stress}
+indicators: [vix]
+leads_to:
+  - {card: probabilities, en: "the alarm and the probability are different numbers", fr: "l'alarme et la probabilité sont deux nombres différents"}
+  - {card: volatility, en: "reads fast market signals", fr: "lit les signaux de marché rapides"}
+facts:
+  en:
+    - The stress alarm turns on when the detector score stays above its threshold for several days in a row.
+    - It is tuned to catch crises early, so it accepts some false alarms (about 1.3 a year on real data).
+    - On real US data it caught 11 of 11 crisis episodes out of sample, with a median of 3 days before the dated start.
+  fr:
+    - L'alarme de stress s'allume quand le score du détecteur reste au-dessus de son seuil plusieurs jours d'affilée.
+    - Elle est réglée pour repérer les crises tôt, et accepte donc quelques fausses alertes (environ 1,3 par an sur données réelles).
+    - Sur données américaines réelles, elle a repéré hors échantillon 11 épisodes de crise sur 11, avec une médiane de 3 jours avant le début daté.
+beginner:
+  en:
+    summary: A smoke detector for financial markets.
+    what: >-
+      The alarm is like a smoke detector: it watches market signals (falling prices, nervousness, credit) every day.
+      When the danger reading stays high for a few days in a row, it turns on.
+    good: >-
+      It aims to ring early, ideally before or right at the start of a crisis, so you have time to understand what is
+      happening.
+    bad: >-
+      Like a smoke detector that sometimes rings when you burn toast, it can give false alarms, roughly once a year. And
+      it describes risk; it does not tell anyone what to buy or sell.
+    next: >-
+      When the alarm turns on, check the dashboard to see which signals drive it. It turns off once markets calm down.
+      Its full history is published every day so anyone can check how well it works.
+  fr:
+    summary: Un détecteur de fumée pour les marchés financiers.
+    what: >-
+      L'alarme fonctionne comme un détecteur de fumée : elle surveille chaque jour des signaux de marché (prix en baisse,
+      nervosité, crédit). Quand le niveau de danger reste haut quelques jours d'affilée, elle s'allume.
+    good: >-
+      Elle cherche à sonner tôt, idéalement avant ou au tout début d'une crise, pour laisser le temps de comprendre ce qui
+      se passe.
+    bad: >-
+      Comme un détecteur qui sonne parfois pour un toast brûlé, elle peut donner de fausses alertes, à peu près une fois
+      par an. Et elle décrit un risque ; elle ne dit à personne quoi acheter ou vendre.
+    next: >-
+      Quand l'alarme s'allume, le tableau de bord montre quels signaux la font sonner. Elle s'éteint quand les marchés se
+      calment. Son historique complet est publié chaque jour pour que chacun puisse vérifier qu'elle marche.
+pro:
+  en:
+    summary: Detector score, confirmation rule and the pre-registered track record.
+    what: >-
+      Detector score = max of three sources: the jump model's stress probability, a gradient-boosting classifier and an
+      onset model on fast market inputs (v2, docs/DETECTION_V2.md). The alarm switches on when that score exceeds the
+      threshold (0.5 by default) for 3 consecutive days. Episodes are dated by a frozen rule (drawdown and re-arming
+      conditions, sha256-pinned), so the target cannot be moved after the fact.
+    good: >-
+      Out of sample on real data (2009-2025): 11/11 episodes detected, median latency -3 days (before the dated start),
+      about 1.3 false alarms a year. The daily output is published with a hash chain and OpenTimestamps proofs.
+    bad: >-
+      Max-combination biases the score upwards: it is a detector, not a probability (hence the separate calibrated
+      P(stress)). False alarms cluster in volatile but non-crisis periods; a crisis with a slow, macro-led start could be
+      flagged late. All episodes since 2008 are now "seen": any retuning needs a new pre-registration.
+    next: >-
+      Read the alarm with the calibrated probability and the dimension scores: an alarm with rising credit stress and a
+      falling growth score is a different story from a volatility spike alone. The Track record tab shows every alarm with
+      its latency.
+    mechanics: |
+      - $D_t = \max(p^{jump}_t, p^{gbm}_t, p^{onset}_t)$; alarm on when $D_{t-k} > \theta$ for $k = 0, 1, 2$.
+      - Latency = alarm start minus dated episode start (negative = early).
+      - False alarm rate = alarm onsets outside episodes per year.
+    reading: |
+      - docs/DETECTION_V2.md, docs/TRACK_RECORD.md in this repository.
+      - Harvey, C. and Liu, Y. (2015), "Backtesting", Journal of Portfolio Management (why pre-registration matters).
+  fr:
+    summary: Score du détecteur, règle de confirmation et historique pré-enregistré.
+    what: >-
+      Score du détecteur = maximum de trois sources : la probabilité de stress du jump model, un classifieur par gradient
+      boosting et un modèle de début de crise sur les entrées de marché rapides (v2, docs/DETECTION_V2.md). L'alarme
+      s'allume quand ce score dépasse le seuil (0,5 par défaut) 3 jours de suite. Les épisodes sont datés par une règle
+      figée (conditions de baisse et de réarmement, épinglée par sha256), donc la cible ne peut pas être déplacée après
+      coup.
+    good: >-
+      Hors échantillon sur données réelles (2009-2025) : 11 épisodes sur 11 détectés, latence médiane -3 jours (avant le
+      début daté), environ 1,3 fausse alerte par an. La sortie quotidienne est publiée avec une chaîne de hachage et des
+      preuves OpenTimestamps.
+    bad: >-
+      Prendre le maximum biaise le score vers le haut : c'est un détecteur, pas une probabilité (d'où la P(stress) calibrée
+      séparée). Les fausses alertes se regroupent dans des périodes volatiles sans crise ; une crise au départ lent, tirée
+      par la macro, pourrait être signalée tard. Tous les épisodes depuis 2008 sont désormais « vus » : tout nouveau réglage
+      demande un nouveau pré-enregistrement.
+    next: >-
+      Lire l'alarme avec la probabilité calibrée et les scores de dimension : une alarme avec un stress de crédit en hausse
+      et un score de croissance en baisse ne raconte pas la même histoire qu'un simple pic de volatilité. L'onglet Track
+      record montre chaque alarme avec sa latence.
+    mechanics: |
+      - $D_t = \max(p^{jump}_t, p^{gbm}_t, p^{onset}_t)$ ; alarme allumée quand $D_{t-k} > \theta$ pour $k = 0, 1, 2$.
+      - Latence = début de l'alarme moins début daté de l'épisode (négatif = en avance).
+      - Taux de fausses alertes = débuts d'alarme hors épisodes par an.
+    reading: |
+      - docs/DETECTION_V2.md, docs/TRACK_RECORD.md dans ce dépôt.
+      - Harvey, C. et Liu, Y. (2015), « Backtesting », Journal of Portfolio Management (pourquoi le pré-enregistrement compte).
+quiz:
+  beginner:
+    - en:
+        q: The alarm rings but no crisis follows. What happened?
+        options: [The app is broken, "A false alarm, which the design accepts about once a year", The crisis is hidden]
+        answer: 1
+        why: To ring early, the alarm sometimes rings for nothing, like a sensitive smoke detector.
+      fr:
+        q: L'alarme sonne mais aucune crise ne suit. Que s'est-il passé ?
+        options: [L'application est cassée, "Une fausse alerte, que le réglage accepte environ une fois par an", La crise est cachée]
+        answer: 1
+        why: Pour sonner tôt, l'alarme sonne parfois pour rien, comme un détecteur de fumée sensible.
+  pro:
+    - en:
+        q: Why is the detector score not shown as the probability of stress?
+        options: [Taking the max of three models biases it upwards, It is computed on simulated data, It ignores credit]
+        answer: 0
+        why: The max of several noisy probabilities overstates risk; the shown P(stress) is Platt-calibrated separately.
+      fr:
+        q: Pourquoi le score du détecteur n'est-il pas affiché comme la probabilité de stress ?
+        options: [Prendre le maximum de trois modèles le biaise vers le haut, Il est calculé sur données simulées, Il ignore le crédit]
+        answer: 0
+        why: Le maximum de plusieurs probabilités bruitées surestime le risque ; la P(stress) affichée est calibrée à part (Platt).

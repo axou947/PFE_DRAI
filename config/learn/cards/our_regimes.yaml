@@ -1,0 +1,127 @@
+id: our_regimes
+theme: model
+icon: "🧭"
+title: {en: Our four market regimes, fr: Nos quatre régimes de marché}
+indicators: []
+leads_to:
+  - {card: stress_alarm, en: "stress is checked first", fr: "le stress est vérifié en premier"}
+  - {card: probabilities, en: "each regime comes with a probability", fr: "chaque régime vient avec une probabilité"}
+facts:
+  en:
+    - The app reads the US economy on three dimensions - stress, growth and inflation - each a score built from public data.
+    - "A transparent rule turns the three scores into four regimes: Stress, Inflationary overheating, Slowdown and Expansion."
+    - The regime describes the environment; it is not a forecast and not investment advice.
+  fr:
+    - L'application lit l'économie américaine sur trois dimensions - stress, croissance et inflation - chacune un score construit à partir de données publiques.
+    - "Une règle transparente transforme les trois scores en quatre régimes : Stress, Surchauffe inflationniste, Ralentissement et Expansion."
+    - Le régime décrit l'environnement ; ce n'est ni une prévision ni un conseil d'investissement.
+beginner:
+  en:
+    summary: What the four "weather reports" of the app mean.
+    what: >-
+      Like a weather report, the app sums up the economy in one word. It looks at three things: how nervous markets are
+      (stress), how fast the economy grows (growth) and how fast prices rise (inflation). Then it picks one of four
+      regimes.
+    good: >-
+      Expansion is the sunny regime: steady growth, calm markets, normal inflation. Most days in history are in
+      expansion.
+    bad: >-
+      Stress means markets are in turmoil. Overheating means prices run too hot. Slowdown means growth is below its
+      usual pace. Each one calls for more caution in different ways.
+    next: >-
+      Regimes change slowly most of the time, but stress can arrive suddenly. The dashboard shows how far each score is
+      from switching to another regime, so you can see what would change the picture.
+  fr:
+    summary: Ce que veulent dire les quatre « bulletins météo » de l'application.
+    what: >-
+      Comme un bulletin météo, l'application résume l'économie en un mot. Elle regarde trois choses : la nervosité des
+      marchés (stress), la vitesse de la croissance (croissance) et celle des prix (inflation). Puis elle choisit un des
+      quatre régimes.
+    good: >-
+      L'expansion est le régime ensoleillé : croissance régulière, marchés calmes, inflation normale. La plupart des
+      jours de l'histoire sont en expansion.
+    bad: >-
+      Le stress veut dire des marchés en tourmente. La surchauffe, des prix qui chauffent trop. Le ralentissement, une
+      croissance sous son rythme habituel. Chacun appelle plus de prudence, de façons différentes.
+    next: >-
+      Les régimes changent en général lentement, mais le stress peut arriver d'un coup. Le tableau de bord montre à quelle
+      distance chaque score est d'un changement de régime, pour voir ce qui changerait la situation.
+pro:
+  en:
+    summary: Dimension scores, the labelling rule and the models behind the daily regime.
+    what: >-
+      Twelve features (implied and realised volatility, drawdown, credit stress, equity momentum, curve slope, jobless
+      claims, industrial production, CPI, breakeven level and change, short-rate change) become expanding z-scores (no
+      look-ahead, point-in-time ALFRED vintages for revised macro series). Each dimension score averages its features;
+      growth uses robust scaling and a 21-day average (v2.2). The rule: Stress if stress > 1.0; else Overheating if
+      inflation > 0.8; else Slowdown if growth < 0; else Expansion. Unsupervised models (jump model) name their states
+      after the closest regime centre.
+    good: >-
+      The rule is transparent and frozen, and every published day is hashed and timestamped, so the track record cannot
+      be rewritten. Walk-forward refits mean every probability shown on a past date used only data available then.
+    bad: >-
+      Regimes are a coarse summary: boundaries are thresholds on z-scores, so days near a threshold can flip back and
+      forth. The scores are relative to US history since 2004, and a structural break (a new inflation regime) shifts
+      what "high" means over time.
+    next: >-
+      The flip distances on the dashboard give how far each score is from its threshold; the History tab shows past
+      regimes and probabilities. Methods and results are in docs/REGIMES.md, docs/SLOWDOWN.md and docs/DETECTION_V2.md.
+    mechanics: |
+      - $z_{f,t} = \frac{x_{f,t} - \text{mean}_{\leq t}}{\text{sd}_{\leq t}}$ clipped at $\pm 4$; growth: median and IQR.
+      - $S_d = \frac{1}{|F_d|}\sum_{f \in F_d} z_f$ for $d \in$ {stress, growth, inflation}.
+      - Rule order: stress, then inflation, then growth (config/settings.yaml, regimes.rule).
+    reading: |
+      - docs/REGIMES.md, docs/SLOWDOWN.md, docs/DETECTION_V2.md in this repository.
+      - Nystrup, P. et al. (2020), "Learning Hidden Markov Models with Persistent States by Penalizing Jumps", Expert Systems with Applications.
+  fr:
+    summary: Scores par dimension, règle d'étiquetage et modèles derrière le régime du jour.
+    what: >-
+      Douze variables (volatilité implicite et réalisée, baisse depuis le plus haut, stress de crédit, élan des actions,
+      pente de la courbe, inscriptions au chômage, production industrielle, CPI, niveau et variation du point mort,
+      variation du taux court) deviennent des z-scores expansifs (sans regard vers le futur, avec les premières
+      publications ALFRED pour les séries macro révisées). Chaque score de dimension fait la moyenne de ses variables ; la
+      croissance utilise une échelle robuste et une moyenne sur 21 jours (v2.2). La règle : Stress si stress > 1,0 ; sinon
+      Surchauffe si inflation > 0,8 ; sinon Ralentissement si croissance < 0 ; sinon Expansion. Les modèles non supervisés
+      (jump model) nomment leurs états d'après le centre de régime le plus proche.
+    good: >-
+      La règle est transparente et figée, et chaque jour publié est haché et horodaté : l'historique ne peut pas être
+      réécrit. Les réestimations glissantes garantissent que chaque probabilité affichée à une date passée n'a utilisé que
+      les données disponibles alors.
+    bad: >-
+      Les régimes sont un résumé grossier : les frontières sont des seuils sur des z-scores, donc les jours proches d'un
+      seuil peuvent basculer d'un côté à l'autre. Les scores sont relatifs à l'histoire américaine depuis 2004, et une
+      rupture structurelle (un nouveau régime d'inflation) déplace avec le temps ce que « haut » veut dire.
+    next: >-
+      Les distances de bascule du tableau de bord disent à quelle distance chaque score est de son seuil ; l'onglet
+      Historique montre les régimes et probabilités passés. Méthodes et résultats : docs/REGIMES.md, docs/SLOWDOWN.md et
+      docs/DETECTION_V2.md.
+    mechanics: |
+      - $z_{f,t} = \frac{x_{f,t} - \text{moyenne}_{\leq t}}{\text{écart-type}_{\leq t}}$ borné à $\pm 4$ ; croissance : médiane et IQR.
+      - $S_d = \frac{1}{|F_d|}\sum_{f \in F_d} z_f$ pour $d \in$ {stress, croissance, inflation}.
+      - Ordre de la règle : stress, puis inflation, puis croissance (config/settings.yaml, regimes.rule).
+    reading: |
+      - docs/REGIMES.md, docs/SLOWDOWN.md, docs/DETECTION_V2.md dans ce dépôt.
+      - Nystrup, P. et al. (2020), « Learning Hidden Markov Models with Persistent States by Penalizing Jumps », Expert Systems with Applications.
+quiz:
+  beginner:
+    - en:
+        q: Which regime does the app check first?
+        options: [Expansion, Stress, Slowdown]
+        answer: 1
+        why: Stress comes first in the rule, because market turmoil matters most when it happens.
+      fr:
+        q: Quel régime l'application vérifie-t-elle en premier ?
+        options: [Expansion, Stress, Ralentissement]
+        answer: 1
+        why: Le stress passe en premier dans la règle, car la tourmente des marchés compte le plus quand elle arrive.
+  pro:
+    - en:
+        q: "Scores: stress 0.6, inflation 1.1, growth -0.4. Which regime does the rule give?"
+        options: [Stress, Inflationary overheating, Slowdown]
+        answer: 1
+        why: Stress is below 1.0 and inflation above 0.8, so the rule stops at overheating before looking at growth.
+      fr:
+        q: "Scores : stress 0,6, inflation 1,1, croissance -0,4. Quel régime donne la règle ?"
+        options: [Stress, Surchauffe inflationniste, Ralentissement]
+        answer: 1
+        why: Le stress est sous 1,0 et l'inflation au-dessus de 0,8, donc la règle s'arrête à la surchauffe avant de regarder la croissance.

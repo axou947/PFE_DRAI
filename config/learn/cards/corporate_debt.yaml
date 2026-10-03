@@ -1,0 +1,130 @@
+id: corporate_debt
+theme: micro
+icon: "🏢"
+title: {en: Corporate debt and defaults, fr: Dette des entreprises et défauts}
+indicators: [policy_rate, us10y, profit_share]
+chart: [us10y, policy_rate]
+leads_to:
+  - {card: credit, en: "more defaults widen spreads", fr: "plus de défauts écartent les spreads"}
+  - {card: labour_market, en: "distressed firms cut jobs", fr: "les entreprises en difficulté suppriment des emplois"}
+  - {card: firm_investment, en: "debt overhang blocks investment", fr: "le surendettement bloque l'investissement"}
+facts:
+  en:
+    - Firms borrow from banks and bond markets to invest; debt is useful until interest costs outgrow profits.
+    - Higher rates hurt indebted firms when they refinance, often one to three years after the Fed hikes.
+    - Defaults rise in recessions and lag the cycle; high-yield (junk) borrowers are hit first.
+  fr:
+    - Les entreprises empruntent aux banques et sur les marchés obligataires pour investir ; la dette est utile tant que les intérêts ne dépassent pas les profits.
+    - Des taux plus hauts frappent les entreprises endettées au moment de refinancer, souvent un à trois ans après les hausses de la Fed.
+    - Les défauts montent en récession et suivent le cycle avec retard ; les emprunteurs à haut rendement (« junk ») sont touchés en premier.
+beginner:
+  en:
+    summary: When companies borrow too much.
+    what: >-
+      Companies borrow to build factories, buy machines or buy other companies. They pay interest every year and must
+      repay or borrow again when the loan ends. A "default" is when a firm cannot pay.
+    good: >-
+      Borrowing lets a good idea grow faster than waiting to save the money. When rates are low and profits strong,
+      debt is easy to carry.
+    bad: >-
+      When rates rise or sales fall, interest eats profits. Firms that borrowed too much cut jobs and investment, and
+      some go bankrupt. Lenders then become careful with everyone, even healthy firms.
+    next: >-
+      Defaults usually rise a while after the Fed starts raising rates, when old cheap loans have to be renewed at
+      higher rates. In a recession, they jump, then fall again during the recovery.
+  fr:
+    summary: Quand les entreprises empruntent trop.
+    what: >-
+      Les entreprises empruntent pour construire des usines, acheter des machines ou racheter d'autres entreprises. Elles
+      paient des intérêts chaque année et doivent rembourser ou réemprunter à l'échéance. Un « défaut », c'est quand une
+      entreprise ne peut pas payer.
+    good: >-
+      Emprunter permet à une bonne idée de grandir plus vite que d'attendre d'avoir épargné. Quand les taux sont bas et
+      les profits solides, la dette est facile à porter.
+    bad: >-
+      Quand les taux montent ou que les ventes baissent, les intérêts mangent les profits. Les entreprises trop endettées
+      réduisent emplois et investissements, et certaines font faillite. Les prêteurs deviennent alors prudents avec tout
+      le monde, même les entreprises saines.
+    next: >-
+      Les défauts montent en général quelque temps après le début des hausses de la Fed, quand les vieux prêts bon
+      marché doivent être renouvelés plus cher. En récession, ils bondissent, puis rebaissent pendant la reprise.
+pro:
+  en:
+    summary: Leverage, interest coverage, the maturity wall and default cycles.
+    what: >-
+      Key ratios: net debt over EBITDA (leverage) and EBIT over interest expense (coverage). US nonfinancial corporate
+      debt is about 45 to 50% of GDP, split between bonds (fixed rate, long maturities locked in during 2020-21) and
+      loans (floating rate, leveraged loans and private credit). Moody's and S&P default data are licensed, so this page
+      uses the rates and profits that drive them.
+    good: >-
+      Debt financing is cheaper than equity (tax shield) and disciplines management (Jensen 1986). Terming out debt at low
+      fixed rates in 2020-21 delayed the pass-through of the 2022-23 hikes to interest expense, one reason the cycle was
+      milder than feared.
+    bad: >-
+      Floating-rate borrowers (leveraged loans, private credit) feel hikes immediately; coverage ratios below 1.5x
+      signal distress. A maturity wall concentrates refinancing at higher rates; zombie firms (coverage below 1 for years)
+      can survive only with easy credit. Debt overhang (Myers 1977) blocks positive-NPV investment.
+    next: >-
+      Default rates lag spreads and peak in or just after recessions (2001-02, 2009, 2020); recovery rates fall as
+      defaults rise. The distress usually concentrates in sectors hit by the shock (energy 2015-16). Watch the share of
+      high-yield issuers rated CCC, interest coverage and the refinancing calendar.
+    mechanics: |
+      - Leverage: $\text{Net debt} / \text{EBITDA}$; coverage: $\text{EBIT} / \text{interest}$.
+      - Effective rate drift: $\Delta r_{eff} \approx \frac{\text{maturing share}}{\text{year}} \times (r_{new} - r_{old})$.
+      - Merton: default when asset value falls below debt; distance to default $= \frac{\ln(V/D) + (\mu - \sigma^2/2)T}{\sigma\sqrt{T}}$.
+    reading: |
+      - Merton, R. (1974), "On the Pricing of Corporate Debt", Journal of Finance.
+      - Myers, S. (1977), "Determinants of Corporate Borrowing", Journal of Financial Economics.
+      - Federal Reserve, "Financial Stability Report" (semi-annual), business leverage section.
+  fr:
+    summary: Levier, couverture des intérêts, mur de refinancement et cycles de défaut.
+    what: >-
+      Ratios clés : dette nette sur EBITDA (levier) et EBIT sur charges d'intérêts (couverture). La dette des entreprises
+      non financières américaines représente environ 45 à 50 % du PIB, entre obligations (taux fixe, longues échéances
+      verrouillées en 2020-21) et prêts (taux variable, prêts à effet de levier et crédit privé). Les données de défaut
+      de Moody's et S&P sont sous licence : cette page montre donc les taux et les profits qui les déterminent.
+    good: >-
+      La dette coûte moins cher que les fonds propres (avantage fiscal) et discipline la direction (Jensen 1986).
+      Allonger la dette à taux fixe bas en 2020-21 a retardé la transmission des hausses de 2022-23 aux charges
+      d'intérêts, une des raisons pour lesquelles le cycle a été plus doux que prévu.
+    bad: >-
+      Les emprunteurs à taux variable (prêts à effet de levier, crédit privé) subissent les hausses tout de suite ; une
+      couverture sous 1,5x signale la détresse. Un mur de refinancement concentre les renouvellements à des taux plus
+      hauts ; les entreprises « zombies » (couverture sous 1 pendant des années) ne survivent qu'avec un crédit facile. Le
+      surendettement (Myers 1977) bloque des investissements rentables.
+    next: >-
+      Les taux de défaut suivent les spreads et culminent pendant ou juste après les récessions (2001-02, 2009, 2020) ;
+      les taux de recouvrement baissent quand les défauts montent. La détresse se concentre en général dans les secteurs
+      frappés par le choc (énergie 2015-16). Suivre la part des émetteurs notés CCC, la couverture des intérêts et le
+      calendrier de refinancement.
+    mechanics: |
+      - Levier : $\text{Dette nette} / \text{EBITDA}$ ; couverture : $\text{EBIT} / \text{intérêts}$.
+      - Dérive du taux effectif : $\Delta r_{eff} \approx \frac{\text{part arrivant à échéance}}{\text{an}} \times (r_{nouveau} - r_{ancien})$.
+      - Merton : défaut quand la valeur des actifs passe sous la dette ; distance au défaut $= \frac{\ln(V/D) + (\mu - \sigma^2/2)T}{\sigma\sqrt{T}}$.
+    reading: |
+      - Merton, R. (1974), « On the Pricing of Corporate Debt », Journal of Finance.
+      - Myers, S. (1977), « Determinants of Corporate Borrowing », Journal of Financial Economics.
+      - Réserve fédérale, « Financial Stability Report » (semestriel), section sur le levier des entreprises.
+quiz:
+  beginner:
+    - en:
+        q: Why do defaults often rise a year or two after the Fed starts raising rates?
+        options: [Because firms must renew cheap old loans at higher rates, Because the Fed forbids loans, Because taxes rise]
+        answer: 0
+        why: The cost of debt rises as loans are renewed, not all at once.
+      fr:
+        q: Pourquoi les défauts montent-ils souvent un ou deux ans après le début des hausses de la Fed ?
+        options: [Car les entreprises doivent renouveler leurs vieux prêts bon marché à des taux plus hauts, Car la Fed interdit les prêts, Car les impôts montent]
+        answer: 0
+        why: Le coût de la dette monte au fil des renouvellements, pas d'un coup.
+  pro:
+    - en:
+        q: "EBIT is 30 and interest expense 25. Interest coverage is..."
+        options: [0.83x, 1.2x, 5x]
+        answer: 1
+        why: "30 / 25 = 1.2x, a fragile level; a small fall in profits makes interest unpayable from earnings."
+      fr:
+        q: "L'EBIT vaut 30 et les charges d'intérêts 25. La couverture des intérêts est de..."
+        options: ["0,83x", "1,2x", "5x"]
+        answer: 1
+        why: "30 / 25 = 1,2x, un niveau fragile ; une petite baisse des profits rend les intérêts impayables sur les bénéfices."

@@ -1,0 +1,126 @@
+id: probabilities
+theme: model
+icon: "🎲"
+title: {en: How to read a probability, fr: Comment lire une probabilité}
+indicators: []
+leads_to:
+  - {card: fed_policy, en: "the Fed odds are probabilities too", fr: "les probabilités Fed sont aussi des probabilités"}
+facts:
+  en:
+    - A probability of 30% means that, over many similar days, the event happens about 3 times in 10, not that it will or will not happen.
+    - A probability is "calibrated" when that promise holds on past data; the app checks it with reliability charts and Brier scores.
+    - Different methods give different odds; the app always says which method produced a number.
+  fr:
+    - Une probabilité de 30 % veut dire que, sur beaucoup de jours semblables, l'événement arrive environ 3 fois sur 10, pas qu'il arrivera ou non.
+    - Une probabilité est « calibrée » quand cette promesse tient sur les données passées ; l'application le vérifie avec des courbes de fiabilité et des scores de Brier.
+    - Des méthodes différentes donnent des probabilités différentes ; l'application dit toujours de quelle méthode vient un nombre.
+beginner:
+  en:
+    summary: What "30% chance of stress" really means.
+    what: >-
+      Think of a weather forecast: "30% chance of rain" does not mean it will rain a bit. It means that on days like
+      this one, it rained about 3 times out of 10. Our probabilities work the same way.
+    good: >-
+      Probabilities are honest about uncertainty. A good forecaster is one whose "30%" days really see the event about
+      30% of the time; we publish the record so you can check.
+    bad: >-
+      A 30% event happens often: almost one time in three. A low probability is not zero, and a high probability is not
+      certain. A single day can never prove a probability right or wrong.
+    next: >-
+      Look at how the probability moves: rising from 10% to 40% in a week says more than the level alone. And compare
+      sources: the Fed odds on this page come from three different methods, which do not always agree.
+  fr:
+    summary: Ce que « 30 % de risque de stress » veut vraiment dire.
+    what: >-
+      Pensez à la météo : « 30 % de risque de pluie » ne veut pas dire qu'il pleuvra un peu. Cela veut dire que, les jours
+      comme celui-ci, il a plu environ 3 fois sur 10. Nos probabilités marchent de la même façon.
+    good: >-
+      Les probabilités sont honnêtes sur l'incertitude. Un bon prévisionniste est celui dont les jours « 30 % » voient
+      vraiment l'événement environ 30 % du temps ; nous publions l'historique pour que chacun vérifie.
+    bad: >-
+      Un événement à 30 % arrive souvent : presque une fois sur trois. Une probabilité basse n'est pas zéro, une
+      probabilité haute n'est pas une certitude. Un seul jour ne peut jamais prouver qu'une probabilité était juste ou
+      fausse.
+    next: >-
+      Regardez comment la probabilité bouge : passer de 10 % à 40 % en une semaine en dit plus que le niveau seul. Et
+      comparez les sources : les probabilités Fed de cette page viennent de trois méthodes différentes, qui ne sont pas
+      toujours d'accord.
+pro:
+  en:
+    summary: Calibration, sharpness, proper scoring rules and model-implied versus market-implied odds.
+    what: >-
+      A forecast is calibrated if P(event | forecast = p) = p. Proper scoring rules reward honest forecasts: the Brier
+      score (mean squared error) and log loss. Brier decomposes into reliability (calibration error), resolution (how
+      much forecasts separate outcomes) and uncertainty. Our P(stress) is Platt-scaled walk-forward on past out-of-sample
+      days (Brier 0.100 to 0.091, ECE 0.083 to 0.042 on real data, docs/CALIBRATION.md).
+    good: >-
+      Calibrated probabilities can be combined with costs and preferences by each user; they are comparable across
+      models and over time. Reliability diagrams make failures visible.
+    bad: >-
+      Market-implied probabilities (from futures or bills) are risk-neutral: they include risk premia, so they are not
+      pure expectations. Model-based odds depend on the model's sample (base rates from few cycles) and on look-ahead in
+      revised data. Rare events have wide confidence intervals: a few episodes cannot pin down a 5% probability.
+    next: >-
+      The Fed odds box shows three methods: bill-implied (market, risk-neutral, noisy), rule-based (Taylor, a benchmark,
+      not a probability) and historical base rates (nearest-neighbour frequencies, revised data). Treat divergence
+      between them as information about uncertainty, not as an error to average away.
+    mechanics: |
+      - Brier $= \frac{1}{N}\sum_t (p_t - o_t)^2$; skill $= 1 - \text{Brier}/\text{Brier}_{climatology}$.
+      - ECE $= \sum_b \frac{n_b}{N}\,|\bar{p}_b - \bar{o}_b|$ over probability bins $b$.
+      - Platt scaling: $p = \sigma(a + b\,\text{logit}(s))$ fitted on past out-of-sample scores $s$.
+    reading: |
+      - Gneiting, T. and Raftery, A. (2007), "Strictly Proper Scoring Rules, Prediction, and Estimation", JASA.
+      - Platt, J. (1999), "Probabilistic Outputs for Support Vector Machines", Advances in Large Margin Classifiers.
+      - docs/CALIBRATION.md in this repository.
+  fr:
+    summary: Calibration, finesse, règles de score propres et probabilités de modèle contre de marché.
+    what: >-
+      Une prévision est calibrée si P(événement | prévision = p) = p. Les règles de score propres récompensent les
+      prévisions honnêtes : le score de Brier (erreur quadratique moyenne) et la log loss. Le Brier se décompose en
+      fiabilité (erreur de calibration), résolution (à quel point les prévisions séparent les issues) et incertitude.
+      Notre P(stress) est recalibrée par Platt de façon glissante sur les jours passés hors échantillon (Brier 0,100 à
+      0,091, ECE 0,083 à 0,042 sur données réelles, docs/CALIBRATION.md).
+    good: >-
+      Des probabilités calibrées peuvent être combinées par chacun avec ses coûts et préférences ; elles se comparent entre
+      modèles et dans le temps. Les diagrammes de fiabilité rendent les échecs visibles.
+    bad: >-
+      Les probabilités implicites de marché (futures ou bons) sont « risque-neutre » : elles incluent des primes de risque,
+      ce ne sont donc pas de pures anticipations. Les probabilités de modèle dépendent de l'échantillon (taux de base sur
+      peu de cycles) et du regard vers le futur des données révisées. Les événements rares ont de larges intervalles de
+      confiance : quelques épisodes ne suffisent pas à fixer une probabilité de 5 %.
+    next: >-
+      L'encadré des probabilités Fed montre trois méthodes : implicite des bons (marché, risque-neutre, bruitée), fondée
+      sur une règle (Taylor, un repère, pas une probabilité) et taux de base historiques (fréquences des plus proches
+      voisins, données révisées). Lire leur désaccord comme une information sur l'incertitude, pas comme une erreur à
+      moyenner.
+    mechanics: |
+      - Brier $= \frac{1}{N}\sum_t (p_t - o_t)^2$ ; skill $= 1 - \text{Brier}/\text{Brier}_{climatologie}$.
+      - ECE $= \sum_b \frac{n_b}{N}\,|\bar{p}_b - \bar{o}_b|$ sur des classes de probabilité $b$.
+      - Calibration de Platt : $p = \sigma(a + b\,\text{logit}(s))$ ajustée sur les scores passés hors échantillon $s$.
+    reading: |
+      - Gneiting, T. et Raftery, A. (2007), « Strictly Proper Scoring Rules, Prediction, and Estimation », JASA.
+      - Platt, J. (1999), « Probabilistic Outputs for Support Vector Machines », Advances in Large Margin Classifiers.
+      - docs/CALIBRATION.md dans ce dépôt.
+quiz:
+  beginner:
+    - en:
+        q: The app says 20% chance of stress, and stress happens. Was the app wrong?
+        options: ["Yes", "Not necessarily: 20% events happen one time in five", "It is impossible to know anything"]
+        answer: 1
+        why: One outcome cannot judge a probability; only many similar days can.
+      fr:
+        q: L'application annonce 20 % de risque de stress, et le stress arrive. L'application s'est-elle trompée ?
+        options: [Oui, "Pas forcément : un événement à 20 % arrive une fois sur cinq", On ne peut rien savoir]
+        answer: 1
+        why: Une seule issue ne juge pas une probabilité ; seuls beaucoup de jours semblables le peuvent.
+  pro:
+    - en:
+        q: Why are probabilities read from market prices not pure expectations?
+        options: [They are risk-neutral and include risk premia, They are always calibrated, They ignore the Fed]
+        answer: 0
+        why: Prices embed compensation for risk, so implied odds tilt towards outcomes investors want to insure against.
+      fr:
+        q: Pourquoi les probabilités lues dans les prix de marché ne sont-elles pas de pures anticipations ?
+        options: [Elles sont risque-neutres et incluent des primes de risque, Elles sont toujours calibrées, Elles ignorent la Fed]
+        answer: 0
+        why: Les prix intègrent une rémunération du risque, donc les probabilités implicites penchent vers les issues contre lesquelles on veut s'assurer.

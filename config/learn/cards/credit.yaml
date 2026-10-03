@@ -1,0 +1,135 @@
+id: credit
+theme: macro
+icon: "🏦"
+title: {en: Credit and credit spreads, fr: Le crédit et les spreads de crédit}
+indicators: [card_delinq, debt_service, curve_10y_3m]
+chart: [card_delinq, debt_service]
+leads_to:
+  - {card: firm_investment, en: "tighter lending cuts investment", fr: "un crédit plus strict réduit l'investissement"}
+  - {card: corporate_debt, en: "refinancing gets harder", fr: "le refinancement se complique"}
+  - {card: recession, en: "credit crunches deepen downturns", fr: "les resserrements de crédit aggravent les crises"}
+  - {card: stress_alarm, en: "our model reads credit stress", fr: "notre modèle lit le stress de crédit"}
+facts:
+  en:
+    - A credit spread is the extra yield a risky borrower pays over a safe government bond of the same maturity.
+    - Spreads widen when investors fear defaults and narrow when they are confident; they move faster than the economy.
+    - Our stress dimension includes a credit signal built from bond ETF prices (high-yield and investment-grade versus Treasuries).
+  fr:
+    - Un spread de crédit est le rendement en plus qu'un emprunteur risqué paie par rapport à une obligation d'État sûre de même durée.
+    - Les spreads s'écartent quand les investisseurs craignent des défauts et se resserrent quand ils sont confiants ; ils bougent plus vite que l'économie.
+    - Notre dimension stress contient un signal de crédit construit à partir des prix d'ETF obligataires (haut rendement et catégorie investissement contre Trésor).
+beginner:
+  en:
+    summary: How much extra a risky borrower has to pay.
+    what: >-
+      When a company borrows, lenders ask for more interest than they would from the US government, because the
+      company might not repay. That extra is the "spread". A solid company pays a small spread; a fragile one pays a
+      big one.
+    good: >-
+      Narrow spreads mean lenders are confident: firms borrow cheaply to invest and hire. Easy, healthy credit helps
+      the economy grow.
+    bad: >-
+      When fear rises, spreads jump: borrowing becomes expensive or impossible for weaker firms, some go bankrupt, and
+      the economy slows. Very narrow spreads can also mean lenders are careless, which stores up trouble.
+    next: >-
+      Spreads often widen before a recession, faster than jobs or GDP move. That is why our stress alarm watches
+      credit. In a crisis the Fed may step in to calm credit markets, as in 2020.
+  fr:
+    summary: Combien un emprunteur risqué doit payer en plus.
+    what: >-
+      Quand une entreprise emprunte, les prêteurs demandent plus d'intérêts qu'à l'État américain, car elle pourrait ne
+      pas rembourser. Ce supplément est le « spread ». Une entreprise solide paie un petit spread ; une fragile, un gros.
+    good: >-
+      Des spreads serrés veulent dire des prêteurs confiants : les entreprises empruntent à bas prix pour investir et
+      embaucher. Un crédit facile et sain aide l'économie à grandir.
+    bad: >-
+      Quand la peur monte, les spreads bondissent : emprunter devient cher, voire impossible, pour les entreprises
+      fragiles, certaines font faillite et l'économie ralentit. Des spreads très serrés peuvent aussi signaler des
+      prêteurs imprudents, ce qui prépare des ennuis.
+    next: >-
+      Les spreads s'écartent souvent avant une récession, plus vite que l'emploi ou le PIB. C'est pour cela que notre
+      alarme de stress surveille le crédit. En crise, la Fed peut intervenir pour calmer le marché du crédit, comme en
+      2020.
+pro:
+  en:
+    summary: Spreads as price of default risk and of risk appetite; the credit channel.
+    what: >-
+      Corporate spreads compensate expected default losses (probability of default x loss given default) plus a
+      larger risk and liquidity premium: the "credit spread puzzle" is that spreads exceed expected losses, especially
+      for investment grade. The excess bond premium (Gilchrist and Zakrajšek 2012) isolates that premium and predicts
+      activity. ICE BofA spread indices are licensed, so this app uses ETF price proxies (HYG, LQD vs IEF) and, for
+      households, Fed data on delinquencies and debt service.
+    good: >-
+      Narrow, stable spreads and loose lending standards support investment and refinancing; the bank lending channel
+      amplifies easing. Healthy household debt service (near historical lows after 2010) cushions shocks.
+    bad: >-
+      Spreads widen non-linearly in stress (2008, March 2020): funding markets seize, fire sales push prices below
+      fundamental value and the financial accelerator (Bernanke, Gertler, Gilchrist) amplifies the downturn as
+      collateral values fall. Prolonged tight spreads encourage covenant-lite lending and leverage, raising future
+      default losses.
+    next: >-
+      Widening of the excess bond premium has led recessions by several quarters; the Senior Loan Officer survey
+      (tightening standards) leads lending. Policy backstops (2020 corporate credit facilities) can compress spreads
+      quickly even before defaults peak. Default rates typically peak 6 to 12 months after spreads.
+    mechanics: |
+      - Spread $s \approx PD \times LGD + \text{risk premium} + \text{liquidity premium}$.
+      - Our proxy (features/build.py): credit stress = relative performance of bond ETFs versus Treasuries, as a z-score.
+      - Household burden: debt service ratio = required payments / disposable income (TDSP).
+    reading: |
+      - Gilchrist, S. and Zakrajšek, E. (2012), "Credit Spreads and Business Cycle Fluctuations", American Economic Review.
+      - Bernanke, B., Gertler, M. and Gilchrist, S. (1999), "The Financial Accelerator in a Quantitative Business Cycle Framework", Handbook of Macroeconomics.
+      - Federal Reserve, "Senior Loan Officer Opinion Survey on Bank Lending Practices".
+  fr:
+    summary: Les spreads comme prix du risque de défaut et de l'appétit pour le risque ; le canal du crédit.
+    what: >-
+      Les spreads des entreprises rémunèrent les pertes attendues sur défauts (probabilité de défaut x perte en cas de
+      défaut) plus une prime de risque et de liquidité plus grande : c'est l'« énigme des spreads », qui dépassent les
+      pertes attendues, surtout en catégorie investissement. L'excess bond premium (Gilchrist et Zakrajšek 2012) isole
+      cette prime et prédit l'activité. Les indices de spread ICE BofA sont sous licence : l'application utilise donc
+      des prix d'ETF (HYG, LQD contre IEF) et, pour les ménages, les données de la Fed sur les impayés et le service de
+      la dette.
+    good: >-
+      Des spreads serrés et stables et des conditions de prêt souples soutiennent l'investissement et le refinancement ;
+      le canal du crédit bancaire amplifie l'assouplissement. Un service de la dette des ménages sain (proche de ses
+      plus bas historiques après 2010) amortit les chocs.
+    bad: >-
+      Les spreads s'écartent de façon non linéaire en période de stress (2008, mars 2020) : les marchés de financement se
+      grippent, les ventes forcées poussent les prix sous leur valeur fondamentale et l'accélérateur financier (Bernanke,
+      Gertler, Gilchrist) amplifie la baisse à mesure que la valeur des garanties chute. Des spreads serrés trop
+      longtemps encouragent les prêts « covenant-lite » et le levier, ce qui accroît les pertes futures.
+    next: >-
+      L'écartement de l'excess bond premium a précédé les récessions de plusieurs trimestres ; l'enquête Senior Loan
+      Officer (durcissement des conditions) précède les crédits. Les filets de sécurité (facilités de crédit aux
+      entreprises en 2020) peuvent resserrer vite les spreads, avant même le pic des défauts. Les taux de défaut
+      culminent en général 6 à 12 mois après les spreads.
+    mechanics: |
+      - Spread $s \approx PD \times LGD + \text{prime de risque} + \text{prime de liquidité}$.
+      - Notre indicateur (features/build.py) : stress de crédit = performance relative des ETF obligataires face au Trésor, en z-score.
+      - Charge des ménages : ratio de service de la dette = paiements dus / revenu disponible (TDSP).
+    reading: |
+      - Gilchrist, S. et Zakrajšek, E. (2012), « Credit Spreads and Business Cycle Fluctuations », American Economic Review.
+      - Bernanke, B., Gertler, M. et Gilchrist, S. (1999), « The Financial Accelerator in a Quantitative Business Cycle Framework », Handbook of Macroeconomics.
+      - Réserve fédérale, « Senior Loan Officer Opinion Survey on Bank Lending Practices ».
+quiz:
+  beginner:
+    - en:
+        q: Credit spreads jump suddenly. What does it usually mean?
+        options: [Lenders are more confident, Lenders fear more defaults, The Fed raised rates]
+        answer: 1
+        why: A wider spread is the extra pay lenders ask for when they worry about not being repaid.
+      fr:
+        q: Les spreads de crédit bondissent. Qu'est-ce que cela veut dire en général ?
+        options: [Les prêteurs sont plus confiants, Les prêteurs craignent plus de défauts, La Fed a monté ses taux]
+        answer: 1
+        why: Un spread plus large, c'est le supplément demandé par les prêteurs quand ils craignent de ne pas être remboursés.
+  pro:
+    - en:
+        q: "Expected loss on a bond: default probability 2% a year, recovery 40%. The expected-loss part of the spread is about..."
+        options: [80 bp, 120 bp, 200 bp]
+        answer: 1
+        why: "PD x LGD = 2% x 60% = 1.2% = 120 bp; the observed spread is usually larger (risk premium)."
+      fr:
+        q: "Perte attendue sur une obligation : probabilité de défaut 2 % par an, recouvrement 40 %. La part du spread liée à la perte attendue est d'environ..."
+        options: [80 pb, 120 pb, 200 pb]
+        answer: 1
+        why: "PD x LGD = 2 % x 60 % = 1,2 % = 120 pb ; le spread observé est en général plus large (prime de risque)."

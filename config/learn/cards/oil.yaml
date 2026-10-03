@@ -1,0 +1,131 @@
+id: oil
+theme: macro
+icon: "🛢️"
+title: {en: Oil and energy shocks, fr: Pétrole et chocs énergétiques}
+indicators: [oil, oil_yoy, cpi_yoy, breakeven_10y]
+chart: [oil_yoy, cpi_yoy]
+leads_to:
+  - {card: inflation, en: "lifts headline inflation quickly", fr: "fait monter vite l'inflation totale"}
+  - {card: consumer, en: "a tax on household budgets", fr: "un impôt sur le budget des ménages"}
+  - {card: stagflation, en: "the classic stagflation trigger", fr: "le déclencheur classique de la stagflation"}
+  - {card: supply_demand, en: "a textbook supply shock", fr: "un choc d'offre de manuel"}
+facts:
+  en:
+    - Oil prices feed directly into petrol, transport and production costs, so they move headline inflation fast.
+    - A spike caused by a supply cut acts like a tax on consumers; a rise caused by strong global demand is less harmful.
+    - Central banks usually look through one-off energy shocks unless they spill into wages and inflation expectations.
+  fr:
+    - Le prix du pétrole se répercute directement sur l'essence, le transport et les coûts de production, il fait donc bouger vite l'inflation totale.
+    - Une flambée due à une baisse de l'offre agit comme un impôt sur les ménages ; une hausse due à une forte demande mondiale fait moins de mal.
+    - Les banques centrales passent en général outre un choc énergétique ponctuel, sauf s'il se diffuse aux salaires et aux anticipations d'inflation.
+beginner:
+  en:
+    summary: Why the price of a barrel matters to everyone.
+    what: >-
+      Oil powers cars, trucks, planes and factories, and goes into plastics. When the price of a barrel jumps, petrol
+      and transport get more expensive, and later many other products too.
+    good: >-
+      Cheap oil is like a pay rise for families: less spent at the pump, more for everything else. Higher oil prices
+      reward US producers, and the US now produces a lot of oil.
+    bad: >-
+      A sudden spike (war, cuts by producing countries) squeezes budgets, raises inflation and can tip the economy into
+      recession, as in 1973, 1979 and 1990.
+    next: >-
+      If the spike is short, inflation falls back by itself and the Fed often waits. If it lasts and people start to
+      expect higher prices everywhere, the Fed may raise rates despite the slowdown.
+  fr:
+    summary: Pourquoi le prix d'un baril compte pour tout le monde.
+    what: >-
+      Le pétrole fait rouler voitures, camions et avions, fait tourner des usines et sert à fabriquer des plastiques.
+      Quand le baril bondit, l'essence et le transport coûtent plus cher, puis beaucoup d'autres produits.
+    good: >-
+      Un pétrole bon marché, c'est comme une augmentation pour les familles : moins dépensé à la pompe, plus pour le
+      reste. Un pétrole plus cher récompense les producteurs américains, et les États-Unis en produisent désormais
+      beaucoup.
+    bad: >-
+      Une flambée soudaine (guerre, baisse de production des pays producteurs) serre les budgets, fait monter
+      l'inflation et peut faire basculer l'économie en récession, comme en 1973, 1979 et 1990.
+    next: >-
+      Si la flambée est courte, l'inflation retombe d'elle-même et la Fed attend souvent. Si elle dure et que les gens
+      s'attendent à des prix plus hauts partout, la Fed peut monter ses taux malgré le ralentissement.
+pro:
+  en:
+    summary: Supply versus demand oil shocks, pass-through and the policy response.
+    what: >-
+      WTI (EIA, public domain) is the US benchmark. Kilian (2009) separates oil supply shocks, aggregate demand shocks
+      and oil-specific precautionary demand shocks: their macro effects differ in sign and size. Energy is about 7% of
+      the CPI basket; direct pass-through of a 10% oil move is about 0.2 to 0.3 pt on headline CPI within months,
+      indirect effects on core are small when expectations are anchored.
+    good: >-
+      Demand-driven oil increases accompany strong global growth and have mild effects on US output. Since the shale
+      revolution the US is a net petroleum exporter, so higher prices raise domestic investment and income in producing
+      regions, partly offsetting the consumer hit.
+    bad: >-
+      Supply shocks reduce real disposable income and confidence; Hamilton (2009) links most postwar US recessions to oil
+      price spikes. They raise headline inflation and short-term inflation expectations at the same time as they weaken
+      activity: the stagflation dilemma.
+    next: >-
+      The textbook response is to look through first-round effects and react to second-round effects (wages,
+      expectations, core). The 1970s Fed accommodated; after 2000 anchored expectations limited pass-through. Breakevens
+      react to oil almost one-for-one at short horizons, so long-run measures (5y5y) are the better gauge.
+    mechanics: |
+      - Headline CPI impact $\approx$ energy weight $\times$ fuel pass-through $\times \Delta p_{oil}$, about 0.02 to 0.03 pt per 1% oil move.
+      - Real income effect: $\Delta$ energy bill / disposable income.
+      - Kilian SVAR: oil production, global real activity, real oil price.
+    reading: |
+      - Kilian, L. (2009), "Not All Oil Price Shocks Are Alike", American Economic Review.
+      - Hamilton, J. (2009), "Causes and Consequences of the Oil Shock of 2007-08", Brookings Papers.
+      - Blanchard, O. and Galí, J. (2007), "The Macroeconomic Effects of Oil Price Shocks: Why are the 2000s so different from the 1970s?", NBER.
+  fr:
+    summary: Chocs pétroliers d'offre contre de demande, transmission et réponse de la politique monétaire.
+    what: >-
+      Le WTI (EIA, domaine public) est la référence américaine. Kilian (2009) distingue chocs d'offre de pétrole, chocs
+      de demande globale et chocs de demande de précaution propres au pétrole : leurs effets macro diffèrent en signe et
+      en ampleur. L'énergie pèse environ 7 % du panier du CPI ; la transmission directe d'une hausse de 10 % du pétrole
+      est d'environ 0,2 à 0,3 pt sur le CPI total en quelques mois, les effets indirects sur le core sont faibles quand
+      les anticipations sont ancrées.
+    good: >-
+      Les hausses tirées par la demande accompagnent une forte croissance mondiale et pèsent peu sur la production
+      américaine. Depuis la révolution du schiste, les États-Unis sont exportateurs nets de produits pétroliers : des prix
+      plus hauts augmentent l'investissement et les revenus dans les régions productrices, ce qui compense en partie le
+      coût pour les ménages.
+    bad: >-
+      Les chocs d'offre réduisent le revenu disponible réel et la confiance ; Hamilton (2009) relie la plupart des
+      récessions américaines d'après-guerre à des flambées du pétrole. Ils font monter l'inflation totale et les
+      anticipations de court terme au moment où ils affaiblissent l'activité : le dilemme de la stagflation.
+    next: >-
+      La réponse de manuel est de passer outre les effets de premier tour et de réagir aux effets de second tour
+      (salaires, anticipations, core). La Fed des années 1970 a accommodé ; après 2000, des anticipations ancrées ont
+      limité la transmission. Les points morts réagissent presque un pour un au pétrole à court terme : les mesures de
+      long terme (5y5y) sont une meilleure jauge.
+    mechanics: |
+      - Impact sur le CPI total $\approx$ poids de l'énergie $\times$ transmission aux carburants $\times \Delta p_{pétrole}$, environ 0,02 à 0,03 pt par 1 % de pétrole.
+      - Effet revenu réel : $\Delta$ facture énergétique / revenu disponible.
+      - SVAR de Kilian : production de pétrole, activité réelle mondiale, prix réel du pétrole.
+    reading: |
+      - Kilian, L. (2009), « Not All Oil Price Shocks Are Alike », American Economic Review.
+      - Hamilton, J. (2009), « Causes and Consequences of the Oil Shock of 2007-08 », Brookings Papers.
+      - Blanchard, O. et Galí, J. (2007), « The Macroeconomic Effects of Oil Price Shocks: Why are the 2000s so different from the 1970s? », NBER.
+quiz:
+  beginner:
+    - en:
+        q: Oil jumps because a war cuts supply. What usually happens first?
+        options: [Petrol and transport get more expensive, Wages fall immediately, The dollar disappears]
+        answer: 0
+        why: Fuel prices react within days, before other prices.
+      fr:
+        q: Le pétrole bondit car une guerre coupe l'offre. Que se passe-t-il en général d'abord ?
+        options: [L'essence et le transport coûtent plus cher, Les salaires baissent tout de suite, Le dollar disparaît]
+        answer: 0
+        why: Les prix des carburants réagissent en quelques jours, avant les autres prix.
+  pro:
+    - en:
+        q: According to Kilian (2009), why can two oil price increases of the same size have different macro effects?
+        options: [Because of seasonal adjustment, Because they come from different shocks (supply vs demand), Because WTI and Brent differ]
+        answer: 1
+        why: A demand-driven rise comes with strong activity; a supply-driven rise cuts real income with no offset.
+      fr:
+        q: D'après Kilian (2009), pourquoi deux hausses du pétrole de même taille peuvent-elles avoir des effets macro différents ?
+        options: [À cause de la correction des variations saisonnières, "Parce qu'elles viennent de chocs différents (offre contre demande)", Parce que le WTI et le Brent diffèrent]
+        answer: 1
+        why: Une hausse tirée par la demande s'accompagne d'une activité forte ; une hausse due à l'offre ampute le revenu réel sans contrepartie.

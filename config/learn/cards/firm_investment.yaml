@@ -1,0 +1,127 @@
+id: firm_investment
+theme: micro
+icon: "🏗️"
+title: {en: How firms react to interest rates, fr: Comment les entreprises réagissent aux taux}
+indicators: [real_10y, indpro_yoy, profit_share]
+chart: [real_10y, indpro_yoy]
+leads_to:
+  - {card: growth, en: "investment drives the cycle's swings", fr: "l'investissement fait les à-coups du cycle"}
+  - {card: labour_market, en: "projects mean hiring", fr: "les projets veulent dire des embauches"}
+  - {card: wages, en: "capital raises productivity and pay", fr: "le capital augmente productivité et salaires"}
+facts:
+  en:
+    - Firms invest when the expected return on a project beats the cost of financing it.
+    - Higher real interest rates raise that cost, so investment falls, especially in long-lived projects such as buildings.
+    - Investment is small but very volatile, so it explains a large part of booms and recessions.
+  fr:
+    - Les entreprises investissent quand le rendement attendu d'un projet dépasse son coût de financement.
+    - Des taux réels plus hauts augmentent ce coût, donc l'investissement baisse, surtout pour les projets de longue durée comme les bâtiments.
+    - L'investissement est petit mais très volatil, il explique donc une grande part des booms et des récessions.
+beginner:
+  en:
+    summary: Why a higher interest rate can cancel a new factory.
+    what: >-
+      A company thinking about a new machine compares what it will earn with what it costs, including the interest on
+      the loan. If rates go up, some projects that looked good are no longer worth it.
+    good: >-
+      When rates are reasonable and sales are growing, firms invest: new factories, software, research. That creates
+      jobs today and makes workers more productive tomorrow.
+    bad: >-
+      When rates jump or the future looks uncertain, firms freeze their projects. Fewer orders for machines and
+      buildings means fewer jobs in the firms that make them.
+    next: >-
+      When the Fed raises rates, investment is one of the first things to slow, after housing. When it cuts rates, it
+      takes time to come back because firms wait to be sure demand is there.
+  fr:
+    summary: Pourquoi un taux plus haut peut annuler une nouvelle usine.
+    what: >-
+      Une entreprise qui envisage une nouvelle machine compare ce qu'elle rapportera à ce qu'elle coûte, y compris les
+      intérêts du prêt. Si les taux montent, certains projets qui semblaient bons ne valent plus la peine.
+    good: >-
+      Quand les taux sont raisonnables et les ventes en hausse, les entreprises investissent : usines, logiciels,
+      recherche. Cela crée des emplois aujourd'hui et rend les salariés plus productifs demain.
+    bad: >-
+      Quand les taux bondissent ou que l'avenir est incertain, les entreprises gèlent leurs projets. Moins de commandes de
+      machines et de bâtiments, c'est moins d'emplois chez ceux qui les fabriquent.
+    next: >-
+      Quand la Fed monte ses taux, l'investissement est l'un des premiers à ralentir, après le logement. Quand elle les
+      baisse, il revient lentement car les entreprises attendent d'être sûres que la demande est là.
+pro:
+  en:
+    summary: User cost of capital, Tobin's q, uncertainty and the accelerator.
+    what: >-
+      Investment responds to the user cost of capital (real rate plus depreciation minus expected capital gains, adjusted
+      for taxes), to Tobin's q (market value over replacement cost) and to expected demand (the accelerator). Business
+      fixed investment is about 13 to 14% of GDP but accounts for a large share of GDP's cyclical variance. Structures
+      are the most rate-sensitive; software and R&D respond more to expected demand and technology.
+    good: >-
+      Low real rates and high q favour capital deepening, which raises labour productivity and potential output. Tax
+      incentives (expensing) and industrial policy (2022 CHIPS and IRA) can crowd in private investment.
+    bad: >-
+      Irreversibility makes uncertainty valuable to wait out (real options: Bernanke 1983, Dixit and Pindyck): spikes in
+      uncertainty freeze investment even without rate changes. Financial frictions make investment depend on cash flow
+      and collateral, amplifying downturns.
+    next: >-
+      Core capital goods orders (excluding aircraft and defence) lead equipment investment by one to two quarters; CEO
+      surveys and lending standards lead them. Investment typically troughs late in recessions and recovers once
+      capacity utilisation rises again.
+    mechanics: |
+      - User cost: $c = P_K\,(r + \delta - \frac{\dot{P}_K}{P_K})\frac{1 - \tau z}{1 - \tau}$ (Hall and Jorgenson 1967).
+      - Tobin's $q = \frac{\text{market value}}{\text{replacement cost}}$; invest while $q > 1$.
+      - Accelerator: $I_t \approx v\,\Delta Y^e_t + \delta K_{t-1}$.
+    reading: |
+      - Hall, R. and Jorgenson, D. (1967), "Tax Policy and Investment Behavior", American Economic Review.
+      - Dixit, A. and Pindyck, R. (1994), "Investment under Uncertainty", Princeton University Press.
+      - Bloom, N. (2009), "The Impact of Uncertainty Shocks", Econometrica.
+  fr:
+    summary: Coût d'usage du capital, q de Tobin, incertitude et accélérateur.
+    what: >-
+      L'investissement répond au coût d'usage du capital (taux réel plus dépréciation moins plus-values attendues, corrigé
+      de la fiscalité), au q de Tobin (valeur de marché sur coût de remplacement) et à la demande attendue
+      (l'accélérateur). L'investissement fixe des entreprises représente environ 13 à 14 % du PIB mais une grande part de
+      la variance cyclique du PIB. Les bâtiments sont les plus sensibles aux taux ; logiciels et R&D répondent davantage à
+      la demande attendue et à la technologie.
+    good: >-
+      Des taux réels bas et un q élevé favorisent l'accumulation de capital, qui relève la productivité du travail et la
+      production potentielle. Les incitations fiscales (amortissement immédiat) et la politique industrielle (CHIPS et IRA
+      en 2022) peuvent entraîner l'investissement privé.
+    bad: >-
+      L'irréversibilité donne de la valeur à l'attente en période d'incertitude (options réelles : Bernanke 1983, Dixit et
+      Pindyck) : un pic d'incertitude gèle l'investissement même sans changement de taux. Les frictions financières rendent
+      l'investissement dépendant des flux de trésorerie et des garanties, ce qui amplifie les baisses.
+    next: >-
+      Les commandes de biens d'équipement hors aéronautique et défense précèdent l'investissement en équipement d'un à
+      deux trimestres ; les enquêtes auprès des dirigeants et les conditions de prêt les précèdent elles-mêmes.
+      L'investissement touche en général son point bas tard dans les récessions et repart quand le taux d'utilisation des
+      capacités remonte.
+    mechanics: |
+      - Coût d'usage : $c = P_K\,(r + \delta - \frac{\dot{P}_K}{P_K})\frac{1 - \tau z}{1 - \tau}$ (Hall et Jorgenson 1967).
+      - $q$ de Tobin $= \frac{\text{valeur de marché}}{\text{coût de remplacement}}$ ; investir tant que $q > 1$.
+      - Accélérateur : $I_t \approx v\,\Delta Y^e_t + \delta K_{t-1}$.
+    reading: |
+      - Hall, R. et Jorgenson, D. (1967), « Tax Policy and Investment Behavior », American Economic Review.
+      - Dixit, A. et Pindyck, R. (1994), « Investment under Uncertainty », Princeton University Press.
+      - Bloom, N. (2009), « The Impact of Uncertainty Shocks », Econometrica.
+quiz:
+  beginner:
+    - en:
+        q: "A machine earns 6% a year and the loan costs 7%. The firm will probably..."
+        options: [Buy it, Wait or cancel, Buy two]
+        answer: 1
+        why: The project earns less than it costs to finance.
+      fr:
+        q: "Une machine rapporte 6 % par an et le prêt coûte 7 %. L'entreprise va probablement..."
+        options: [L'acheter, Attendre ou annuler, En acheter deux]
+        answer: 1
+        why: Le projet rapporte moins que ce qu'il coûte à financer.
+  pro:
+    - en:
+        q: Why can a spike in uncertainty cut investment even with unchanged interest rates?
+        options: [Irreversible projects make waiting valuable (real option), Uncertainty raises taxes, Banks stop lending by law]
+        answer: 0
+        why: With sunk costs, the option to wait for information gains value as uncertainty rises.
+      fr:
+        q: Pourquoi un pic d'incertitude peut-il réduire l'investissement à taux inchangés ?
+        options: ["Les projets irréversibles donnent de la valeur à l'attente (option réelle)", L'incertitude fait monter les impôts, Les banques arrêtent de prêter par la loi]
+        answer: 0
+        why: Avec des coûts irrécupérables, l'option d'attendre de l'information prend de la valeur quand l'incertitude monte.

@@ -1,0 +1,129 @@
+id: stagflation
+theme: macro
+icon: "🌫️"
+title: {en: Stagflation, fr: Stagflation}
+indicators: [core_pce_yoy, unrate, real_gdp_yoy, oil_yoy]
+chart: [core_pce_yoy, unrate]
+leads_to:
+  - {card: fed_policy, en: "a dilemma: fight inflation or support jobs", fr: "un dilemme : combattre l'inflation ou soutenir l'emploi"}
+  - {card: real_rates, en: "real rates fall unless the Fed acts", fr: "les taux réels baissent si la Fed n'agit pas"}
+facts:
+  en:
+    - Stagflation is high inflation together with weak growth and rising unemployment.
+    - It usually starts with a supply shock (oil, pandemic disruptions) that raises costs and cuts output at the same time.
+    - It is the hardest case for a central bank, because the usual medicine for one problem worsens the other.
+  fr:
+    - La stagflation, c'est une inflation forte avec une croissance faible et un chômage en hausse.
+    - Elle part en général d'un choc d'offre (pétrole, perturbations de la pandémie) qui fait monter les coûts et baisser la production en même temps.
+    - C'est le cas le plus difficile pour une banque centrale, car le remède habituel à un problème aggrave l'autre.
+beginner:
+  en:
+    summary: Prices rising fast while the economy is stuck.
+    what: >-
+      Normally, when the economy is weak, prices calm down. Stagflation is the bad combination: prices keep rising
+      fast even though growth is weak and people lose jobs. The word mixes "stagnation" and "inflation".
+    good: >-
+      Nothing is good about it, but it is rare. Short bursts caused by a temporary shock can fade on their own if
+      people trust that prices will calm down.
+    bad: >-
+      Families are hit twice: things cost more and jobs are harder to find. Stocks and bonds can fall together, so
+      there are few places to hide.
+    next: >-
+      The Fed faces a dilemma: raising rates fights prices but hurts jobs even more; cutting rates helps jobs but can
+      let prices run. In the 1970s the US waited too long; in 1980-82 the Fed raised rates very high, causing a deep
+      recession, but it ended high inflation.
+  fr:
+    summary: Des prix qui montent vite pendant que l'économie est bloquée.
+    what: >-
+      En temps normal, quand l'économie est faible, les prix se calment. La stagflation est la mauvaise combinaison :
+      les prix montent vite alors que la croissance est faible et que des gens perdent leur emploi. Le mot mélange
+      « stagnation » et « inflation ».
+    good: >-
+      Rien de bon, mais c'est rare. De courts épisodes dus à un choc passager peuvent s'éteindre d'eux-mêmes si les gens
+      ont confiance dans le retour au calme des prix.
+    bad: >-
+      Les familles sont frappées deux fois : tout coûte plus cher et l'emploi se fait rare. Actions et obligations
+      peuvent baisser ensemble, il y a peu d'abris.
+    next: >-
+      La Fed fait face à un dilemme : monter les taux combat les prix mais fait encore plus mal à l'emploi ; les baisser
+      aide l'emploi mais peut laisser filer les prix. Dans les années 1970, les États-Unis ont trop attendu ; en 1980-82,
+      la Fed a monté ses taux très haut, provoquant une récession profonde, mais elle a mis fin à l'inflation forte.
+pro:
+  en:
+    summary: Supply shocks, the policy trade-off and the 1970s lesson.
+    what: >-
+      In an AS-AD framework a negative supply shock shifts aggregate supply left: output falls and prices rise. The
+      inflation is "cost-push" rather than "demand-pull". Persistent stagflation requires accommodative policy or
+      de-anchored expectations that turn a one-off price-level shift into ongoing inflation (second-round effects).
+    good: >-
+      If expectations stay anchored, policy can look through a temporary supply shock: the price-level jump is not
+      repeated and growth recovers as supply normalises (part of 2022-23). Positive supply shocks later (falling energy,
+      healed supply chains) produce "immaculate disinflation".
+    bad: >-
+      Stock-bond correlation turns positive (both fall as discount rates rise and earnings weaken), undermining 60/40
+      diversification; real assets and commodities historically did relatively better. Accommodating the shock risks a
+      1970s-style spiral: Burns' Fed treated each surge as transitory and core inflation ratcheted higher.
+    next: >-
+      The Fed prioritises expectations: if surveys and 5y5y breakevens rise, it tightens despite weak growth (Volcker
+      1979). Credibility lowers the cost: a credible central bank faces a flatter short-run trade-off. Our regime rule
+      labels any day with a high inflation score "overheating", whatever growth does, so a stagflation shows up here as
+      overheating with a falling growth score (docs/REGIMES.md).
+    mechanics: |
+      - AS shift: $\pi_t = \pi^e_t + \kappa\,\text{gap}_t + \varepsilon^s_t$ with $\varepsilon^s > 0$: higher $\pi$ for any gap.
+      - Optimal response (Clarida, Galí, Gertler 1999): let output fall partly, by an amount that rises with how much inflation persistence and credibility are at stake.
+    reading: |
+      - Blinder, A. and Rudd, J. (2013), "The Supply-Shock Explanation of the Great Stagflation Revisited", NBER.
+      - Clarida, R., Galí, J. and Gertler, M. (1999), "The Science of Monetary Policy", Journal of Economic Literature.
+      - Goodfriend, M. and King, R. (2005), "The incredible Volcker disinflation", Journal of Monetary Economics.
+  fr:
+    summary: Chocs d'offre, arbitrage de politique monétaire et leçon des années 1970.
+    what: >-
+      Dans un cadre offre globale - demande globale, un choc d'offre négatif déplace l'offre vers la gauche : la
+      production baisse et les prix montent. L'inflation est « par les coûts » plutôt que « par la demande ». Une
+      stagflation durable suppose une politique accommodante ou des anticipations désancrées qui transforment un saut
+      ponctuel du niveau des prix en inflation continue (effets de second tour).
+    good: >-
+      Si les anticipations restent ancrées, la politique peut passer outre un choc d'offre temporaire : le saut des prix
+      ne se répète pas et la croissance revient quand l'offre se normalise (en partie 2022-23). Des chocs d'offre
+      positifs ensuite (énergie en baisse, chaînes d'approvisionnement réparées) donnent une « désinflation immaculée ».
+    bad: >-
+      La corrélation actions-obligations devient positive (les deux baissent quand les taux d'actualisation montent et
+      que les bénéfices faiblissent), ce qui mine la diversification 60/40 ; actifs réels et matières premières ont
+      historiquement mieux résisté. Accommoder le choc expose à une spirale à la 1970 : la Fed de Burns jugeait chaque
+      poussée transitoire et l'inflation core montait par paliers.
+    next: >-
+      La Fed donne la priorité aux anticipations : si les enquêtes et les points morts 5y5y montent, elle resserre malgré
+      une croissance faible (Volcker 1979). La crédibilité réduit le coût : une banque centrale crédible fait face à un
+      arbitrage de court terme plus favorable. Notre règle de régimes appelle « surchauffe » tout jour où le score
+      d'inflation est haut, quelle que soit la croissance : une stagflation apparaît donc ici comme une surchauffe avec
+      un score de croissance en baisse (docs/REGIMES.md).
+    mechanics: |
+      - Déplacement de l'offre : $\pi_t = \pi^e_t + \kappa\,\text{écart}_t + \varepsilon^s_t$ avec $\varepsilon^s > 0$ : $\pi$ plus haut pour tout écart.
+      - Réponse optimale (Clarida, Galí, Gertler 1999) : laisser la production baisser en partie, d'autant plus que la persistance de l'inflation et la crédibilité sont en jeu.
+    reading: |
+      - Blinder, A. et Rudd, J. (2013), « The Supply-Shock Explanation of the Great Stagflation Revisited », NBER.
+      - Clarida, R., Galí, J. et Gertler, M. (1999), « The Science of Monetary Policy », Journal of Economic Literature.
+      - Goodfriend, M. et King, R. (2005), « The incredible Volcker disinflation », Journal of Monetary Economics.
+quiz:
+  beginner:
+    - en:
+        q: Stagflation means...
+        options: [Fast growth and low prices, High inflation with weak growth, Falling prices and full employment]
+        answer: 1
+        why: It is the bad mix of rising prices and a stuck economy.
+      fr:
+        q: La stagflation, c'est...
+        options: [Une croissance rapide et des prix bas, Une inflation forte avec une croissance faible, Des prix en baisse et le plein emploi]
+        answer: 1
+        why: C'est le mauvais mélange de prix en hausse et d'économie bloquée.
+  pro:
+    - en:
+        q: In a stagflationary shock, the correlation between stocks and Treasury bonds tends to...
+        options: [Turn positive, Turn strongly negative, Stay at zero]
+        answer: 0
+        why: Rising inflation lifts yields (bond prices fall) while earnings weaken, so both assets fall together.
+      fr:
+        q: Lors d'un choc stagflationniste, la corrélation entre actions et obligations du Trésor tend à...
+        options: [Devenir positive, Devenir fortement négative, Rester nulle]
+        answer: 0
+        why: L'inflation fait monter les taux (les obligations baissent) pendant que les bénéfices faiblissent, donc les deux baissent ensemble.

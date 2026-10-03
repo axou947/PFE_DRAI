@@ -1,0 +1,131 @@
+id: liquidity
+theme: micro
+icon: "💧"
+title: {en: Market liquidity and fire sales, fr: Liquidité de marché et ventes forcées}
+indicators: [vix, fed_assets, bill_3m]
+chart: [vix]
+leads_to:
+  - {card: volatility, en: "thin markets move more", fr: "des marchés étroits bougent plus"}
+  - {card: credit, en: "spreads widen when buyers vanish", fr: "les spreads s'écartent quand les acheteurs disparaissent"}
+  - {card: qe_qt, en: "the Fed as buyer of last resort", fr: "la Fed acheteuse en dernier ressort"}
+facts:
+  en:
+    - Liquidity is how easily an asset can be sold quickly without moving its price much.
+    - It disappears exactly when everyone needs it, because stressed investors all try to sell at once.
+    - In severe stress, central banks act as lenders and sometimes buyers of last resort to restore liquidity.
+  fr:
+    - La liquidité, c'est la facilité à vendre vite un actif sans trop faire bouger son prix.
+    - Elle disparaît justement quand tout le monde en a besoin, car les investisseurs en difficulté essaient tous de vendre en même temps.
+    - En cas de stress grave, les banques centrales jouent le rôle de prêteur, et parfois d'acheteur, en dernier ressort pour rétablir la liquidité.
+beginner:
+  en:
+    summary: Can you sell quickly without losing much?
+    what: >-
+      Cash is perfectly liquid. A big US company's share is very liquid: you can sell it in a second. A house is
+      illiquid: selling takes months. In a market, liquidity means there are always buyers and sellers ready to trade.
+    good: >-
+      Liquid markets let people and firms raise cash when they need it, at fair prices. That makes saving and investing
+      safer.
+    bad: >-
+      In a panic, everyone wants to sell and nobody wants to buy. Prices then fall far more than the news justifies,
+      which forces others to sell too: a "fire sale".
+    next: >-
+      When markets freeze, the Fed often steps in by lending to banks or buying assets, as in 2008 and March 2020. Once
+      buyers come back, prices usually recover part of the excessive fall.
+  fr:
+    summary: Peut-on vendre vite sans trop perdre ?
+    what: >-
+      L'argent liquide est parfaitement liquide. L'action d'une grande entreprise américaine est très liquide : on la
+      vend en une seconde. Une maison est peu liquide : la vendre prend des mois. Sur un marché, la liquidité veut dire
+      qu'il y a toujours des acheteurs et des vendeurs prêts à échanger.
+    good: >-
+      Des marchés liquides permettent aux ménages et aux entreprises de trouver de l'argent quand ils en ont besoin, à un
+      prix juste. Cela rend l'épargne et l'investissement plus sûrs.
+    bad: >-
+      Dans une panique, tout le monde veut vendre et personne ne veut acheter. Les prix chutent alors bien plus que les
+      nouvelles ne le justifient, ce qui force d'autres à vendre : une « vente forcée ».
+    next: >-
+      Quand les marchés se figent, la Fed intervient souvent en prêtant aux banques ou en achetant des actifs, comme en
+      2008 et en mars 2020. Une fois les acheteurs revenus, les prix rattrapent en général une partie de la baisse
+      excessive.
+pro:
+  en:
+    summary: Market versus funding liquidity, liquidity spirals and the lender of last resort.
+    what: >-
+      Market liquidity (bid-ask spreads, depth, price impact) and funding liquidity (the ability to borrow against
+      assets: repo haircuts, margins) reinforce each other (Brunnermeier and Pedersen 2009). Dealer balance sheet
+      constraints (leverage ratios) limit intermediation in stress, even in Treasuries (March 2020 "dash for cash").
+      Proxies here are public: implied volatility, the Fed's balance sheet and bill yields; licensed microstructure data
+      is not used.
+    good: >-
+      Deep markets lower the cost of capital (Amihud and Mendelson liquidity premium) and allow risk transfer. Central
+      bank facilities (discount window, Standing Repo Facility, swap lines) put a ceiling on funding stress.
+    bad: >-
+      Liquidity spirals: losses raise margins and haircuts, forcing deleveraging that widens price dislocations;
+      open-ended funds with daily redemptions face run dynamics on illiquid assets; liquidity mismatch was central in
+      2008 (money funds, ABCP) and 2023 (uninsured deposits).
+    next: >-
+      Liquidity premia spike and mean-revert after policy backstops; dislocations (Treasury cash-futures basis, off-the-run
+      spreads, cross-currency basis) close once balance sheet capacity returns. Our stress score captures the price side
+      of these episodes through volatility, drawdown and credit stress.
+    mechanics: |
+      - Amihud illiquidity: $ILLIQ = \frac{1}{D}\sum_d \frac{|r_d|}{\text{volume}_d}$.
+      - Funding constraint: position $\leq$ capital / margin; higher margins in stress force sales.
+      - Bagehot's rule: lend freely, at a penalty rate, against good collateral.
+    reading: |
+      - Brunnermeier, M. and Pedersen, L. (2009), "Market Liquidity and Funding Liquidity", Review of Financial Studies.
+      - Duffie, D. (2020), "Still the World's Safe Haven? Redesigning the U.S. Treasury Market After the COVID-19 Crisis", Hutchins Center.
+      - Bagehot, W. (1873), "Lombard Street".
+  fr:
+    summary: Liquidité de marché contre de financement, spirales de liquidité et prêteur en dernier ressort.
+    what: >-
+      La liquidité de marché (écart achat-vente, profondeur, impact sur les prix) et la liquidité de financement (capacité
+      d'emprunter contre des actifs : décotes de repo, appels de marge) se renforcent l'une l'autre (Brunnermeier et
+      Pedersen 2009). Les contraintes de bilan des teneurs de marché (ratios de levier) limitent l'intermédiation en cas
+      de stress, même sur le Trésor (la « ruée vers le cash » de mars 2020). Les indicateurs ici sont publics : volatilité
+      implicite, bilan de la Fed et taux des bons ; les données de microstructure sous licence ne sont pas utilisées.
+    good: >-
+      Des marchés profonds baissent le coût du capital (prime de liquidité d'Amihud et Mendelson) et permettent le
+      transfert de risque. Les facilités des banques centrales (guichet d'escompte, Standing Repo Facility, lignes de
+      swap) plafonnent le stress de financement.
+    bad: >-
+      Spirales de liquidité : les pertes font monter marges et décotes, ce qui force un désendettement qui creuse les
+      écarts de prix ; les fonds ouverts à rachat quotidien subissent des dynamiques de ruée sur des actifs peu
+      liquides ; l'inadéquation de liquidité était centrale en 2008 (fonds monétaires, ABCP) et 2023 (dépôts non
+      assurés).
+    next: >-
+      Les primes de liquidité bondissent puis reviennent après les filets de sécurité ; les dislocations (base cash-futures
+      sur le Trésor, écarts off-the-run, base croisée des devises) se referment quand la capacité de bilan revient. Notre
+      score de stress capte le côté prix de ces épisodes via la volatilité, la baisse depuis le plus haut et le stress de
+      crédit.
+    mechanics: |
+      - Illiquidité d'Amihud : $ILLIQ = \frac{1}{D}\sum_d \frac{|r_d|}{\text{volume}_d}$.
+      - Contrainte de financement : position $\leq$ capital / marge ; des marges plus hautes en stress forcent les ventes.
+      - Règle de Bagehot : prêter largement, à un taux pénalisant, contre de bonnes garanties.
+    reading: |
+      - Brunnermeier, M. et Pedersen, L. (2009), « Market Liquidity and Funding Liquidity », Review of Financial Studies.
+      - Duffie, D. (2020), « Still the World's Safe Haven? Redesigning the U.S. Treasury Market After the COVID-19 Crisis », Hutchins Center.
+      - Bagehot, W. (1873), « Lombard Street ».
+quiz:
+  beginner:
+    - en:
+        q: Which is the most liquid?
+        options: [A house, A share of a large US company, A painting]
+        answer: 1
+        why: A large company's share can be sold in seconds at a known price.
+      fr:
+        q: Lequel est le plus liquide ?
+        options: [Une maison, Une action d'une grande entreprise américaine, Un tableau]
+        answer: 1
+        why: L'action d'une grande entreprise se vend en quelques secondes à un prix connu.
+  pro:
+    - en:
+        q: "Bagehot's rule for a lender of last resort is to lend..."
+        options: [Freely at a penalty rate against good collateral, Only to insolvent banks, At zero rate without collateral]
+        answer: 0
+        why: Lend to illiquid but solvent institutions, at a rate that discourages use in normal times.
+      fr:
+        q: "La règle de Bagehot pour un prêteur en dernier ressort est de prêter..."
+        options: [Largement à un taux pénalisant contre de bonnes garanties, Seulement aux banques insolvables, À taux zéro sans garantie]
+        answer: 0
+        why: Prêter aux institutions illiquides mais solvables, à un taux qui décourage l'usage en temps normal.

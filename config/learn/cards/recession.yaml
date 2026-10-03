@@ -1,0 +1,134 @@
+id: recession
+theme: macro
+icon: "📉"
+title: {en: Recession, fr: Récession}
+indicators: [sahm, real_gdp_yoy, payrolls_3m, curve_10y_3m]
+chart: [sahm, real_gdp_yoy]
+leads_to:
+  - {card: fed_policy, en: "the Fed cuts rates", fr: "la Fed baisse ses taux"}
+  - {card: fiscal, en: "deficits widen", fr: "les déficits se creusent"}
+  - {card: corporate_debt, en: "defaults rise", fr: "les défauts augmentent"}
+  - {card: volatility, en: "markets reprice risk", fr: "les marchés revalorisent le risque"}
+facts:
+  en:
+    - A recession is a broad, significant and lasting fall in economic activity; in the US the NBER dates it after the fact.
+    - Typical warning signs are an inverted yield curve, rising jobless claims and unemployment, and falling hours worked.
+    - Recessions usually bring rate cuts, wider credit spreads and lower profits; since 1945 they lasted about 10 months on average.
+  fr:
+    - Une récession est une baisse large, nette et durable de l'activité ; aux États-Unis, le NBER la date après coup.
+    - Les signaux d'alerte habituels sont une courbe des taux inversée, des inscriptions au chômage et un chômage en hausse, et des heures travaillées en baisse.
+    - Les récessions amènent en général des baisses de taux, des spreads de crédit plus larges et des profits plus bas ; depuis 1945, elles ont duré environ 10 mois en moyenne.
+beginner:
+  en:
+    summary: When the economy shrinks for a while.
+    what: >-
+      A recession is a period when the economy produces less, firms sell less, people lose jobs and incomes fall. A
+      popular shortcut is "two quarters of falling GDP", but in the US an expert committee (the NBER) decides using
+      jobs, income and spending too.
+    good: >-
+      There is no good recession for the people who lose their jobs. But recessions can clean up excesses: bad loans,
+      inflated prices, unproductive firms. They also bring inflation down.
+    bad: >-
+      Jobs are lost, incomes fall, some firms go bankrupt, and stock prices often drop by 20% or more. The longer it
+      lasts, the harder it is for people to get back to work.
+    next: >-
+      The Fed cuts interest rates, the government spends more (unemployment benefits, sometimes stimulus checks). After
+      the bottom, the economy recovers; since 1945 US recessions have lasted around 10 months on average, expansions
+      much longer.
+  fr:
+    summary: Quand l'économie se contracte pendant un moment.
+    what: >-
+      Une récession est une période où l'économie produit moins, les entreprises vendent moins, des gens perdent leur
+      emploi et les revenus baissent. Un raccourci courant est « deux trimestres de baisse du PIB », mais aux États-Unis
+      un comité d'experts (le NBER) tranche en regardant aussi l'emploi, les revenus et la consommation.
+    good: >-
+      Il n'y a pas de bonne récession pour ceux qui perdent leur emploi. Mais elle peut purger des excès : crédits
+      douteux, prix gonflés, entreprises peu productives. Elle fait aussi baisser l'inflation.
+    bad: >-
+      Des emplois sont perdus, les revenus baissent, des entreprises font faillite, et la Bourse chute souvent de 20 %
+      ou plus. Plus elle dure, plus il est dur de retrouver un emploi.
+    next: >-
+      La Fed baisse ses taux, l'État dépense plus (allocations chômage, parfois des chèques de relance). Après le point
+      bas, l'économie repart ; depuis 1945, les récessions américaines ont duré environ 10 mois en moyenne, les
+      expansions bien plus longtemps.
+pro:
+  en:
+    summary: Dating, leading indicators, recession probabilities and the policy response.
+    what: >-
+      The NBER Business Cycle Dating Committee dates peaks and troughs from monthly payroll employment, real personal
+      income less transfers, real consumption, industrial production and real sales, typically 6 to 18 months after
+      the fact. Real-time rules (Sahm, curve inversion, claims rising from their low) and probability models (NY Fed
+      probit on the 10y-3m spread, Chauvet-Piger smoothed probabilities) aim to recognise them earlier.
+    good: >-
+      Recessions reallocate capital and labour (Schumpeterian cleansing), reset valuations and leverage, and reduce
+      inflation; after deep recessions, recoveries can be fast when balance sheets are healthy (2020) and slow when they
+      are not (2008-09, Reinhart and Rogoff).
+    bad: >-
+      Output losses can be permanent (Cerra and Saxena); unemployment rises fast and falls slowly. Financial
+      recessions (banking crises, debt overhang) are deeper and longer. Equities typically fall about 30% peak to
+      trough around recessions, credit spreads widen sharply and defaults rise with a lag.
+    next: >-
+      Policy responds with rate cuts (historically about 5 pt in total, constrained when rates start low), balance
+      sheet tools, and automatic plus discretionary fiscal stabilisers. Markets usually bottom before the economy
+      (equities around the middle of the recession), and the curve steepens as cuts are priced.
+    mechanics: |
+      - Sahm rule: $\bar{u}_{3m} - \min_{12m}(\bar{u}_{3m}) \geq 0.5$.
+      - Recession probability (probit): $P = \Phi(\alpha + \beta\,\text{spread}_{10y-3m})$.
+      - Rule of thumb, not a definition: two consecutive quarters of falling real GDP.
+    reading: |
+      - National Bureau of Economic Research, "Business Cycle Dating Procedure: Frequently Asked Questions".
+      - Reinhart, C. and Rogoff, K. (2009), "This Time Is Different", Princeton University Press.
+      - Chauvet, M. and Piger, J. (2008), "A Comparison of the Real-Time Performance of Business Cycle Dating Methods", JBES.
+  fr:
+    summary: Datation, indicateurs avancés, probabilités de récession et réponse des politiques.
+    what: >-
+      Le comité de datation du NBER fixe pics et creux à partir des emplois salariés mensuels, du revenu personnel réel
+      hors transferts, de la consommation réelle, de la production industrielle et des ventes réelles, en général 6 à
+      18 mois après coup. Les règles en temps réel (Sahm, inversion de la courbe, inscriptions au chômage qui remontent
+      de leur plus bas) et les modèles de probabilité (probit de la Fed de New York sur l'écart 10 ans - 3 mois,
+      probabilités lissées de Chauvet-Piger) cherchent à la reconnaître plus tôt.
+    good: >-
+      Les récessions réallouent capital et travail (destruction créatrice de Schumpeter), remettent à zéro
+      valorisations et levier, et font baisser l'inflation ; après une récession profonde, la reprise peut être rapide
+      si les bilans sont sains (2020) et lente sinon (2008-09, Reinhart et Rogoff).
+    bad: >-
+      Les pertes de production peuvent être permanentes (Cerra et Saxena) ; le chômage monte vite et baisse lentement.
+      Les récessions financières (crises bancaires, surendettement) sont plus profondes et plus longues. Les actions
+      baissent en général d'environ 30 % du pic au creux autour des récessions, les spreads de crédit s'écartent
+      fortement et les défauts montent avec retard.
+    next: >-
+      Les politiques répondent par des baisses de taux (historiquement environ 5 pt au total, limitées quand les taux
+      partent de bas), des outils de bilan et des stabilisateurs budgétaires automatiques et discrétionnaires. Les
+      marchés touchent en général le fond avant l'économie (les actions vers le milieu de la récession), et la courbe
+      se pentifie à mesure que les baisses sont anticipées.
+    mechanics: |
+      - Règle de Sahm : $\bar{u}_{3m} - \min_{12m}(\bar{u}_{3m}) \geq 0,5$.
+      - Probabilité de récession (probit) : $P = \Phi(\alpha + \beta\,\text{écart}_{10a-3m})$.
+      - Règle empirique, pas une définition : deux trimestres consécutifs de baisse du PIB réel.
+    reading: |
+      - National Bureau of Economic Research, « Business Cycle Dating Procedure: Frequently Asked Questions ».
+      - Reinhart, C. et Rogoff, K. (2009), « This Time Is Different », Princeton University Press.
+      - Chauvet, M. et Piger, J. (2008), « A Comparison of the Real-Time Performance of Business Cycle Dating Methods », JBES.
+quiz:
+  beginner:
+    - en:
+        q: Who officially dates US recessions?
+        options: [The Fed, The NBER committee, The President]
+        answer: 1
+        why: A committee of the National Bureau of Economic Research dates them, often months after they start.
+      fr:
+        q: Qui date officiellement les récessions américaines ?
+        options: [La Fed, Le comité du NBER, Le Président]
+        answer: 1
+        why: Un comité du National Bureau of Economic Research les date, souvent des mois après leur début.
+  pro:
+    - en:
+        q: The 3-month average unemployment rate is 4.4% and its lowest 3-month average of the previous 12 months was 3.8%. The Sahm indicator is...
+        options: ["0.4", "triggered at 0.6", "not computable"]
+        answer: 1
+        why: 4.4 - 3.8 = 0.6, above the 0.5 threshold.
+      fr:
+        q: Le chômage moyen sur 3 mois est de 4,4 % et son plus bas des 12 mois précédents était de 3,8 %. L'indicateur de Sahm...
+        options: ["vaut 0,4", "est déclenché à 0,6", "ne se calcule pas"]
+        answer: 1
+        why: 4,4 - 3,8 = 0,6, au-dessus du seuil de 0,5.

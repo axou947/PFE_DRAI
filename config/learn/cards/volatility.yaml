@@ -1,0 +1,131 @@
+id: volatility
+theme: macro
+icon: "🌪️"
+title: {en: Market volatility and fear, fr: Volatilité et peur sur les marchés}
+indicators: [vix, curve_10y_3m]
+chart: [vix]
+leads_to:
+  - {card: liquidity, en: "forced selling dries up liquidity", fr: "les ventes forcées assèchent la liquidité"}
+  - {card: stress_alarm, en: "a core input of our stress score", fr: "une entrée centrale de notre score de stress"}
+  - {card: fed_policy, en: "extreme stress: the Fed steps in", fr: "stress extrême : la Fed intervient"}
+facts:
+  en:
+    - Volatility measures how much prices swing; the VIX is the market's expected volatility of the S&P 500 over the next 30 days.
+    - "The VIX usually sits between 12 and 20; above 30 signals fear, and it spiked above 80 in 2008 and 2020."
+    - Volatility clusters, rises fastest when prices fall, and is one of the main inputs of our stress dimension.
+  fr:
+    - La volatilité mesure l'ampleur des variations de prix ; le VIX est la volatilité attendue par le marché sur le S&P 500 pour les 30 prochains jours.
+    - "Le VIX évolue en général entre 12 et 20 ; au-dessus de 30, c'est la peur, et il a dépassé 80 en 2008 et 2020."
+    - La volatilité vient par vagues, monte surtout quand les prix baissent, et c'est l'une des principales entrées de notre dimension stress.
+beginner:
+  en:
+    summary: How nervous the markets are.
+    what: >-
+      Volatility is how much prices jump around. The VIX, often called the "fear index", tells how much investors
+      expect US stocks to swing over the next month. Calm markets: VIX around 12 to 20. Panic: above 30.
+    good: >-
+      Low volatility means calm markets where firms can raise money easily. A short burst of volatility can also clear
+      excesses and offer lower prices to patient investors.
+    bad: >-
+      High volatility means fear: prices fall fast, investors sell in a hurry, some are forced to sell, and that pushes
+      prices down further. Long periods of very low volatility can make people take too much risk.
+    next: >-
+      Fear tends to come in waves: a calm period, then a sudden spike, then a slow return to calm. Very big spikes
+      (2008, 2020) often made central banks act. Our stress alarm uses volatility to spot these moments early.
+  fr:
+    summary: À quel point les marchés sont nerveux.
+    what: >-
+      La volatilité, c'est l'ampleur des variations de prix. Le VIX, souvent appelé « indice de la peur », dit combien
+      les investisseurs s'attendent à ce que les actions américaines bougent le mois prochain. Marchés calmes : VIX vers
+      12 à 20. Panique : au-dessus de 30.
+    good: >-
+      Une volatilité basse signifie des marchés calmes où les entreprises lèvent facilement de l'argent. Une courte
+      poussée peut aussi purger des excès et offrir des prix plus bas aux investisseurs patients.
+    bad: >-
+      Une volatilité forte, c'est la peur : les prix baissent vite, les investisseurs vendent dans l'urgence, certains y
+      sont forcés, ce qui fait encore baisser les prix. De longues périodes de volatilité très basse peuvent pousser à
+      prendre trop de risques.
+    next: >-
+      La peur vient par vagues : une période calme, puis un pic soudain, puis un lent retour au calme. Les très gros
+      pics (2008, 2020) ont souvent fait réagir les banques centrales. Notre alarme de stress utilise la volatilité pour
+      repérer ces moments tôt.
+pro:
+  en:
+    summary: Implied versus realised volatility, the variance risk premium and volatility regimes.
+    what: >-
+      The VIX is a model-free 30-day implied volatility from S&P 500 option prices (the square root of a variance swap
+      rate). Implied volatility usually exceeds subsequently realised volatility: the variance risk premium, which
+      investors pay for crash insurance. The VIX term structure is normally upward sloping (contango) and inverts in
+      stress. Realised volatility clusters (GARCH) and responds asymmetrically to negative returns (leverage effect).
+    good: >-
+      A positive variance risk premium predicts equity returns (Bollerslev, Tauchen, Zhou 2009); volatility spikes
+      followed by a normalising term structure historically marked attractive entry points for long-horizon investors.
+    bad: >-
+      Low-volatility regimes encourage leverage through vol-targeting and short-volatility strategies, which unwind
+      violently ("Volmageddon", February 2018). Volatility feedback loops (forced deleveraging, dealer hedging) make
+      stress self-reinforcing; correlations rise towards 1 and diversification fails.
+    next: >-
+      Volatility mean-reverts with a half-life of weeks to months; spikes above 40 have been rare and short. Our
+      stress dimension standardises VIX, realised volatility, drawdown and credit stress; the onset detector reads the
+      fast market inputs to raise the alarm early (docs/DETECTION_V2.md). VIX data is Cboe's, shown with citation.
+    mechanics: |
+      - $VIX^2 \approx \frac{2e^{rT}}{T}\sum_i \frac{\Delta K_i}{K_i^2} Q(K_i) - \frac{1}{T}\left(\frac{F}{K_0}-1\right)^2$ (Cboe white paper).
+      - Variance risk premium: $VRP = VIX^2 - E[RV^2]$, usually positive.
+      - Rule of thumb: daily move $\approx VIX / \sqrt{252}$, e.g. VIX 16 is about 1% a day.
+    reading: |
+      - Cboe, "VIX White Paper".
+      - Bollerslev, T., Tauchen, G. and Zhou, H. (2009), "Expected Stock Returns and Variance Risk Premia", Review of Financial Studies.
+      - Brunnermeier, M. and Pedersen, L. (2009), "Market Liquidity and Funding Liquidity", Review of Financial Studies.
+  fr:
+    summary: Volatilité implicite contre réalisée, prime de risque de variance et régimes de volatilité.
+    what: >-
+      Le VIX est une volatilité implicite à 30 jours, sans modèle, tirée des prix d'options sur le S&P 500 (la racine
+      d'un taux de swap de variance). La volatilité implicite dépasse en général la volatilité réalisée ensuite : c'est
+      la prime de risque de variance, que les investisseurs paient pour s'assurer contre les krachs. La structure par
+      terme du VIX monte normalement (contango) et s'inverse en période de stress. La volatilité réalisée vient par
+      grappes (GARCH) et réagit plus aux baisses (effet de levier).
+    good: >-
+      Une prime de risque de variance positive prédit les rendements des actions (Bollerslev, Tauchen, Zhou 2009) ; les
+      pics de volatilité suivis d'une structure par terme qui se normalise ont historiquement marqué de bons points
+      d'entrée pour un investisseur de long terme.
+    bad: >-
+      Les régimes de volatilité basse encouragent le levier via le ciblage de volatilité et les stratégies vendeuses de
+      volatilité, qui se dénouent violemment (« Volmageddon », février 2018). Les boucles de volatilité (désendettement
+      forcé, couverture des teneurs de marché) auto-entretiennent le stress ; les corrélations tendent vers 1 et la
+      diversification échoue.
+    next: >-
+      La volatilité revient vers sa moyenne avec une demi-vie de quelques semaines à quelques mois ; les pics au-dessus
+      de 40 ont été rares et courts. Notre dimension stress standardise le VIX, la volatilité réalisée, la baisse depuis
+      le plus haut et le stress de crédit ; le détecteur de début de crise lit les entrées de marché rapides pour
+      déclencher l'alarme tôt (docs/DETECTION_V2.md). Les données du VIX appartiennent à Cboe, affichées avec citation.
+    mechanics: |
+      - $VIX^2 \approx \frac{2e^{rT}}{T}\sum_i \frac{\Delta K_i}{K_i^2} Q(K_i) - \frac{1}{T}\left(\frac{F}{K_0}-1\right)^2$ (livre blanc Cboe).
+      - Prime de risque de variance : $VRP = VIX^2 - E[RV^2]$, en général positive.
+      - Règle empirique : variation quotidienne $\approx VIX / \sqrt{252}$, un VIX à 16 vaut environ 1 % par jour.
+    reading: |
+      - Cboe, « VIX White Paper ».
+      - Bollerslev, T., Tauchen, G. et Zhou, H. (2009), « Expected Stock Returns and Variance Risk Premia », Review of Financial Studies.
+      - Brunnermeier, M. et Pedersen, L. (2009), « Market Liquidity and Funding Liquidity », Review of Financial Studies.
+quiz:
+  beginner:
+    - en:
+        q: The VIX jumps from 14 to 38. Markets are...
+        options: [Calmer than usual, Fearful, Closed]
+        answer: 1
+        why: A VIX above 30 means investors expect big swings, a sign of fear.
+      fr:
+        q: Le VIX passe de 14 à 38. Les marchés sont...
+        options: [Plus calmes que d'habitude, Dans la peur, Fermés]
+        answer: 1
+        why: Un VIX au-dessus de 30 veut dire que les investisseurs attendent de fortes variations, un signe de peur.
+  pro:
+    - en:
+        q: With the VIX at 32, the expected daily move of the S&P 500 is roughly...
+        options: [0.5%, 2%, 5%]
+        answer: 1
+        why: 32 / sqrt(252) is about 2% a day.
+      fr:
+        q: Avec un VIX à 32, la variation quotidienne attendue du S&P 500 est d'environ...
+        options: ["0,5 %", "2 %", "5 %"]
+        answer: 1
+        why: 32 / racine(252) vaut environ 2 % par jour.
