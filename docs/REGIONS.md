@@ -210,8 +210,8 @@ started in February 2012 (India's series starts in 2011-12, China's in 2014-01),
 out-of-sample period in 2018, without the 2013, 2015 and 2016 emerging-market episodes. The long-term yield composite now counts
 a month when a quarter of its weight reports (`min_weight: 0.25` in the overlay): Korea, Brazil, South Africa and Mexico carry it
 from 2002, India and China join when their series start. Only coverage was seen, no episode, alarm or score. The other
-composites keep half. The EM coverage after this change is to be re-run with `data` before the backtest; EMB (December 2007) then
-binds, so features should start around 2009 and the out-of-sample period around 2014.
+composites keep half. Re-run by Henry the same day: the long-term yield composite now starts on 2003-05-05; EMB (December 2007) binds, so the
+emerging-market features start on 2009-03-20 and the out-of-sample period on 2014-03-24.
 
 ### Real backtests
 
