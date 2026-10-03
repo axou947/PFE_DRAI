@@ -18,7 +18,7 @@ US only for now. Other zones show a note and keep their other tabs.
 | **Lab** | Taylor rule calculator, real rate (Fisher) calculator, mortgage payment calculator | same, plus u* and r* sliders, the rules' history against the actual rate, and the Phillips curve scatter |
 | **Glossary** | about 50 terms, searchable, linked to their card | pro definitions |
 | **Quiz** | one question per card, with the explanation | pro questions |
-| **Ask** | the AI tutor: the question box and examples are there, but **the tutor is under construction**: clicking shows "coming soon" and sends nothing anywhere | same |
+| **Ask GAMA** | GAMA, the AI tutor: the question box and examples are there, but **the tutor is under construction**: clicking shows "coming soon" and sends nothing anywhere | same |
 
 The dashboard has an "Understand this regime" button that opens the card explaining today's regime in both tabs. The sidebar
 date works here too: pick a past day to see what the page would have said then (with today's data vintages, see Limits).
@@ -74,7 +74,7 @@ jobless claims 4-week average against its 52-week low (amber +15%, red +30%), pa
 - Bill-implied odds include premia and can move with Treasury supply; compare with FedWatch privately, never republish it.
 - Card texts are written for general education, not advice.
 
-## AI tutor (coming soon)
+## GAMA, the AI tutor (coming soon)
 
 The Ask section is in place in both tabs so the layout is final, but the tutor is switched off: the button only shows
 "under construction". When it is built it will answer from the cards and today's data at the tab's level, citing the card

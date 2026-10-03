@@ -45,6 +45,8 @@ def test_every_card_is_complete_at_both_levels_and_in_both_languages(learn_setti
         assert card.theme in learn_cards.THEMES, card.id
         for lang in learn_cards.LANGS:
             assert card.title[lang] and card.facts[lang], card.id
+            # A French " : " left unquoted turns a key point into a YAML mapping (it broke search).
+            assert all(isinstance(f, str) for f in card.facts[lang]), (card.id, lang)
             for level in learn_cards.LEVELS:
                 text = card.text(level, lang)
                 for section in learn_cards.SECTIONS:
@@ -84,6 +86,9 @@ def test_glossary_and_history_lessons_are_complete(learn_settings):
 def test_search_finds_a_card_by_a_word_of_its_text(learn_settings):
     cards = learn_cards.load_cards(learn_settings)
     assert "inflation" in {c.id for c in learn_cards.search(cards, "inflation", "beginner", "en")}
+    for level in learn_cards.LEVELS:
+        for lang in learn_cards.LANGS:
+            assert "fed_policy" in {c.id for c in learn_cards.search(cards, "Fed", level, lang)}
     assert learn_cards.search(cards, "", "pro", "fr") == cards
 
 
@@ -195,6 +200,6 @@ def test_both_learn_tabs_render_every_section_and_the_ai_tutor_is_coming_soon():
             assert not at.error, (level, section, [e.value for e in at.error])
     at.session_state["learn_beginner_section"] = "ask"
     at.run()
-    assert not any("Under construction" in i.value for i in at.info)
+    assert not any("GAMA is coming soon" in i.value for i in at.info)
     next(b for b in at.button if b.key == "learn_beginner_ask_send").click().run()
-    assert any("Under construction" in i.value for i in at.info)
+    assert any("GAMA is coming soon" in i.value for i in at.info)
