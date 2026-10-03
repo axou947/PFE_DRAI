@@ -74,7 +74,7 @@
   "dash.prob_move": "Probability of {regime}: {old} → {new}",
   "dash.score_move": "{dimension}: {delta}",
   "explain.title": "Why this regime",
-  "explain.intro": "Each score averages its inputs' z-scores, so each input adds its z-score divided by the number of inputs. Bars: contribution today; marks: a week ago.",
+  "explain.intro": "Each score is a weighted average of its inputs' z-scores, so each input adds its z-score times its weight. Bars: contribution today; marks: a week ago.",
   "explain.rule.stress": "The rule reads {regime}: the stress score is above its threshold, and stress is checked first.",
   "explain.rule.inflation": "The rule reads {regime}: stress is below its threshold and inflation is above its own.",
   "explain.rule.growth": "The rule reads {regime}: stress and inflation are below their thresholds and growth is below its own.",

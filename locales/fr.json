@@ -74,7 +74,7 @@
   "dash.prob_move": "Probabilité de {regime} : {old} → {new}",
   "dash.score_move": "{dimension} : {delta}",
   "explain.title": "Pourquoi ce régime",
-  "explain.intro": "Chaque score est la moyenne des z-scores de ses indicateurs : chacun ajoute son z-score divisé par le nombre d'indicateurs. Barres : contribution aujourd'hui ; repères : il y a une semaine.",
+  "explain.intro": "Chaque score est une moyenne pondérée des z-scores de ses indicateurs : chacun ajoute son z-score multiplié par son poids. Barres : contribution aujourd'hui ; repères : il y a une semaine.",
   "explain.rule.stress": "La règle donne {regime} : le score de stress est au-dessus de son seuil, et le stress est testé en premier.",
   "explain.rule.inflation": "La règle donne {regime} : le stress est sous son seuil et l'inflation au-dessus du sien.",
   "explain.rule.growth": "La règle donne {regime} : stress et inflation sont sous leurs seuils et la croissance sous le sien.",

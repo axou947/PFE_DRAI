@@ -65,6 +65,8 @@ The growth score is set in `features.growth`: which growth features it averages 
 still feeds the models), standard or robust scaling, and a moving average
 ([SLOWDOWN.md](SLOWDOWN.md)). `validation/slowdown.py` checks the Slowdown regime against an
 outside reference (Chicago Fed activity index, `CFNAIMA3`, real data; the hidden regimes, simulated).
+The inflation score can vote by input (published) or by source (`features.inflation`);
+`validation/overheating.py` checks Overheating against core PCE inflation ([INFLATION.md](INFLATION.md)).
 
 ## Ajouter un modèle
 

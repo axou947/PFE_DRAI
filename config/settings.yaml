@@ -176,6 +176,30 @@ validation:
     # of about three weeks each.
     max_false_alarm_share: 0.10
 
+# Inflation score, one vote per source (docs/INFLATION.md): the pre-registered check, not the model.
+# NOT ADOPTED 2026-10-03: worse on simulated data (13 seeds), so no real run was made; the inflation score
+# stays one vote per input. Kept outside features/models/validation on purpose: those make the settings
+# fingerprint of the published model, and this block only describes the test.
+overheating:
+  # Outside reference of high inflation, never a model input: core PCE prices (the Fed's preferred
+  # measure, not CPI), change over 12 months, above 2.5% (half a point above the Fed's 2% target).
+  reference: {fred: PCEPILFE, above: 2.5}
+  # What the app displays must improve by a margin, not by noise: Slowdown's 0.012 (docs/SLOWDOWN.md) was not
+  # evidence. The inflation score's own match needs no margin; it is close to mechanical (CPI and PCE move together).
+  min_gain: {shown_ba: 0.02}
+  calibration_tolerance: {brier: 0.0, ece: 0.005}
+  # The published inflation score (v2.2): one vote per input.
+  before:
+    inflation: {weighting: inputs}
+  # v2.3 as tested: one vote per source, the inputs of one source averaged first.
+  tested:
+    inflation:
+      weighting: sources
+      sources:
+        cpi: [cpi_inflation]
+        breakeven: [breakeven_level, breakeven_change]
+        short_rate: [short_rate_change]
+
 alerts:
   stress_probability: 0.5
   early_warning_probability: 0.4  # gbm probability of stress in one week
