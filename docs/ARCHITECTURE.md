@@ -67,6 +67,9 @@ still feeds the models), standard or robust scaling, and a moving average
 outside reference (Chicago Fed activity index, `CFNAIMA3`, real data; the hidden regimes, simulated).
 The inflation score can vote by input (published) or by source (`features.inflation`);
 `validation/overheating.py` checks Overheating against core PCE inflation ([INFLATION.md](INFLATION.md)).
+`display.py` decides how the combined model shares its calm probability between Expansion, Overheating and
+Slowdown (`models.combined.calm`, absent = the jump model's split, v2.2); P(stress) is never touched
+([SLOWDOWN_V23.md](SLOWDOWN_V23.md)).
 
 ## Ajouter un modèle
 

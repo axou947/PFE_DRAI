@@ -15,6 +15,7 @@ import pandas as pd
 from .alerts import compute_alerts
 from .config import load_settings, resolve
 from .data import get_provider
+from .display import calm_display, calm_mode
 from .features import DIMENSIONS, FEATURES, build
 from .features.market import market_frame
 from .models import get_model
@@ -173,11 +174,16 @@ class Pipeline:
         components = getattr(get_model(model, self.settings), "components", None)
         if components:  # built from its components' cached probabilities
             if combined.warmup is None:
-                memo[(model, warmup)] = combine(*(self.probabilities(name) for name in components))
+                probs = combine(*(self.probabilities(name) for name in components))
             else:
                 parts = {name: self.probabilities(name, combined.warmup) for name in components}
-                memo[(model, warmup)] = combine_calibrated(parts, self.calibrated())
-            return memo[(model, warmup)]
+                probs = combine_calibrated(parts, self.calibrated())
+            # How the calm share is split (docs/SLOWDOWN_V23.md); P(stress) is left as it is.
+            if calm_mode(self.settings) != "jump":
+                gbm = self.probabilities("gbm") if calm_mode(self.settings) == "gbm" else None
+                probs = calm_display(probs, self.scores, gbm, self.settings)
+            memo[(model, warmup)] = probs
+            return probs
         if warmup is None and combined.warmup is not None and model in combined.components:
             # Same fits as the warm-up run from the backtest start on: reuse it instead of refitting.
             memo[(model, warmup)] = self.probabilities(model, combined.warmup).loc[self.backtest_start :]
