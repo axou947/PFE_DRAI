@@ -7,7 +7,7 @@ publication lags for monthly releases. `test_features.py` checks this property.
 import numpy as np
 import pandas as pd
 
-from ..data.catalog import CATALOG
+from ..data.catalog import CATALOG, TESTED
 
 # feature name -> dimension. The sign makes a high value mean "more" of the dimension.
 FEATURES: dict[str, str] = {
@@ -40,7 +40,8 @@ def align(raw: dict[str, pd.Series], lags: dict[str, int], release_dated: set[st
         series = series.sort_index()
         if name not in release_dated:
             series = series.copy()
-            if name in CATALOG and CATALOG[name].frequency == "monthly":
+            known = CATALOG.get(name) or TESTED.get(name)
+            if known and known.frequency == "monthly":
                 series.index = series.index + pd.offsets.MonthEnd(0)
             series.index = series.index + pd.Timedelta(days=lags.get(name, 0))
         columns[name] = series.reindex(daily_index.union(series.index)).ffill().reindex(daily_index)
@@ -92,7 +93,20 @@ def growth_features(prices: pd.DataFrame) -> pd.DataFrame:
     # No emerging-market labour series (docs/REGIONS.md): that region drops it (features.drop).
     claims = prices["claims"] if "claims" in prices else pd.Series(np.nan, index=prices.index)
     f["jobless_claims"] = -np.log(claims).diff(63)
+    if "unrate" in prices:
+        # Only in the pre-registered Sahm test (docs/SAHM_HY.md): not one of FEATURES, so the model never reads it.
+        f["unemployment_gap"] = sahm_gap(prices["unrate"])
     return f
+
+
+def sahm_gap(unrate: pd.Series) -> pd.Series:
+    """Sahm rule gap, sign flipped so that a high value means good growth (Sahm, 2019).
+
+    The 3-month average unemployment rate minus its lowest 3-month average of the past 12 months, on business
+    days (63 and 252 days). The Sahm rule signals a recession when the gap reaches 0.5 points (-0.5 here).
+    """
+    u3 = unrate.rolling(63, min_periods=42).mean()
+    return -(u3 - u3.rolling(252, min_periods=126).min())
 
 
 def credit_stress(bond: pd.Series, treasury: pd.Series) -> pd.Series:

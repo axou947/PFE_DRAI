@@ -48,6 +48,10 @@ PARAMS = {
 }
 
 
+# Unemployment rate target (%) by regime. Drawn after every other series, so adding it left them unchanged.
+UNRATE = {"expansion": 4.2, "overheating": 3.8, "slowdown": 5.8, "stress": 6.5}
+
+
 def _regime_path(index: pd.DatetimeIndex, rng: np.random.Generator) -> pd.Series:
     path = pd.Series(index=index, dtype=object)
     for start, end, regime in SCRIPT:
@@ -117,6 +121,8 @@ def simulate(start: str, end: str, seed: int = 42) -> tuple[dict[str, pd.Series]
     breakeven = np.clip(_ou(0.7 * cpi_yoy + 0.6, 0.05, 0.03, 2.3, rng), -0.5, 4.0)
     ip_yoy = _ou(ip_t, 0.012, 0.05, 3.0, rng)
     claims = np.clip(_ou(claims_t, 0.02, 4000, 280_000, rng), 150_000, 3_000_000)
+    # Unemployment moves slowly: it follows its regime target over months (Sahm rule, docs/SAHM_HY.md).
+    unrate = np.clip(_ou(np.array([UNRATE[r] for r in regimes]), 0.006, 0.01, 4.5, rng), 2.5, 15.0)
 
     cpi_index = 170 * np.exp(np.cumsum(cpi_yoy / 100 / 252))
     ip_index = 90 * np.exp(np.cumsum(ip_yoy / 100 / 252))
@@ -139,6 +145,7 @@ def simulate(start: str, end: str, seed: int = 42) -> tuple[dict[str, pd.Series]
         "claims": sample(claims, "W-SAT"),
         "indpro": sample(ip_index, "ME"),
         "cpi": sample(cpi_index, "ME"),
+        "unrate": sample(unrate, "ME"),
     }
     return data, regimes.rename("truth")
 

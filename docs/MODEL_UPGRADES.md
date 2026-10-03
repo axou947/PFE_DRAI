@@ -93,6 +93,9 @@ Some promising inputs do not exist in the simulator, so they can only be judged 
 - **high-yield spreads over 5 days** (HYG from 2007 only);
 - the **Sahm rule / unemployment** for Slowdown (in the Learn checklist, not in the model).
 
+Follow-up, same day: [SAHM_HY.md](SAHM_HY.md) tests high-yield credit (a high-yield fund against a Treasury fund,
+not adopted on simulated data) and pre-registers the Sahm rule on the 1999–2009 growth holdout.
+
 Each would need its own pre-registration and a real holdout that excludes the 11 published episodes (for
 example 1993–2009, as for the onset detector). Two of them start in 2007, which leaves almost no holdout,
 and that is the reason not to rush them.

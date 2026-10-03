@@ -14,12 +14,17 @@ Candidates (the inflation score is left alone: docs/INFLATION.md):
                  ratio, worst day of 10): the features of Shu & Mulvey's jump-model papers.
 - onset_flight   onset detector + flight to quality (10-year yield change over 5 and 21 days, 63-day
                  correlation of equity returns with yield changes).
+- onset_ig       onset detector + investment-grade credit (LQD/IEF, 5 and 21 days): the existing market_credit set.
+- onset_hy       onset detector + high-yield credit (high-yield bonds against Treasuries, 5 and 21 days). On real
+                 data the long-history proxy is a high-yield fund against a Treasury fund (VWEHX/VFITX).
 - hysteresis     alarm on after 3 days above 0.5 (unchanged), off only once the score falls below 0.3.
 - jump_downside  jump model clusters the 3 scores plus 2 z-scored downside inputs (Shu & Mulvey).
 - hmm            Gaussian hidden Markov model (4 states, full covariance) instead of the jump model,
                  filtered (causal) probabilities, states named as the jump model's.
 - growth_fast    faster growth inputs: production over 6 months (annualised) instead of 12, jobless
                  claims as the rise of their 4-week average over its 52-week low instead of a 3-month change.
+- sahm_add       growth score + the Sahm rule gap (unemployment, 3-month average against its 12-month low).
+- sahm_claims    the Sahm gap replaces jobless claims in the growth score.
 - calm_blend     the calm regimes shown = average of the jump model's and gbm's calm shares.
 """
 
@@ -71,17 +76,26 @@ def flight_inputs(equity: pd.Series, us10y: pd.Series) -> pd.DataFrame:
     return f
 
 
+def hy_inputs(hy: pd.Series, treasury: pd.Series) -> pd.DataFrame:
+    """High-yield bonds lagging Treasuries over 5 and 21 days (positive = stress), as credit_5d/21d for LQD."""
+    credit = np.log(hy / treasury)
+    return pd.DataFrame({"hy_credit_5d": -credit.diff(5), "hy_credit_21d": -credit.diff(21)})
+
+
 DOWNSIDE = ["down_dev_5", "down_dev_21", "ewm_ret_10", "sortino_10", "worst_day_10"]
 FLIGHT = ["y10_change_5d", "y10_change_21d", "stock_yield_corr_63"]
+HY = ["hy_credit_5d", "hy_credit_21d"]
 
 
 def patched_market_frame(original, extra: str):
     def market_frame(raw, settings, release_dated=frozenset()):
         f = original(raw, settings, release_dated)
-        names = [n for n in ("equity", "us10y") if n in raw]
+        names = [n for n in ("equity", "us10y", "hy_bond", "treasury") if n in raw]
         prices = build_mod.align({n: raw[n] for n in names}, {}, release_dated).reindex(f.index)
         if extra == "downside":
             return f.join(downside_inputs(prices["equity"]))
+        if extra == "hy":
+            return f.join(hy_inputs(prices["hy_bond"], prices["treasury"]))
         return f.join(flight_inputs(prices["equity"], prices["us10y"]))
 
     return market_frame
@@ -181,6 +195,24 @@ def growth_fast(prices: pd.DataFrame) -> pd.DataFrame:
     return f
 
 
+# ---- Sahm rule as a growth input ------------------------------------------------------------------
+
+GROWTH4 = ["equity_momentum", "curve_slope", "industrial_production", "jobless_claims"]
+
+
+def growth_sahm(original):
+    """The usual growth features plus the Sahm gap, sign flipped (high = good growth): 3-month average
+    unemployment rate minus its lowest 3-month average of the past 12 months (Sahm, 2019)."""
+
+    def growth_features(prices: pd.DataFrame) -> pd.DataFrame:
+        f = original(prices)
+        u3 = prices["unrate"].rolling(63, min_periods=42).mean()
+        f["unemployment_gap"] = -(u3 - u3.rolling(252, min_periods=126).min())
+        return f
+
+    return growth_features
+
+
 # ---- calm regimes from jump and gbm ----------------------------------------------------------------
 
 
@@ -193,15 +225,30 @@ def calm_blend(parts, calibrated):
 
 # ---- run ---------------------------------------------------------------------------------------------
 
-CANDIDATES = ["baseline", "onset_downside", "onset_flight", "hysteresis", "jump_downside", "hmm", "growth_fast", "calm_blend"]
+CANDIDATES = [
+    "baseline",
+    "onset_downside",
+    "onset_flight",
+    "onset_ig",
+    "onset_hy",
+    "hysteresis",
+    "jump_downside",
+    "hmm",
+    "growth_fast",
+    "calm_blend",
+    "sahm_add",
+    "sahm_claims",
+]
 
 
 def patches(name: str, stack: ExitStack) -> dict:
     """Patch the package for `name`; return settings overrides."""
-    if name in ("onset_downside", "onset_flight"):
+    if name == "onset_ig":
+        return {"models": {"onset": {"inputs": "market_credit"}}}
+    if name in ("onset_downside", "onset_flight", "onset_hy"):
         extra = name.split("_")[1]
         stack.enter_context(mock.patch.object(pipeline_mod, "market_frame", patched_market_frame(market_mod.market_frame, extra)))
-        cols = DOWNSIDE if extra == "downside" else FLIGHT
+        cols = {"downside": DOWNSIDE, "flight": FLIGHT, "hy": HY}[extra]
         stack.enter_context(mock.patch.dict(market_mod.INPUT_SETS, {f"market_{extra}": market_mod.MARKET + cols}))
         return {"models": {"onset": {"inputs": f"market_{extra}"}}}
     if name == "hysteresis":
@@ -213,6 +260,11 @@ def patches(name: str, stack: ExitStack) -> dict:
         stack.enter_context(mock.patch.dict(base_mod._REGISTRY, {"jump": HMMModel}))
     if name == "growth_fast":
         stack.enter_context(mock.patch.object(build_mod, "growth_features", growth_fast))
+    if name in ("sahm_add", "sahm_claims"):
+        stack.enter_context(mock.patch.object(build_mod, "growth_features", growth_sahm(build_mod.growth_features)))
+        stack.enter_context(mock.patch.dict(build_mod.FEATURES, {"unemployment_gap": "growth"}))
+        inputs = GROWTH4 + ["unemployment_gap"] if name == "sahm_add" else GROWTH4[:3] + ["unemployment_gap"]
+        return {"features": {"growth": {"inputs": inputs}}, "data": {"publication_lag_days": {"unrate": 7}}}
     if name == "calm_blend":
         stack.enter_context(mock.patch.object(pipeline_mod, "combine_calibrated", calm_blend))
     return {}
@@ -222,7 +274,8 @@ def run(seed: int, names: list[str]) -> list[dict]:
     rows = []
     for name in names:
         with ExitStack() as stack:
-            overrides = {"data": {"seed": seed}, **patches(name, stack)}
+            extra = patches(name, stack)
+            overrides = {**extra, "data": {"seed": seed, **extra.get("data", {})}}
             p = Pipeline(load_settings(overrides=overrides), use_cache=False)
             if name == "jump_downside":
                 eq = p.prices["equity"]
