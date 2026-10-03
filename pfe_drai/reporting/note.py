@@ -84,7 +84,7 @@ def build_note(
         "lang": lang,
         "title": t("note.title", lang),
         "as_of": t("note.as_of", lang, date=fmt_date(state.date, lang)),
-        "fund": t("note.fund", lang, fund=fund.name.get(lang, fund.id)),
+        "fund": t("note.portfolio" if fund.id == "own" else "note.fund", lang, fund=fund.name.get(lang, fund.id)),
         "summary": t(
             "note.summary",
             lang,

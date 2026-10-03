@@ -28,6 +28,9 @@ from pfe_drai.publish import board as global_board  # noqa: E402
 from pfe_drai.publish.page import page_html  # noqa: E402
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf  # noqa: E402
 from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, rank_scenarios  # noqa: E402
+from pfe_drai.scenarios.portfolio import PortfolioError, holdings_impact, parse_portfolio  # noqa: E402
+from pfe_drai.scenarios.portfolio import messages as portfolio_messages  # noqa: E402
+from pfe_drai.scenarios.portfolio import template as portfolio_template  # noqa: E402
 from pfe_drai.theme import css, get_theme, regime_colors, style_figure  # noqa: E402
 from pfe_drai.validation import evaluate  # noqa: E402
 from pfe_drai.validation.calibration import calibration_report  # noqa: E402
@@ -1353,99 +1356,167 @@ with tab_alerts:
 with tab_scen:
     assets, scenarios = load_library(settings)
     funds = load_funds(settings)
+    portfolio = None  # your own portfolio: read in memory on each run, never written or cached
     c1, c2 = st.columns([1, 1])
     with c1:
-        fund_id = st.selectbox(
-            t("app.fund", lang),
-            [f.id for f in funds],
-            index=1,
-            format_func=lambda i: next(f.name[lang] for f in funds if f.id == i),
-        )
-        base = next(f for f in funds if f.id == fund_id)
-        with st.expander(t("app.edit_weights", lang)):
-            edited = st.data_editor(
-                pd.DataFrame(
-                    {"asset": [t(f"asset.{a}", lang) for a in assets], "weight": [base.weights.get(a, 0.0) * 100 for a in assets]}
-                ),
-                hide_index=True,
-                disabled=["asset"],
-                width="stretch",
-                key=f"weights-{fund_id}",
-                column_config={
-                    "asset": st.column_config.TextColumn(t("scen.by_asset", lang)),
-                    "weight": st.column_config.NumberColumn("%", min_value=0.0, max_value=100.0, step=1.0),
-                },
+        source = (
+            st.segmented_control(
+                t("portfolio.source", lang),
+                ["model", "own"],
+                default="model",
+                format_func=lambda x: t(f"portfolio.source.{x}", lang),
+                key="portfolio_source",
             )
-            total = edited["weight"].sum()
-            st.caption(t("app.weights_sum", lang, value=f"{total:.0f} %"))
-        weights = {a: w / 100 for a, w in zip(assets, edited["weight"], strict=True)}
-        fund = Fund(id=f"{fund_id}", name=base.name, weights=weights)
+            or "model"
+        )
+        if source == "model":
+            fund_id = st.selectbox(
+                t("app.fund", lang),
+                [f.id for f in funds],
+                index=1,
+                format_func=lambda i: next(f.name[lang] for f in funds if f.id == i),
+            )
+            base = next(f for f in funds if f.id == fund_id)
+            with st.expander(t("app.edit_weights", lang)):
+                edited = st.data_editor(
+                    pd.DataFrame(
+                        {
+                            "asset": [t(f"asset.{a}", lang) for a in assets],
+                            "weight": [base.weights.get(a, 0.0) * 100 for a in assets],
+                        }
+                    ),
+                    hide_index=True,
+                    disabled=["asset"],
+                    width="stretch",
+                    key=f"weights-{fund_id}",
+                    column_config={
+                        "asset": st.column_config.TextColumn(t("scen.by_asset", lang)),
+                        "weight": st.column_config.NumberColumn("%", min_value=0.0, max_value=100.0, step=1.0),
+                    },
+                )
+                total = edited["weight"].sum()
+                st.caption(t("app.weights_sum", lang, value=f"{total:.0f} %"))
+            weights = {a: w / 100 for a, w in zip(assets, edited["weight"], strict=True)}
+            fund = Fund(id=f"{fund_id}", name=base.name, weights=weights)
+        else:
+            fund = None
+            st.caption(t("portfolio.help", lang))
+            pasted = st.text_area(
+                t("portfolio.paste", lang), height=170, key="portfolio_text", placeholder=portfolio_template(assets, lang)
+            )
+            uploaded = st.file_uploader(t("portfolio.upload", lang), type=["csv", "txt"], key="portfolio_file")
+            raw = uploaded.getvalue() if uploaded is not None else pasted
+            if raw and raw.strip():
+                try:
+                    portfolio = parse_portfolio(raw, assets)
+                    fund = portfolio.fund()
+                    for line in portfolio_messages(portfolio.warnings, lang):
+                        st.warning(line)
+                except PortfolioError as err:
+                    st.error(
+                        t("portfolio.invalid", lang) + "\n\n" + "\n".join(f"- {m}" for m in portfolio_messages(err.errors, lang))
+                    )
+            st.download_button(
+                t("portfolio.template", lang),
+                portfolio_template(assets, lang),
+                f"portfolio-template-{lang}.csv",
+                "text/csv",
+            )
+            st.caption(t("portfolio.classes", lang, values=", ".join(f"{a} ({t(f'asset.{a}', lang)})" for a in assets)))
+            st.caption(f"🔒 {t('portfolio.memory', lang)}")
     with c2:
         top_k = st.slider(t("scen.selected", lang), 1, len(scenarios), settings["scenarios"]["top_k"])
-
-    st.subheader(t("scen.title", lang))
-    st.caption(t("scen.help", lang))
-    ranking = rank_scenarios(scenarios, pd.Series(state.scores), pd.Series(state.probabilities))
-    impacts = impact_table(fund, scenarios, list(ranking["id"])).set_index("id")
-    by_id = {s.id: s for s in scenarios}
-    ranking["name"] = ranking["id"].map(lambda i: by_id[i].name[lang])
-    st.dataframe(
-        pd.DataFrame(
-            {
-                t("scen.col.scenario", lang): ranking["name"],
-                t("scen.col.period", lang): ranking["id"].map(
-                    lambda i: f"{fmt_date(by_id[i].start, lang)} – {fmt_date(by_id[i].end, lang)}"
+        if portfolio is not None:
+            st.caption(
+                t("portfolio.read", lang, n=len(portfolio.holdings), k=sum(1 for w in portfolio.weights.values() if w > 0))
+            )
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        t("portfolio.col.holding", lang): [h.name for h in portfolio.holdings],
+                        t("portfolio.col.class", lang): [t(f"asset.{h.asset}", lang) for h in portfolio.holdings],
+                        t("portfolio.col.weight", lang): [fmt_pct(h.weight, lang, 1) for h in portfolio.holdings],
+                    }
                 ),
-                t("scen.col.regime", lang): ranking["regime"].map(reg),
-                t("scen.col.relevance", lang): ranking["relevance"] * 100,
-                t("scen.col.impact", lang): ranking["id"].map(lambda i: fmt_pct(impacts.loc[i, "total"], lang, 1)),
-            }
-        ),
-        hide_index=True,
-        width="stretch",
-        column_config={
-            t("scen.col.relevance", lang): st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.0f %%")
-        },
-    )
+                hide_index=True,
+                width="stretch",
+                height=min(38 + 35 * len(portfolio.holdings), 300),
+            )
 
-    st.subheader(t("scen.impact_title", lang))
-    chosen_ids = list(ranking["id"].head(top_k))
-    sel = impacts.loc[chosen_ids]
-    fig = go.Figure(
-        go.Bar(
-            x=[by_id[i].name[lang] for i in chosen_ids],
-            y=sel["total"],
-            marker_color=[colors[by_id[i].regime] for i in chosen_ids],
-            text=[fmt_pct(v, lang, 1) for v in sel["total"]],
-            textposition="outside",
-            cliponaxis=False,
-            hovertemplate="%{x}: %{y:.1%}<extra></extra>",
+    if fund is None:
+        st.info(t("portfolio.waiting", lang))
+    else:
+        st.subheader(t("scen.title", lang))
+        st.caption(t("scen.help", lang))
+        ranking = rank_scenarios(scenarios, pd.Series(state.scores), pd.Series(state.probabilities))
+        impacts = impact_table(fund, scenarios, list(ranking["id"])).set_index("id")
+        by_id = {s.id: s for s in scenarios}
+        ranking["name"] = ranking["id"].map(lambda i: by_id[i].name[lang])
+        st.dataframe(
+            pd.DataFrame(
+                {
+                    t("scen.col.scenario", lang): ranking["name"],
+                    t("scen.col.period", lang): ranking["id"].map(
+                        lambda i: f"{fmt_date(by_id[i].start, lang)} – {fmt_date(by_id[i].end, lang)}"
+                    ),
+                    t("scen.col.regime", lang): ranking["regime"].map(reg),
+                    t("scen.col.relevance", lang): ranking["relevance"] * 100,
+                    t("portfolio.col.impact" if portfolio else "scen.col.impact", lang): ranking["id"].map(
+                        lambda i: fmt_pct(impacts.loc[i, "total"], lang, 1)
+                    ),
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+            column_config={
+                t("scen.col.relevance", lang): st.column_config.ProgressColumn(min_value=0, max_value=100, format="%.0f %%")
+            },
         )
-    )
-    fig.update_yaxes(tickformat=".0%")
-    fig.add_hline(y=0, line_color=MUTED, line_width=1)
-    st.plotly_chart(base_layout(fig, 320, showlegend=False), width="stretch")
-    with st.expander(t("scen.by_asset", lang)):
-        contrib = sel[assets].T
-        contrib.index = [t(f"asset.{a}", lang) for a in assets]
-        contrib.columns = [by_id[i].name[lang] for i in chosen_ids]
-        st.dataframe(contrib.map(lambda v: fmt_pct(v, lang, 2)), width="stretch")
-    st.caption(t("scen.indicative", lang))
 
-    st.subheader(t("scen.note", lang))
-    st.caption(t("scen.note_help", lang))
-    note = build_note(pipeline, lang, model, fund=fund, date=as_of, top_k=top_k)
-    markdown = to_markdown(note)
-    stamp = state.date.date().isoformat()
-    d1, d2, d3 = st.columns(3)
-    d1.download_button(
-        f"{t('app.download', lang)} PDF", to_pdf(note), f"note-{stamp}-{lang}.pdf", "application/pdf", width="stretch"
-    )
-    d2.download_button(
-        f"{t('app.download', lang)} HTML", to_html(note), f"note-{stamp}-{lang}.html", "text/html", width="stretch"
-    )
-    d3.download_button(
-        f"{t('app.download', lang)} Markdown", markdown, f"note-{stamp}-{lang}.md", "text/markdown", width="stretch"
-    )
-    with st.container(border=True):
-        st.markdown(markdown)
+        st.subheader(t("portfolio.impact_title" if portfolio else "scen.impact_title", lang))
+        chosen_ids = list(ranking["id"].head(top_k))
+        sel = impacts.loc[chosen_ids]
+        fig = go.Figure(
+            go.Bar(
+                x=[by_id[i].name[lang] for i in chosen_ids],
+                y=sel["total"],
+                marker_color=[colors[by_id[i].regime] for i in chosen_ids],
+                text=[fmt_pct(v, lang, 1) for v in sel["total"]],
+                textposition="outside",
+                cliponaxis=False,
+                hovertemplate="%{x}: %{y:.1%}<extra></extra>",
+            )
+        )
+        fig.update_yaxes(tickformat=".0%")
+        fig.add_hline(y=0, line_color=MUTED, line_width=1)
+        st.plotly_chart(base_layout(fig, 320, showlegend=False), width="stretch")
+        with st.expander(t("scen.by_asset", lang)):
+            contrib = sel[assets].T
+            contrib.index = [t(f"asset.{a}", lang) for a in assets]
+            contrib.columns = [by_id[i].name[lang] for i in chosen_ids]
+            st.dataframe(contrib.map(lambda v: fmt_pct(v, lang, 2)), width="stretch")
+        if portfolio is not None:
+            with st.expander(t("portfolio.by_holding", lang)):
+                per_holding = holdings_impact(portfolio, scenarios, chosen_ids)
+                per_holding.columns = [by_id[i].name[lang] for i in chosen_ids]
+                st.dataframe(per_holding.map(lambda v: fmt_pct(v, lang, 2)), width="stretch")
+                st.caption(t("portfolio.mapping", lang))
+        st.caption(t("scen.indicative", lang))
+
+        st.subheader(t("scen.note", lang))
+        st.caption(t("scen.note_help", lang))
+        note = build_note(pipeline, lang, model, fund=fund, date=as_of, top_k=top_k)
+        markdown = to_markdown(note)
+        stamp = state.date.date().isoformat()
+        d1, d2, d3 = st.columns(3)
+        d1.download_button(
+            f"{t('app.download', lang)} PDF", to_pdf(note), f"note-{stamp}-{lang}.pdf", "application/pdf", width="stretch"
+        )
+        d2.download_button(
+            f"{t('app.download', lang)} HTML", to_html(note), f"note-{stamp}-{lang}.html", "text/html", width="stretch"
+        )
+        d3.download_button(
+            f"{t('app.download', lang)} Markdown", markdown, f"note-{stamp}-{lang}.md", "text/markdown", width="stretch"
+        )
+        with st.container(border=True):
+            st.markdown(markdown)

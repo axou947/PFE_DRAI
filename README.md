@@ -30,7 +30,7 @@ puis le résultat est mis en cache dans `data_cache/`.
 | **Historique** | latence de détection par épisode, fausses alertes par an, fiabilité de la probabilité de stress (courbe de calibration, Brier, ECE, avant et après calibration), comparaison des modèles, track record publié |
 | **Track record** | la page publique du track record : chaque jour publié (régime, probabilité de stress, alarme, empreinte SHA-256, horodatage Bitcoin), chaque épisode de stress et son délai de détection, chaque alarme, fausses alarmes comprises ; le backtest 2009-2026 à part, clairement séparé du réel (docs/TRACK_RECORD.md) |
 | **Alertes** | changement de régime, alarme de stress, alerte précoce à 1 semaine, mouvements brusques ; filtres par type et période |
-| **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables), note de comité des risques en PDF / HTML / Markdown |
+| **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables) ou sur votre propre portefeuille (CSV collé ou déposé, lu en mémoire seulement, jamais enregistré : docs/PORTFOLIO.md), contribution par position, note de comité des risques en PDF / HTML / Markdown |
 
 Dans la barre latérale : langue FR/EN, source de données, modèle, date d'analyse (pour revoir
 n'importe quel jour passé) et seuil d'alarme (score du détecteur).
@@ -45,6 +45,7 @@ python -m pfe_drai --provider fred episodes   # épisodes de stress datés par l
 python -m pfe_drai --provider fred states     # comment les états du modèle sont nommés (docs/REGIMES.md)
 python -m pfe_drai --provider fred explain --date 2020-03-16  # pourquoi ce régime, ce qui le ferait basculer (docs/EXPLAIN.md)
 python -m pfe_drai --provider fred outlook                    # durée habituelle du régime et suite observée (fréquences, docs/OUTLOOK.md)
+python -m pfe_drai --provider fred scenarios --portfolio mon_portefeuille.csv  # impact de chaque scénario historique sur vos poids (docs/PORTFOLIO.md)
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
 python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix des indicateurs de croissance, 1999-2009 (docs/SLOWDOWN.md)
@@ -64,7 +65,7 @@ python -m pfe_drai thesis --check             # les résultats imprimés dans do
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
-API : `GET /regime`, `/regime/explain`, `/regime/outlook`, `/board`, `/challengers`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
+API : `GET /regime`, `/regime/explain`, `/regime/outlook`, `/board`, `/challengers`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `POST /scenarios/portfolio` (votre CSV, non conservé), `/report` (paramètres `lang`, `model`, `date`…).
 
 ## Méthode
 
@@ -149,7 +150,7 @@ pfe_drai/
   regimes.py   définitions, couleurs, règle d'étiquetage, nommage des états
   models/      kmeans, jump, gbm, onset, combined, calibrateur de P(stress) (interface commune + registre)
   validation/  walk-forward, datation des épisodes, latence, fausses alertes, calibration
-  scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds
+  scenarios/   bibliothèque de stress, sélection selon le régime, impact sur un fonds ou votre portefeuille
   reporting/   note de comité FR/EN (Markdown, HTML, PDF)
   thesis/      rapport méthode et résultats FR/EN assemblé depuis docs/thesis/ et les enregistrements
   publish/     publication quotidienne horodatée, page publique du track record

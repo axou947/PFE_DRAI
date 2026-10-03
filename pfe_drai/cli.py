@@ -11,6 +11,7 @@ track-record  build the public track-record page (track_record/index.html, fr.ht
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
 explain    why the regime: contributions to each score, what would flip the rule, alarm drivers (docs/EXPLAIN.md)
+scenarios  impact of each historical scenario on a model fund or on your own portfolio CSV (--portfolio, docs/PORTFOLIO.md)
 outlook    how long this regime's spells lasted before, how long this one has run, what came next (base rates, docs/OUTLOOK.md)
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
@@ -375,6 +376,49 @@ def cmd_outlook(args):
         )
         print(f"{r:<12} {d['spells']:>6} {med:>7} {mid:>12} {n['ended']:>6}{shares}")
     print(f"\n{text['caveat']}")
+
+
+def cmd_scenarios(args):
+    import pandas as pd
+
+    from .scenarios import impact_table, load_funds, load_library, rank_scenarios
+    from .scenarios.portfolio import PortfolioError, messages, parse_portfolio
+
+    lang = args.lang
+    p = _pipeline(args)
+    assets, library = load_library(p.settings)
+    if args.portfolio:
+        try:  # read in memory; nothing is written
+            portfolio = parse_portfolio(Path(args.portfolio).read_bytes(), assets)
+        except PortfolioError as err:
+            print(t("portfolio.invalid", lang), file=sys.stderr)
+            for line in messages(err.errors, lang):
+                print(f"  {line}", file=sys.stderr)
+            sys.exit(1)
+        for line in messages(portfolio.warnings, lang):
+            print(line)
+        fund = portfolio.fund()
+    else:
+        funds = {f.id: f for f in load_funds(p.settings)}
+        if args.fund not in funds:
+            sys.exit(f"Unknown fund '{args.fund}'. Available: {', '.join(funds)}")
+        fund = funds[args.fund]
+    state = p.state(args.model)
+    ranking = rank_scenarios(library, pd.Series(state.scores), pd.Series(state.probabilities))
+    impacts = impact_table(fund, library, list(ranking["id"])).set_index("id")
+    names = {s.id: s.name[lang] for s in library}
+    impact_key = "portfolio.col.impact" if args.portfolio else "scen.col.impact"
+    print(f"{fund.name[lang]} ({state.date.date()})")
+    for a in assets:
+        if fund.weights.get(a):
+            print(f"  {t(f'asset.{a}', lang):<28} {fmt_pct(fund.weights[a], lang, 1):>8}")
+    print(f"\n{t('scen.col.scenario', lang):<48} {t('scen.col.relevance', lang):>10} {t(impact_key, lang):>30}")
+    for row in ranking.to_dict("records"):
+        print(
+            f"{names[row['id']]:<48} {fmt_pct(row['relevance'], lang):>10}"
+            f" {fmt_pct(impacts.loc[row['id'], 'total'], lang, 1):>30}"
+        )
+    print(f"\n{t('scen.indicative', lang)}")
 
 
 def cmd_states(args):
@@ -898,6 +942,7 @@ def main(argv=None):
         ("states", cmd_states),
         ("explain", cmd_explain),
         ("outlook", cmd_outlook),
+        ("scenarios", cmd_scenarios),
         ("holdout", cmd_holdout),
         ("calibration", cmd_calibration),
         ("slowdown", cmd_slowdown),
@@ -913,6 +958,9 @@ def main(argv=None):
         sp = sub.add_parser(name)
         sp.add_argument("--model", default=None)
         sp.set_defaults(func=func)
+        if name == "scenarios":
+            sp.add_argument("--fund", default="balanced", help="model fund from config/funds.yaml (default: balanced)")
+            sp.add_argument("--portfolio", help="your own weights as CSV (docs/PORTFOLIO.md); read in memory, never stored")
         if name == "report":
             sp.add_argument("--format", default="md", choices=["md", "html", "pdf"])
             sp.add_argument("--out")
