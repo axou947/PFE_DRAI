@@ -1,0 +1,136 @@
+id: deflation
+theme: macro
+icon: "🧊"
+title: {en: Deflation, fr: Déflation}
+indicators: [core_pce_yoy, pce_yoy, fwd_5y5y]
+chart: [pce_yoy, core_pce_yoy]
+leads_to:
+  - {card: real_rates, en: "raises real rates and the real weight of debt", fr: "monte les taux réels et le poids réel des dettes"}
+  - {card: consumer, en: "households delay purchases", fr: "les ménages reportent leurs achats"}
+  - {card: qe_qt, en: "rates at zero: the Fed buys bonds", fr: "taux à zéro : la Fed achète des obligations"}
+facts:
+  en:
+    - Deflation is a fall in the general price level, not just cheaper prices for a few goods.
+    - Mild deflation from productivity gains can be harmless, but a broad, demand-driven fall in prices is dangerous.
+    - Deflation raises the real burden of debt and real interest rates, and central banks fight it with near-zero rates and asset purchases.
+  fr:
+    - La déflation est une baisse du niveau général des prix, pas seulement de quelques produits.
+    - Une légère déflation due à des gains de productivité peut être sans danger, mais une baisse générale venue d'une demande faible est dangereuse.
+    - La déflation alourdit le poids réel des dettes et les taux réels, et les banques centrales la combattent avec des taux proches de zéro et des achats d'actifs.
+beginner:
+  en:
+    summary: Prices falling across the whole economy.
+    what: >-
+      Deflation is the opposite of inflation: on average, prices go down year after year. It is not the same as a
+      single product getting cheaper, like TVs. It is everything at once.
+    good: >-
+      If prices fall because firms produce more efficiently (new technology), everyone can buy more with the same
+      money. That kind of "good deflation" happened in parts of the 19th century.
+    bad: >-
+      If prices fall because nobody is buying, it becomes a trap: people wait for lower prices, firms sell less, cut
+      jobs and wages, people spend even less. Debts stay the same while incomes fall, so they get harder to repay.
+    next: >-
+      Central banks fight deflation hard: they cut interest rates to almost zero and, if that is not enough, create
+      money to buy bonds (this is called QE). Japan lived with mild deflation for about 20 years, which shows how
+      hard it is to escape.
+  fr:
+    summary: Les prix qui baissent dans toute l'économie.
+    what: >-
+      La déflation est l'inverse de l'inflation : en moyenne, les prix baissent d'année en année. Ce n'est pas la
+      même chose qu'un seul produit qui devient moins cher, comme les télévisions. C'est tout à la fois.
+    good: >-
+      Si les prix baissent parce que les entreprises produisent plus efficacement (nouvelles technologies), chacun
+      peut acheter plus avec le même argent. Cette « bonne déflation » a existé par moments au XIXe siècle.
+    bad: >-
+      Si les prix baissent parce que personne n'achète, c'est un piège : on attend des prix plus bas, les entreprises
+      vendent moins, suppriment des emplois et baissent les salaires, et on dépense encore moins. Les dettes restent
+      les mêmes alors que les revenus baissent : elles deviennent plus dures à rembourser.
+    next: >-
+      Les banques centrales combattent fort la déflation : elles baissent les taux presque à zéro et, si cela ne
+      suffit pas, créent de la monnaie pour acheter des obligations (le QE). Le Japon a vécu une légère déflation
+      pendant une vingtaine d'années, ce qui montre combien il est difficile d'en sortir.
+pro:
+  en:
+    summary: A sustained fall in the price level; benign when supply-driven, dangerous when it reflects deficient demand.
+    what: >-
+      Measured on broad indices (PCE, CPI, GDP deflator), not on single categories: falling goods prices with rising
+      services prices is relative-price change, not deflation. Market-based long-run expectations (5y5y forward
+      breakeven) show whether investors expect the episode to persist. In the US, headline PCE briefly turned
+      negative in 2009 on energy; core never did, unlike Japan from the late 1990s.
+    good: >-
+      Supply-side ("good") deflation from productivity growth raises real incomes, as in the late 19th-century US
+      (Bordo, Lane and Redish). Temporary negative headline prints driven by an energy collapse act like a tax cut for
+      consumers.
+    bad: >-
+      Demand-side deflation triggers Fisher's (1933) debt-deflation spiral: falling prices raise real debt, distressed
+      borrowers sell assets, collateral values and credit fall, demand weakens further. With the nominal rate floored
+      near zero, deflation pushes the real rate up exactly when it should fall (the zero lower bound problem), and
+      expectations of lower prices make households postpone purchases. Downward nominal wage rigidity turns it into
+      unemployment rather than lower wages.
+    next: >-
+      Policy responses escalate from rate cuts to the lower bound, forward guidance, large-scale asset purchases and
+      yield-curve control, to fiscal expansion (Bernanke's 2002 "Making sure it doesn't happen here"). The longer
+      expectations stay low, the stronger the commitment needed (Krugman 1998: credibly promise to be irresponsible).
+      Japan's experience shows the cost of letting expectations settle below zero.
+    mechanics: |
+      - Real rate: $r = i - \pi^e$. With $i \geq 0$ and $\pi^e < 0$, $r \geq -\pi^e > 0$ however low the policy rate.
+      - Real debt: $D/P$ rises when $P$ falls; debt service relative to nominal income rises if incomes fall.
+      - 5y5y forward breakeven: expected average inflation 5 to 10 years ahead, read from nominal and TIPS curves.
+    reading: |
+      - Fisher, I. (1933), "The Debt-Deflation Theory of Great Depressions", Econometrica.
+      - Bernanke, B. (2002), "Deflation: Making Sure 'It' Doesn't Happen Here", speech.
+      - Krugman, P. (1998), "It's Baaack: Japan's Slump and the Return of the Liquidity Trap", Brookings Papers.
+  fr:
+    summary: Une baisse durable du niveau des prix ; sans danger si elle vient de l'offre, dangereuse si elle traduit une demande trop faible.
+    what: >-
+      Elle se mesure sur des indices larges (PCE, CPI, déflateur du PIB), pas sur une catégorie : des biens moins chers
+      avec des services plus chers, c'est un changement de prix relatifs, pas une déflation. Les anticipations de long
+      terme du marché (point mort à terme 5 ans dans 5 ans) disent si les investisseurs la croient durable. Aux
+      États-Unis, le PCE total a brièvement été négatif en 2009 à cause de l'énergie ; le core jamais, contrairement au
+      Japon dès la fin des années 1990.
+    good: >-
+      La « bonne » déflation, venue de l'offre et de la productivité, augmente les revenus réels, comme aux États-Unis à
+      la fin du XIXe siècle (Bordo, Lane et Redish). Des chiffres négatifs passagers dus à un effondrement de l'énergie
+      agissent comme une baisse d'impôt pour les ménages.
+    bad: >-
+      La déflation par la demande déclenche la spirale dette-déflation de Fisher (1933) : la baisse des prix alourdit
+      la dette réelle, les emprunteurs en difficulté vendent des actifs, la valeur des garanties et le crédit
+      reculent, la demande faiblit encore. Avec un taux nominal bloqué près de zéro, la déflation fait monter le taux
+      réel au moment où il devrait baisser (borne basse), et l'attente de prix plus bas fait reporter les achats. La
+      rigidité à la baisse des salaires nominaux la transforme en chômage plutôt qu'en baisse de salaires.
+    next: >-
+      Les réponses montent en puissance : baisse des taux jusqu'à la borne basse, guidage prospectif, achats massifs
+      d'actifs, contrôle de la courbe des taux, puis relance budgétaire (Bernanke 2002, « Making sure it doesn't happen
+      here »). Plus les anticipations restent basses, plus l'engagement doit être fort (Krugman 1998 : promettre de
+      façon crédible d'être irresponsable). Le Japon montre le coût d'anticipations installées sous zéro.
+    mechanics: |
+      - Taux réel : $r = i - \pi^e$. Avec $i \geq 0$ et $\pi^e < 0$, $r \geq -\pi^e > 0$, aussi bas que soit le taux directeur.
+      - Dette réelle : $D/P$ monte quand $P$ baisse ; le service de la dette rapporté au revenu nominal monte si les revenus baissent.
+      - Point mort à terme 5 ans dans 5 ans : inflation moyenne attendue entre 5 et 10 ans, lue sur les courbes nominale et TIPS.
+    reading: |
+      - Fisher, I. (1933), « The Debt-Deflation Theory of Great Depressions », Econometrica.
+      - Bernanke, B. (2002), « Deflation: Making Sure 'It' Doesn't Happen Here », discours.
+      - Krugman, P. (1998), « It's Baaack: Japan's Slump and the Return of the Liquidity Trap », Brookings Papers.
+quiz:
+  beginner:
+    - en:
+        q: Why can falling prices everywhere be bad news?
+        options: [Because shops close earlier, "Because people wait to buy, firms sell less and cut jobs", Because the Fed raises rates]
+        answer: 1
+        why: Waiting for lower prices reduces spending, which hurts firms and jobs, and debts get harder to repay.
+      fr:
+        q: Pourquoi des prix qui baissent partout peuvent-ils être une mauvaise nouvelle ?
+        options: [Parce que les magasins ferment plus tôt, "Parce qu'on attend pour acheter, les entreprises vendent moins et suppriment des emplois", Parce que la Fed monte ses taux]
+        answer: 1
+        why: Attendre des prix plus bas réduit les dépenses, ce qui pèse sur les entreprises et l'emploi, et les dettes deviennent plus dures à rembourser.
+  pro:
+    - en:
+        q: With the policy rate at 0% and expected inflation at -1%, what is the ex-ante real rate?
+        options: ["-1%", "0%", "+1%"]
+        answer: 2
+        why: "r = i - expected inflation = 0 - (-1) = +1%: deflation tightens policy at the lower bound."
+      fr:
+        q: Avec un taux directeur à 0 % et une inflation anticipée de -1 %, quel est le taux réel ex ante ?
+        options: ["-1 %", "0 %", "+1 %"]
+        answer: 2
+        why: "r = i - inflation anticipée = 0 - (-1) = +1 % : à la borne basse, la déflation resserre la politique monétaire."

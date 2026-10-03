@@ -1,0 +1,127 @@
+id: housing
+theme: micro
+icon: "🏠"
+title: {en: Housing, fr: Le logement}
+indicators: [housing_starts, us10y, real_10y]
+chart: [housing_starts]
+leads_to:
+  - {card: consumer, en: "home equity supports spending", fr: "la valeur des logements soutient la consommation"}
+  - {card: growth, en: "construction is an early cycle driver", fr: "la construction mène le cycle"}
+  - {card: inflation, en: "rents feed shelter inflation with a lag", fr: "les loyers nourrissent l'inflation du logement avec retard"}
+facts:
+  en:
+    - Housing is the most interest-rate-sensitive part of the economy, because homes are bought with long-term loans.
+    - Housing starts and sales usually fall first when the Fed tightens and recover first when it eases.
+    - Shelter is about a third of core CPI, and it follows market rents with a lag of about a year.
+  fr:
+    - Le logement est la partie de l'économie la plus sensible aux taux, car on l'achète avec des crédits longs.
+    - Les mises en chantier et les ventes baissent en général en premier quand la Fed resserre et repartent en premier quand elle assouplit.
+    - Le logement pèse environ un tiers du core CPI et suit les loyers de marché avec environ un an de retard.
+beginner:
+  en:
+    summary: Why house building is the first to feel interest rates.
+    what: >-
+      Most people buy a home with a 30-year mortgage. When rates go up, the monthly payment for the same house jumps, so
+      fewer people can buy and builders start fewer houses.
+    good: >-
+      Building homes creates many jobs (construction, furniture, appliances). Rising home values make owners feel richer
+      and spend more.
+    bad: >-
+      When prices rise much faster than incomes, homes become unaffordable and risky loans can pile up, as before 2008.
+      When rates jump, sales and construction fall quickly.
+    next: >-
+      Housing is often the first sector to slow when the Fed raises rates and the first to recover when it cuts. Rents,
+      though, react slowly: they keep weighing on inflation for a year or so after the market has cooled.
+  fr:
+    summary: Pourquoi la construction est la première à sentir les taux.
+    what: >-
+      La plupart des gens achètent un logement avec un prêt sur 30 ans. Quand les taux montent, la mensualité pour la même
+      maison bondit, donc moins de gens peuvent acheter et les promoteurs lancent moins de chantiers.
+    good: >-
+      Construire des logements crée beaucoup d'emplois (bâtiment, meubles, électroménager). La hausse de la valeur des
+      logements donne aux propriétaires le sentiment d'être plus riches, et ils dépensent plus.
+    bad: >-
+      Quand les prix montent beaucoup plus vite que les revenus, les logements deviennent inabordables et des crédits
+      risqués peuvent s'accumuler, comme avant 2008. Quand les taux bondissent, ventes et chantiers chutent vite.
+    next: >-
+      Le logement est souvent le premier secteur à ralentir quand la Fed monte ses taux et le premier à repartir quand
+      elle les baisse. Les loyers, eux, réagissent lentement : ils pèsent encore sur l'inflation environ un an après le
+      refroidissement du marché.
+pro:
+  en:
+    summary: Rate sensitivity, lock-in, the housing cycle and shelter inflation.
+    what: >-
+      Residential investment is only 3 to 5% of GDP but leads the cycle (Leamer 2007, "Housing IS the business cycle").
+      30-year fixed mortgage rates track the 10-year Treasury plus a spread (Freddie Mac's survey is licensed, so this
+      page shows the 10-year yield and real yield). The US 30-year fixed rate creates a lock-in effect: owners with low
+      rates do not sell, which restrains existing-home supply when rates rise.
+    good: >-
+      Easing transmits quickly through refinancing (a cash-flow channel unique to US fixed-rate mortgages) and new
+      construction. Housing wealth effects support consumption; building activity responds early to lower rates.
+    bad: >-
+      Credit-fuelled booms end in busts with long-lasting effects (2006-2011): negative equity, foreclosures, a banking
+      crisis. Rate shocks hit affordability (payment-to-income) hard; lock-in reduces mobility and labour market matching.
+    next: >-
+      Starts and permits lead the cycle by several quarters. Shelter CPI (owners' equivalent rent and rent) follows new
+      lease rents with roughly a 12-month lag, so it keeps core inflation elevated after market rents have turned: the
+      Fed looks at new-tenant rent indices to see the future path.
+    mechanics: |
+      - Monthly payment: $M = L \frac{r(1+r)^n}{(1+r)^n - 1}$ with $r$ the monthly rate and $n = 360$.
+      - A 1 pt rise in the mortgage rate (from 6% to 7%) raises the payment by about 11%.
+      - Shelter CPI $\approx$ distributed lag of new-lease rents (about 12 months).
+    reading: |
+      - Leamer, E. (2007), "Housing IS the Business Cycle", Jackson Hole.
+      - Mian, A. and Sufi, A. (2009), "The Consequences of Mortgage Credit Expansion", Quarterly Journal of Economics.
+      - Adams, B. et al. (2022), "Disentangling Rent Index Differences", BLS / Cleveland Fed.
+  fr:
+    summary: Sensibilité aux taux, effet de verrouillage, cycle immobilier et inflation du logement.
+    what: >-
+      L'investissement résidentiel ne pèse que 3 à 5 % du PIB mais mène le cycle (Leamer 2007, « Housing IS the business
+      cycle »). Le taux fixe sur 30 ans suit le taux du Trésor à 10 ans plus un écart (l'enquête de Freddie Mac est sous
+      licence, cette page montre donc le taux à 10 ans et le taux réel). Le prêt américain à taux fixe sur 30 ans crée un
+      effet de verrouillage : les propriétaires à taux bas ne vendent pas, ce qui freine l'offre de logements anciens
+      quand les taux montent.
+    good: >-
+      L'assouplissement se transmet vite via le refinancement (un canal de trésorerie propre aux prêts américains à taux
+      fixe) et la construction neuve. Les effets de richesse immobilière soutiennent la consommation ; la construction
+      réagit tôt à la baisse des taux.
+    bad: >-
+      Les booms nourris au crédit finissent en krachs aux effets durables (2006-2011) : dettes supérieures à la valeur du
+      bien, saisies, crise bancaire. Les chocs de taux frappent fort l'accessibilité (mensualité sur revenu) ; le
+      verrouillage réduit la mobilité et l'appariement sur le marché du travail.
+    next: >-
+      Mises en chantier et permis précèdent le cycle de plusieurs trimestres. L'inflation du logement dans le CPI (loyer
+      équivalent des propriétaires et loyers) suit les loyers des nouveaux baux avec environ 12 mois de retard : elle
+      maintient l'inflation core haute après le retournement des loyers de marché, d'où l'intérêt de la Fed pour les
+      indices de loyers des nouveaux locataires.
+    mechanics: |
+      - Mensualité : $M = L \frac{r(1+r)^n}{(1+r)^n - 1}$ avec $r$ le taux mensuel et $n = 360$.
+      - Une hausse de 1 pt du taux immobilier (de 6 % à 7 %) augmente la mensualité d'environ 11 %.
+      - Logement dans le CPI $\approx$ moyenne retardée des loyers des nouveaux baux (environ 12 mois).
+    reading: |
+      - Leamer, E. (2007), « Housing IS the Business Cycle », Jackson Hole.
+      - Mian, A. et Sufi, A. (2009), « The Consequences of Mortgage Credit Expansion », Quarterly Journal of Economics.
+      - Adams, B. et al. (2022), « Disentangling Rent Index Differences », BLS / Fed de Cleveland.
+quiz:
+  beginner:
+    - en:
+        q: Which part of the economy usually slows first when the Fed raises rates?
+        options: [Housing, Hospitals, Schools]
+        answer: 0
+        why: Homes are bought with long loans, so higher rates hit them right away.
+      fr:
+        q: Quelle partie de l'économie ralentit en général en premier quand la Fed monte ses taux ?
+        options: [Le logement, Les hôpitaux, Les écoles]
+        answer: 0
+        why: On achète un logement avec un long crédit, donc des taux plus hauts le frappent tout de suite.
+  pro:
+    - en:
+        q: Market rents have been flat for six months but CPI shelter inflation is still high. Why?
+        options: [The BLS measures rents with a lag of existing leases, Mortgage rates are in CPI, Housing starts are rising]
+        answer: 0
+        why: CPI rents average all leases, which reset only once a year, so they follow new-lease rents with about a 12-month lag.
+      fr:
+        q: Les loyers de marché sont stables depuis six mois mais l'inflation du logement dans le CPI reste haute. Pourquoi ?
+        options: [Le BLS mesure les loyers des baux en cours avec retard, Les taux immobiliers sont dans le CPI, Les mises en chantier montent]
+        answer: 0
+        why: Les loyers du CPI font la moyenne de tous les baux, renouvelés une fois par an, donc ils suivent les nouveaux baux avec environ 12 mois de retard.

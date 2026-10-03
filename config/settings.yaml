@@ -215,6 +215,48 @@ world:
     stress_window: 1260       # "in US stress" vs "other days" correlation over 5 years...
     min_stress_days: 20       # ...and only with at least 20 US stress days in it
 
+learn:
+  # Learn pages (docs/LEARN.md): concept cards for beginners and professionals, US data and Fed odds.
+  # Display only: outside features/regimes/models/validation, so the model's settings fingerprint and
+  # the published track record never change because of it.
+  indicators: config/learn/indicators.yaml
+  fomc: config/learn/fomc.yaml
+  cards: config/learn/cards
+  glossary: config/learn/glossary.yaml
+  episodes: config/learn/episodes.yaml
+  start: "1960-01-01"       # history for the charts and the base rates (FRED today's vintages)
+  fed:
+    # What Treasury bill yields imply for the Fed (docs/LEARN.md). Bills carry a small premium over the
+    # expected policy rate; it is measured as the median bill-minus-fed-funds spread over the last
+    # `basis_years` on days when the target did not move for a whole bill's life either side.
+    basis_years: 3
+    basis_min_days: 60        # fewer clean days than this: use default_basis_pct instead
+    default_basis_pct: {DGS3MO: 0.08, DGS6MO: 0.12}
+    meeting_spacing_days: 45  # after the last FOMC date listed in fomc.yaml
+    step_pct: 0.25            # one Fed move
+    # Taylor rules: i = r* + pi + a (pi - 2) + b gap, gap = okun x (NROU - UNRATE), pi = core PCE y/y.
+    taylor:
+      r_star: 1.0             # neutral real rate (%), in the range of the published estimates
+      okun: 2.0
+      rules:
+        taylor_1993: {a: 0.5, b: 0.5}
+        balanced: {a: 0.5, b: 1.0}
+      inertia: 0.85           # inertial rule = inertia x current target + (1 - inertia) x balanced
+    # Base rates: what the Fed did over the next `horizon_months` in the `neighbours` past months that
+    # looked most like the chosen month (core PCE, unemployment gap and trend, last year's Fed moves).
+    base_rates:
+      start: "1985-01-01"
+      horizon_months: 3
+      neighbours: 40
+      move_pct: 0.1           # a target change bigger than this counts as a hike or a cut
+  # Recession checklist thresholds, all standard and published (not tuned on our data).
+  checklist:
+    sahm_red: 0.5             # Sahm rule (Claudia Sahm, 2019)
+    sahm_amber: 0.3
+    claims_rise_amber: 0.15   # 4-week average of claims vs its 52-week low
+    claims_rise_red: 0.30
+    payrolls_amber_k: 50      # average monthly job creation, last 3 months (thousands)
+
 scenarios:
   library: config/scenarios.yaml
   funds: config/funds.yaml

@@ -11,10 +11,14 @@ import streamlit.components.v1 as components
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from app.learn_page import Context as LearnContext  # noqa: E402
+from app.learn_page import open_card as learn_open_card  # noqa: E402
+from app.learn_page import render as render_learn  # noqa: E402
 from pfe_drai.config import available_regions, load_settings, resolve  # noqa: E402
 from pfe_drai.data import available_providers  # noqa: E402
 from pfe_drai.features.build import active_features, score_dimension  # noqa: E402
 from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
+from pfe_drai.learn.cards import REGIME_CARD  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
 from pfe_drai.pipeline import Pipeline  # noqa: E402
 from pfe_drai.publish.page import page_html  # noqa: E402
@@ -153,9 +157,11 @@ state = pipeline.state(model, as_of)
 st.title(t("app.title", lang))
 st.caption(f"{t('app.subtitle', lang)} · {fmt_date(state.date, lang)}")
 
-tab_dash, tab_world, tab_hist, tab_track, tab_alerts, tab_scen = st.tabs(
+tab_dash, tab_learn_b, tab_learn_p, tab_world, tab_hist, tab_track, tab_alerts, tab_scen = st.tabs(
     [
         t("tab.dashboard", lang),
+        t("tab.learn_beginner", lang),
+        t("tab.learn_pro", lang),
         t("tab.world", lang),
         t("tab.history", lang),
         t("tab.track_record", lang),
@@ -194,6 +200,15 @@ with tab_dash:
         )
         if state.early_warning:
             st.metric(t("dash.early_warning", lang), fmt_pct(state.early_warning["stress"], lang))
+        # Opens the concept behind today's regime in both Learn tabs (docs/LEARN.md).
+        learn_card = REGIME_CARD.get(state.regime, "our_regimes")
+
+        def _understand():
+            for level in ("beginner", "pro"):
+                learn_open_card(level, learn_card)
+            st.toast(t("learn.understand_toast", lang), icon="📘")
+
+        st.button(t("learn.understand", lang), key="learn_understand", on_click=_understand)
     with c2:
         st.subheader(t("dash.probabilities", lang))
         values = [state.probabilities[r] for r in regimes]
@@ -431,6 +446,27 @@ def state_chip(code, lang: str) -> str:
     color = STATE_COLORS[code]
     return f"<span class='chip' style='border-color:{color}'><span style='color:{color}'>■</span> {label}</span>"
 
+
+# ================================================================ LEARN (beginner and pro)
+if zone == "us":
+    learn_ctx = LearnContext(
+        lang=lang,
+        theme=theme,
+        provider=provider,
+        state=state,
+        regimes=pipeline.regimes(model),
+        regime_colors=colors,
+        style=base_layout,
+    )
+for level, tab in (("beginner", tab_learn_b), ("pro", tab_learn_p)):
+    with tab:
+        if zone != "us":
+            st.info(t("learn.us_only", lang))
+            continue
+        try:
+            render_learn(level, learn_ctx)
+        except Exception as exc:  # noqa: BLE001 - show the reason, keep the other tabs working
+            st.error(f"{type(exc).__name__}: {exc}")
 
 with tab_world:
     w_cfg = settings["world"]

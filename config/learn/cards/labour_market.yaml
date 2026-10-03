@@ -1,0 +1,136 @@
+id: labour_market
+theme: macro
+icon: "👷"
+title: {en: Jobs and unemployment, fr: Emploi et chômage}
+indicators: [unrate, payrolls_3m, claims, openings, unemp_gap, sahm]
+chart: [unrate, nrou]
+leads_to:
+  - {card: wages, en: "tight market: faster pay growth", fr: "marché tendu : salaires plus dynamiques"}
+  - {card: fed_policy, en: "rising unemployment: the Fed eases", fr: "chômage en hausse : la Fed assouplit"}
+  - {card: consumer, en: "jobs drive income and spending", fr: "l'emploi fait le revenu et la consommation"}
+facts:
+  en:
+    - The unemployment rate is the share of people who want a job, are looking, and cannot find one.
+    - Very low unemployment pushes wages and sometimes inflation up; rising unemployment is the classic sign of a slowdown.
+    - A rise of half a point in the 3-month average unemployment rate from its low of the past year (the Sahm rule) has marked the start of US recessions.
+  fr:
+    - Le taux de chômage est la part des personnes qui veulent un emploi, en cherchent un et n'en trouvent pas.
+    - Un chômage très bas pousse les salaires, et parfois l'inflation, à la hausse ; un chômage qui monte est le signe classique d'un ralentissement.
+    - Une hausse d'un demi-point du chômage moyen sur 3 mois par rapport à son plus bas de l'année écoulée (règle de Sahm) a marqué le début des récessions américaines.
+beginner:
+  en:
+    summary: How easy it is to find a job right now.
+    what: >-
+      Each month the government counts how many jobs were created and what share of people looking for work cannot
+      find any: the unemployment rate. Every Thursday it also counts new claims for unemployment benefits, a fast
+      signal of layoffs.
+    good: >-
+      Low unemployment means people have income, can change jobs for better pay and spend with confidence. Firms
+      compete for workers, which pushes pay up.
+    bad: >-
+      If almost nobody is available, firms have to pay a lot more to hire, and they may pass those costs on to prices.
+      Rising unemployment, on the other hand, hurts families and their spending, and often signals a slowdown.
+    next: >-
+      When unemployment starts rising quickly (about half a point in a few months), a recession has often already
+      begun. The Fed then tends to cut rates. When unemployment is very low and wages rise fast, the Fed tends to keep
+      rates high.
+  fr:
+    summary: À quel point il est facile de trouver un emploi en ce moment.
+    what: >-
+      Chaque mois, l'État compte les emplois créés et la part des personnes qui cherchent du travail sans en trouver :
+      le taux de chômage. Chaque jeudi, il compte aussi les nouvelles inscriptions au chômage, un signal rapide des
+      licenciements.
+    good: >-
+      Un chômage bas veut dire que les gens ont un revenu, peuvent changer d'emploi pour mieux gagner et dépensent en
+      confiance. Les entreprises se disputent les salariés, ce qui fait monter les salaires.
+    bad: >-
+      Si presque personne n'est disponible, les entreprises doivent payer beaucoup plus pour embaucher et peuvent
+      répercuter ces coûts sur les prix. À l'inverse, un chômage qui monte fait mal aux familles et à leurs dépenses,
+      et signale souvent un ralentissement.
+    next: >-
+      Quand le chômage monte vite (environ un demi-point en quelques mois), une récession a souvent déjà commencé. La
+      Fed tend alors à baisser ses taux. Quand le chômage est très bas et que les salaires montent vite, elle tend à
+      garder des taux hauts.
+pro:
+  en:
+    summary: Slack, the natural rate, flows and the Phillips curve.
+    what: >-
+      The household survey gives the unemployment rate (U-3) and participation; the establishment survey gives
+      payrolls, hours and earnings; JOLTS gives openings, hires and quits; weekly initial claims are the most timely
+      layoff gauge. CBO's NROU estimates the non-cyclical rate; the vacancy-to-unemployment ratio (Beveridge curve)
+      measures tightness better when matching efficiency shifts, as after 2020.
+    good: >-
+      A tight labour market lifts low-wage and marginal workers most (Aaronson et al.), raises participation and
+      supports consumption. In 2022-23, falling openings brought tightness down without layoffs, a movement along a
+      steep Beveridge curve that allowed disinflation with little rise in unemployment.
+    bad: >-
+      Unemployment below its natural rate feeds wage growth above productivity plus target inflation, a source of
+      persistent services inflation. On the downside, unemployment dynamics are non-linear: once it rises by 0.5 pt
+      it has historically kept rising (Sahm 2019), as layoffs cut income and spending.
+    next: >-
+      The Fed's reaction function weights the unemployment gap (Okun: 1 pt of unemployment is about 2 pt of output
+      gap). Rising claims and falling hours and temporary-help jobs usually lead payroll declines. The Sahm rule
+      triggered at the start of every recession since 1970, with false positives in 2024 linked to immigration-driven
+      labour supply.
+    mechanics: |
+      - Okun's law: $\text{output gap} \approx -2\,(u - u^*)$.
+      - Phillips curve (wages): $w_t = \pi^e_t + g_{prod} - \gamma (u_t - u^*)$.
+      - Sahm rule: 3-month average $u$ minus its minimum over the previous 12 months $\geq 0.5$ pt.
+    reading: |
+      - Sahm, C. (2019), "Direct Stimulus Payments to Individuals", Hamilton Project (origin of the Sahm rule).
+      - Blanchard, O., Domash, A. and Summers, L. (2022), "Bad News for the Fed from the Beveridge Space", PIIE.
+      - Figura, A. and Waller, C. (2022), "What does the Beveridge curve tell us about the likelihood of a soft landing?", FEDS Notes.
+  fr:
+    summary: Capacités inutilisées, taux naturel, flux et courbe de Phillips.
+    what: >-
+      L'enquête auprès des ménages donne le taux de chômage (U-3) et la participation ; l'enquête auprès des
+      établissements donne les emplois salariés, les heures et les salaires ; JOLTS donne les offres, embauches et
+      démissions ; les inscriptions hebdomadaires au chômage sont la jauge la plus rapide des licenciements. Le NROU de
+      la CBO estime le taux non cyclique ; le ratio offres/chômeurs (courbe de Beveridge) mesure mieux la tension quand
+      l'efficacité d'appariement change, comme après 2020.
+    good: >-
+      Un marché tendu profite surtout aux bas salaires et aux travailleurs à la marge (Aaronson et al.), relève la
+      participation et soutient la consommation. En 2022-23, la baisse des offres a réduit la tension sans
+      licenciements : un mouvement le long d'une courbe de Beveridge pentue qui a permis la désinflation avec peu de
+      hausse du chômage.
+    bad: >-
+      Un chômage sous son taux naturel nourrit des hausses de salaires supérieures à la productivité plus l'inflation
+      cible, une source d'inflation persistante des services. À la baisse, la dynamique du chômage n'est pas linéaire :
+      une fois monté de 0,5 pt, il a historiquement continué de monter (Sahm 2019), les licenciements réduisant revenus
+      et dépenses.
+    next: >-
+      La fonction de réaction de la Fed pondère l'écart de chômage (Okun : 1 pt de chômage vaut environ 2 pt d'écart de
+      production). La hausse des inscriptions et la baisse des heures et de l'intérim précèdent en général la baisse des
+      emplois. La règle de Sahm s'est déclenchée au début de chaque récession depuis 1970, avec un faux positif en 2024
+      lié à l'offre de travail portée par l'immigration.
+    mechanics: |
+      - Loi d'Okun : $\text{écart de production} \approx -2\,(u - u^*)$.
+      - Courbe de Phillips (salaires) : $w_t = \pi^e_t + g_{prod} - \gamma (u_t - u^*)$.
+      - Règle de Sahm : moyenne 3 mois de $u$ moins son minimum des 12 mois précédents $\geq 0,5$ pt.
+    reading: |
+      - Sahm, C. (2019), « Direct Stimulus Payments to Individuals », Hamilton Project (origine de la règle de Sahm).
+      - Blanchard, O., Domash, A. et Summers, L. (2022), « Bad News for the Fed from the Beveridge Space », PIIE.
+      - Figura, A. et Waller, C. (2022), « What does the Beveridge curve tell us about the likelihood of a soft landing? », FEDS Notes.
+quiz:
+  beginner:
+    - en:
+        q: Which number gives the fastest signal of layoffs in the US?
+        options: [The monthly unemployment rate, Weekly jobless claims, Yearly GDP]
+        answer: 1
+        why: Claims are published every Thursday, so they move first when layoffs pick up.
+      fr:
+        q: Quel chiffre donne le signal le plus rapide de licenciements aux États-Unis ?
+        options: [Le taux de chômage mensuel, Les inscriptions hebdomadaires au chômage, Le PIB annuel]
+        answer: 1
+        why: Les inscriptions sont publiées chaque jeudi, elles bougent donc en premier quand les licenciements augmentent.
+  pro:
+    - en:
+        q: By Okun's law, unemployment 1 pt above its natural rate corresponds to an output gap of about...
+        options: ["-0.5%", "-2%", "-5%"]
+        answer: 1
+        why: The usual Okun coefficient is about 2, so 1 pt of extra unemployment is about -2% of potential output.
+      fr:
+        q: D'après la loi d'Okun, un chômage 1 pt au-dessus de son taux naturel correspond à un écart de production d'environ...
+        options: ["-0,5 %", "-2 %", "-5 %"]
+        answer: 1
+        why: Le coefficient d'Okun habituel est d'environ 2, donc 1 pt de chômage en plus vaut environ -2 % de la production potentielle.

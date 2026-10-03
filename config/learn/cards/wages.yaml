@@ -1,0 +1,131 @@
+id: wages
+theme: macro
+icon: "💵"
+title: {en: Wages, fr: Salaires}
+indicators: [wages_yoy, productivity_yoy, core_pce_yoy]
+chart: [wages_yoy, core_pce_yoy]
+leads_to:
+  - {card: inflation, en: "pay rising faster than productivity", fr: "salaires plus rapides que la productivité"}
+  - {card: pricing_power, en: "labour is the largest cost", fr: "le travail est le premier coût"}
+  - {card: consumer, en: "real pay supports spending", fr: "le salaire réel soutient la consommation"}
+facts:
+  en:
+    - Real wages are pay growth minus inflation; they decide whether workers' living standards improve.
+    - Wage growth around 3 to 3.5% a year is consistent with 2% inflation when productivity grows about 1 to 1.5%.
+    - Pay growth well above that, for long, can feed services inflation; that is why the Fed watches it.
+  fr:
+    - Les salaires réels sont la hausse des salaires moins l'inflation ; ils disent si le niveau de vie des salariés progresse.
+    - Des hausses de salaires autour de 3 à 3,5 % par an sont compatibles avec 2 % d'inflation quand la productivité progresse d'environ 1 à 1,5 %.
+    - Des hausses durablement bien supérieures peuvent nourrir l'inflation des services ; c'est pour cela que la Fed les surveille.
+beginner:
+  en:
+    summary: How fast pay rises, compared with prices.
+    what: >-
+      Wage growth is how much more people earn per hour than a year ago. What really matters is the "real" wage: pay
+      growth minus inflation. If pay rises 4% and prices 3%, workers are 1% better off.
+    good: >-
+      When pay grows faster than prices, people can afford more, spend more, and the economy grows. It usually happens
+      when firms become more productive.
+    bad: >-
+      If pay rises much faster than what workers produce, firms raise prices to cover the cost, prices push workers to
+      ask for more, and so on: the "wage-price spiral". If pay rises more slowly than prices, families lose purchasing
+      power.
+    next: >-
+      When wages rise very fast, the Fed tends to keep rates high until they calm down. When wage growth slows and
+      unemployment rises, it has room to cut rates.
+  fr:
+    summary: À quelle vitesse les salaires montent, comparés aux prix.
+    what: >-
+      La hausse des salaires, c'est combien on gagne de plus par heure qu'il y a un an. Ce qui compte vraiment, c'est
+      le salaire « réel » : la hausse des salaires moins l'inflation. Si les salaires montent de 4 % et les prix de 3 %,
+      les salariés gagnent 1 % de pouvoir d'achat.
+    good: >-
+      Quand les salaires montent plus vite que les prix, on peut acheter plus, dépenser plus, et l'économie grandit. Cela
+      arrive en général quand les entreprises deviennent plus productives.
+    bad: >-
+      Si les salaires montent beaucoup plus vite que ce que les salariés produisent, les entreprises montent leurs prix
+      pour couvrir le coût, les prix poussent les salariés à demander plus, et ainsi de suite : la « spirale
+      prix-salaires ». Si les salaires montent moins vite que les prix, les familles perdent du pouvoir d'achat.
+    next: >-
+      Quand les salaires montent très vite, la Fed tend à garder des taux hauts jusqu'à ce qu'ils se calment. Quand
+      leur hausse ralentit et que le chômage monte, elle a de la marge pour baisser ses taux.
+pro:
+  en:
+    summary: Nominal wage growth, unit labour costs and the wage-price nexus.
+    what: >-
+      Average hourly earnings (payroll survey) are timely but subject to composition effects (in 2020, low-wage job
+      losses raised the average). The Employment Cost Index controls for composition; the Atlanta Fed wage tracker
+      follows the same workers. Unit labour costs = compensation per hour minus productivity, which is what matters for
+      margins and prices.
+    good: >-
+      Real wage gains backed by productivity raise living standards without inflation. Wage growth catching up after
+      an inflation shock restores real income and supports demand, and need not be inflationary if margins absorb part
+      of it (2023-24).
+    bad: >-
+      Sustained wage growth above productivity plus 2% raises unit labour costs and services inflation, the most
+      persistent part of core inflation (labour-intensive services ex-housing). Indexation and expectations can
+      create second-round effects; falling real wages, conversely, depress consumption.
+    next: >-
+      Wage growth typically lags the labour market by two to four quarters and lags inflation itself: it peaks after
+      prices do. The Fed reads a decline in quits and in the openings-to-unemployed ratio as a leading signal of slower
+      pay growth. Research after 2021 (Bernanke and Blanchard 2023) found that the inflation surge started with prices,
+      not wages, but tight labour markets made it more persistent.
+    mechanics: |
+      - Unit labour cost growth: $ulc = w - g_{prod}$.
+      - Inflation-consistent wage growth: $w^* \approx \pi^* + g_{prod} = 2\% + 1.5\%$.
+      - Labour share: $\frac{wL}{PY}$ rises when real wages outpace productivity.
+    reading: |
+      - Bernanke, B. and Blanchard, O. (2023), "What Caused the US Pandemic-Era Inflation?", Hutchins Center.
+      - Federal Reserve Bank of Atlanta, "Wage Growth Tracker" methodology.
+  fr:
+    summary: Hausse des salaires nominaux, coûts salariaux unitaires et lien prix-salaires.
+    what: >-
+      Le salaire horaire moyen (enquête emploi) est rapide mais sensible aux effets de composition (en 2020, les pertes
+      d'emplois peu payés ont fait monter la moyenne). L'Employment Cost Index corrige la composition ; le Wage Tracker
+      de la Fed d'Atlanta suit les mêmes salariés. Coûts salariaux unitaires = rémunération horaire moins productivité :
+      c'est ce qui compte pour les marges et les prix.
+    good: >-
+      Des gains de salaire réel portés par la productivité relèvent le niveau de vie sans inflation. Un rattrapage des
+      salaires après un choc d'inflation restaure le revenu réel et soutient la demande, sans forcément être
+      inflationniste si les marges en absorbent une partie (2023-24).
+    bad: >-
+      Des hausses durables supérieures à productivité plus 2 % font monter les coûts unitaires et l'inflation des
+      services, la partie la plus persistante de l'inflation core (services à forte main-d'œuvre hors logement).
+      L'indexation et les anticipations créent des effets de second tour ; à l'inverse, des salaires réels en baisse
+      dépriment la consommation.
+    next: >-
+      Les salaires suivent en général le marché du travail avec deux à quatre trimestres de retard, et suivent
+      l'inflation elle-même : ils culminent après les prix. La Fed lit une baisse des démissions et du ratio offres/
+      chômeurs comme un signal avancé de salaires moins dynamiques. Les travaux après 2021 (Bernanke et Blanchard 2023)
+      montrent que la poussée d'inflation est partie des prix, pas des salaires, mais qu'un marché du travail tendu l'a
+      rendue plus persistante.
+    mechanics: |
+      - Croissance des coûts salariaux unitaires : $csu = w - g_{prod}$.
+      - Hausse de salaire compatible avec la cible : $w^* \approx \pi^* + g_{prod} = 2\% + 1,5\%$.
+      - Part du travail : $\frac{wL}{PY}$ monte quand les salaires réels vont plus vite que la productivité.
+    reading: |
+      - Bernanke, B. et Blanchard, O. (2023), « What Caused the US Pandemic-Era Inflation? », Hutchins Center.
+      - Federal Reserve Bank of Atlanta, méthodologie du « Wage Growth Tracker ».
+quiz:
+  beginner:
+    - en:
+        q: Pay rose 5% and prices rose 6%. Are workers better off?
+        options: ["Yes", "No", "It is impossible to say"]
+        answer: 1
+        why: Their real wage fell by about 1%, so they can buy a bit less.
+      fr:
+        q: Les salaires ont monté de 5 % et les prix de 6 %. Les salariés y gagnent-ils ?
+        options: [Oui, Non, Impossible à dire]
+        answer: 1
+        why: Leur salaire réel a baissé d'environ 1 %, ils peuvent acheter un peu moins.
+  pro:
+    - en:
+        q: Productivity grows 1.5% and the Fed targets 2% inflation. Which wage growth keeps unit labour costs consistent with the target?
+        options: [About 2%, About 3.5%, About 5%]
+        answer: 1
+        why: "w* = inflation target + productivity = 2% + 1.5% = 3.5%."
+      fr:
+        q: La productivité progresse de 1,5 % et la Fed vise 2 % d'inflation. Quelle hausse de salaires garde des coûts unitaires compatibles avec la cible ?
+        options: ["Environ 2 %", "Environ 3,5 %", "Environ 5 %"]
+        answer: 1
+        why: "w* = cible d'inflation + productivité = 2 % + 1,5 % = 3,5 %."

@@ -1,0 +1,132 @@
+id: supply_demand
+theme: micro
+icon: "⚙️"
+title: {en: Supply shocks and demand shocks, fr: Chocs d'offre et chocs de demande}
+indicators: [core_pce_yoy, real_gdp_yoy, oil_yoy, unrate]
+chart: [core_pce_yoy, real_gdp_yoy]
+leads_to:
+  - {card: inflation, en: "both can lift prices", fr: "les deux peuvent faire monter les prix"}
+  - {card: stagflation, en: "a negative supply shock", fr: "un choc d'offre négatif"}
+  - {card: fed_policy, en: "the right response depends on the shock", fr: "la bonne réponse dépend du choc"}
+facts:
+  en:
+    - A demand shock moves prices and output in the same direction; a supply shock moves them in opposite directions.
+    - Rate hikes are well suited to demand-driven inflation, much less to supply-driven inflation.
+    - Most real episodes mix both, like 2021-22 (stimulus and reopening demand plus supply chain and energy shocks).
+  fr:
+    - Un choc de demande fait bouger prix et production dans le même sens ; un choc d'offre, en sens inverse.
+    - Les hausses de taux sont bien adaptées à l'inflation par la demande, beaucoup moins à l'inflation par l'offre.
+    - La plupart des épisodes réels mélangent les deux, comme 2021-22 (demande de relance et de réouverture plus chocs sur les chaînes d'approvisionnement et l'énergie).
+beginner:
+  en:
+    summary: Too many buyers, or not enough goods?
+    what: >-
+      Prices rise either because people want to buy more than usual (a demand shock: stimulus checks, a boom) or because
+      there is less to sell (a supply shock: a war cuts oil, a pandemic closes factories, a drought ruins harvests).
+    good: >-
+      A positive demand shock means more sales and jobs. A positive supply shock (new technology, cheaper energy) is the
+      best kind: more goods at lower prices.
+    bad: >-
+      Too much demand pushes prices up. A negative supply shock is worse: prices rise and there is less to buy at the
+      same time.
+    next: >-
+      If prices rise because of too much demand, raising rates works well. If they rise because goods are missing,
+      raising rates cannot make more goods; the Fed then watches whether the price rise spreads to wages and everything
+      else.
+  fr:
+    summary: Trop d'acheteurs, ou pas assez de produits ?
+    what: >-
+      Les prix montent soit parce que les gens veulent acheter plus que d'habitude (un choc de demande : chèques de
+      relance, boom), soit parce qu'il y a moins à vendre (un choc d'offre : une guerre coupe le pétrole, une pandémie
+      ferme des usines, une sécheresse ruine des récoltes).
+    good: >-
+      Un choc de demande positif, c'est plus de ventes et d'emplois. Un choc d'offre positif (nouvelle technologie,
+      énergie moins chère) est le meilleur : plus de produits à des prix plus bas.
+    bad: >-
+      Trop de demande fait monter les prix. Un choc d'offre négatif est pire : les prix montent et il y a moins à acheter
+      en même temps.
+    next: >-
+      Si les prix montent à cause d'une demande trop forte, monter les taux marche bien. S'ils montent parce que des
+      produits manquent, monter les taux ne crée pas de produits ; la Fed regarde alors si la hausse se diffuse aux
+      salaires et au reste.
+pro:
+  en:
+    summary: Identifying shocks and why it decides the optimal policy response.
+    what: >-
+      In AS-AD terms, demand shocks shift AD (prices and output co-move), supply shocks shift AS (they move apart). Shapiro
+      (2022) decomposes PCE inflation by category into demand- and supply-driven components using the sign of price and
+      quantity surprises; Bernanke-Blanchard (2023) model the 2021-23 episode with energy, food and shortage shocks
+      plus labour market tightness.
+    good: >-
+      Demand shocks present no trade-off: stabilising inflation also stabilises output (the "divine coincidence" of the
+      New Keynesian model). Positive supply shocks (productivity, labour supply, energy) allow disinflation with growth,
+      as in 2023-24.
+    bad: >-
+      Supply shocks create a trade-off between inflation and output gaps; responding hard to a transitory supply shock
+      costs output, ignoring a persistent one risks de-anchoring. Shocks to the supply side of the labour market or to
+      inputs with few substitutes (energy, chips) propagate through production networks (input-output linkages).
+    next: >-
+      Policy prescription: accommodate the first-round effects of temporary supply shocks, lean against demand shocks
+      and second-round effects. In real time the decomposition is uncertain, so central banks watch expectations and
+      breadth (share of items with high inflation, trimmed means) to tell persistent from transitory.
+    mechanics: |
+      - Demand shock: $\Delta P > 0, \Delta Y > 0$; supply shock: $\Delta P > 0, \Delta Y < 0$.
+      - Shapiro decomposition: category $i$ is demand-driven in month $t$ if price and quantity surprises have the same sign.
+      - New Keynesian Phillips curve: $\pi_t = \beta E_t\pi_{t+1} + \kappa\,x_t + u_t$ ($u_t$ = cost-push shock).
+    reading: |
+      - Shapiro, A. (2022), "Decomposing Supply and Demand Driven Inflation", San Francisco Fed Working Paper.
+      - Bernanke, B. and Blanchard, O. (2023), "What Caused the US Pandemic-Era Inflation?", Hutchins Center.
+      - Blanchard, O. and Galí, J. (2007), "Real Wage Rigidities and the New Keynesian Model", Journal of Money, Credit and Banking.
+  fr:
+    summary: Identifier les chocs, et pourquoi cela décide de la bonne réponse de politique monétaire.
+    what: >-
+      En offre et demande globales, les chocs de demande déplacent la demande (prix et production bougent ensemble), les
+      chocs d'offre déplacent l'offre (ils s'écartent). Shapiro (2022) décompose l'inflation PCE par catégorie en parts
+      tirées par la demande et par l'offre selon le signe des surprises de prix et de quantité ; Bernanke-Blanchard
+      (2023) modélisent l'épisode 2021-23 avec des chocs d'énergie, d'alimentation et de pénuries plus la tension du
+      marché du travail.
+    good: >-
+      Les chocs de demande ne créent pas d'arbitrage : stabiliser l'inflation stabilise aussi la production (la « divine
+      coïncidence » du modèle néo-keynésien). Les chocs d'offre positifs (productivité, offre de travail, énergie)
+      permettent une désinflation avec croissance, comme en 2023-24.
+    bad: >-
+      Les chocs d'offre créent un arbitrage entre inflation et écart de production ; répondre fort à un choc d'offre
+      transitoire coûte de la production, ignorer un choc persistant risque le désancrage. Les chocs sur l'offre de
+      travail ou sur des intrants peu substituables (énergie, puces) se propagent via les réseaux de production (liens
+      entrées-sorties).
+    next: >-
+      Prescription : accommoder les effets de premier tour des chocs d'offre temporaires, contrer les chocs de demande et
+      les effets de second tour. En temps réel la décomposition est incertaine, donc les banques centrales suivent les
+      anticipations et la diffusion (part des postes à forte inflation, moyennes tronquées) pour distinguer le persistant
+      du transitoire.
+    mechanics: |
+      - Choc de demande : $\Delta P > 0, \Delta Y > 0$ ; choc d'offre : $\Delta P > 0, \Delta Y < 0$.
+      - Décomposition de Shapiro : la catégorie $i$ est tirée par la demande au mois $t$ si les surprises de prix et de quantité ont le même signe.
+      - Courbe de Phillips néo-keynésienne : $\pi_t = \beta E_t\pi_{t+1} + \kappa\,x_t + u_t$ ($u_t$ = choc de coûts).
+    reading: |
+      - Shapiro, A. (2022), « Decomposing Supply and Demand Driven Inflation », San Francisco Fed Working Paper.
+      - Bernanke, B. et Blanchard, O. (2023), « What Caused the US Pandemic-Era Inflation? », Hutchins Center.
+      - Blanchard, O. et Galí, J. (2007), « Real Wage Rigidities and the New Keynesian Model », Journal of Money, Credit and Banking.
+quiz:
+  beginner:
+    - en:
+        q: A drought destroys half the wheat harvest. This is...
+        options: [A demand shock, A supply shock, Not a shock]
+        answer: 1
+        why: There is less to sell, so it is a supply shock; bread gets more expensive while less is produced.
+      fr:
+        q: Une sécheresse détruit la moitié de la récolte de blé. C'est...
+        options: [Un choc de demande, Un choc d'offre, Pas un choc]
+        answer: 1
+        why: Il y a moins à vendre, c'est un choc d'offre ; le pain coûte plus cher alors qu'on en produit moins.
+  pro:
+    - en:
+        q: Prices and output both rise strongly. The most likely driver is...
+        options: [A positive demand shock, A negative supply shock, A positive supply shock]
+        answer: 0
+        why: Prices and quantities moving together point to demand.
+      fr:
+        q: Les prix et la production montent fortement tous les deux. La cause la plus probable est...
+        options: [Un choc de demande positif, Un choc d'offre négatif, Un choc d'offre positif]
+        answer: 0
+        why: Des prix et des quantités qui bougent ensemble désignent la demande.

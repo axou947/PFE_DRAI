@@ -1,0 +1,130 @@
+id: pricing_power
+theme: micro
+icon: "🏷️"
+title: {en: Pricing power and profit margins, fr: Pouvoir de prix et marges}
+indicators: [profit_share, core_pce_yoy, wages_yoy]
+chart: [profit_share]
+leads_to:
+  - {card: inflation, en: "firms passing costs on to prices", fr: "les entreprises répercutent leurs coûts"}
+  - {card: firm_investment, en: "profits fund investment", fr: "les profits financent l'investissement"}
+  - {card: labour_market, en: "squeezed margins lead to layoffs", fr: "des marges écrasées mènent aux licenciements"}
+facts:
+  en:
+    - Pricing power is a firm's ability to raise prices without losing many customers.
+    - Margins rise when prices grow faster than costs (wages, materials, interest) and fall when costs catch up.
+    - When demand is strong, firms pass costs on more easily, which is one channel from booms to inflation.
+  fr:
+    - Le pouvoir de prix, c'est la capacité d'une entreprise à monter ses prix sans perdre beaucoup de clients.
+    - Les marges montent quand les prix progressent plus vite que les coûts (salaires, matières, intérêts) et baissent quand les coûts rattrapent.
+    - Quand la demande est forte, les entreprises répercutent plus facilement leurs coûts : c'est un canal entre les booms et l'inflation.
+beginner:
+  en:
+    summary: Can a company raise its prices and keep its customers?
+    what: >-
+      A firm with pricing power can charge more without losing clients: a famous brand, a unique product, or simply a
+      moment when everyone is buying. Its margin is what is left from each sale after paying wages, materials and
+      other costs.
+    good: >-
+      Healthy margins let firms invest, hire and pay dividends. Strong brands and new products earn their margins by
+      offering something people want.
+    bad: >-
+      When many firms raise prices at the same time, inflation rises. When margins get squeezed (costs up, sales down),
+      firms cut costs, often starting with jobs.
+    next: >-
+      In a slowdown, customers shop around, pricing power fades and margins shrink. In a boom, it returns. Watching
+      profits as a share of the economy helps understand where we are in the cycle.
+  fr:
+    summary: Une entreprise peut-elle monter ses prix et garder ses clients ?
+    what: >-
+      Une entreprise qui a du pouvoir de prix peut facturer plus sans perdre ses clients : une marque célèbre, un
+      produit unique, ou simplement un moment où tout le monde achète. Sa marge, c'est ce qui reste de chaque vente
+      après avoir payé salaires, matières et autres coûts.
+    good: >-
+      Des marges saines permettent d'investir, d'embaucher et de verser des dividendes. Les marques fortes et les
+      produits nouveaux méritent leurs marges en offrant ce que les gens veulent.
+    bad: >-
+      Quand beaucoup d'entreprises montent leurs prix en même temps, l'inflation grimpe. Quand les marges sont écrasées
+      (coûts en hausse, ventes en baisse), les entreprises réduisent leurs coûts, souvent en commençant par l'emploi.
+    next: >-
+      En ralentissement, les clients comparent, le pouvoir de prix s'efface et les marges se réduisent. En période de
+      boom, il revient. Suivre les profits rapportés à l'économie aide à savoir où l'on est dans le cycle.
+pro:
+  en:
+    summary: Markups, cost pass-through and the profit share over the cycle.
+    what: >-
+      The markup is price over marginal cost; it depends on demand elasticity, market concentration and the state of
+      demand. Pass-through of cost shocks is higher when many firms face the same shock (coordination) and when demand is
+      strong. Corporate profits after tax (BEA) over GDP is a macro proxy for margins; it reached record highs after
+      2021.
+    good: >-
+      Procyclical margins in recoveries rebuild balance sheets and fund investment. Margins earned from productivity and
+      innovation (intangibles, network effects) are consistent with low inflation.
+    bad: >-
+      Rising aggregate markups were a sizeable contributor to 2021-22 inflation according to some decompositions (the
+      "sellers' inflation" or "greedflation" debate; Weber and Wasner 2023), though others attribute most of it to
+      demand and costs. Secular markup increases (De Loecker, Eeckhout and Unger 2020) can weaken investment and labour
+      share.
+    next: >-
+      Margins mean-revert: when wage growth exceeds price growth, unit labour costs squeeze margins, and firms respond
+      by cutting hiring before prices. A falling profit share has preceded most recessions. Unit profits = price minus
+      unit labour costs minus unit non-labour costs (the BEA decomposition of the price of nonfinancial corporate
+      output).
+    mechanics: |
+      - Lerner index: $\frac{P - MC}{P} = \frac{1}{|\varepsilon|}$ (optimal markup with demand elasticity $\varepsilon$).
+      - Price decomposition (nonfinancial corporations): $P = ULC + UNLC + \text{unit profits}$.
+      - Profit share $= CP / GDP$ (this page).
+    reading: |
+      - De Loecker, J., Eeckhout, J. and Unger, G. (2020), "The Rise of Market Power and the Macroeconomic Implications", Quarterly Journal of Economics.
+      - Weber, I. and Wasner, E. (2023), "Sellers' inflation, profits and conflict", Review of Keynesian Economics.
+      - Glover, A., Mustre-del-Río, J. and von Ende-Becker, A. (2023), "How Much Have Record Corporate Profits Contributed to Recent Inflation?", Kansas City Fed.
+  fr:
+    summary: Taux de marge, répercussion des coûts et part des profits au fil du cycle.
+    what: >-
+      Le taux de marque est le prix sur le coût marginal ; il dépend de l'élasticité de la demande, de la concentration
+      du marché et de l'état de la demande. La répercussion des chocs de coûts est plus forte quand beaucoup
+      d'entreprises subissent le même choc (coordination) et quand la demande est forte. Les profits des entreprises
+      après impôt (BEA) rapportés au PIB sont un indicateur macro des marges ; ils ont atteint des records après 2021.
+    good: >-
+      Des marges procycliques en reprise reconstituent les bilans et financent l'investissement. Des marges tirées de la
+      productivité et de l'innovation (immatériel, effets de réseau) sont compatibles avec une inflation basse.
+    bad: >-
+      La hausse des marges agrégées a pesé de façon notable dans l'inflation 2021-22 selon certaines décompositions
+      (le débat « inflation des vendeurs » ou « greedflation » ; Weber et Wasner 2023), d'autres attribuant l'essentiel à
+      la demande et aux coûts. Une hausse séculaire des marges (De Loecker, Eeckhout et Unger 2020) peut affaiblir
+      l'investissement et la part du travail.
+    next: >-
+      Les marges reviennent vers la moyenne : quand les salaires montent plus vite que les prix, les coûts unitaires
+      écrasent les marges, et les entreprises réagissent en coupant les embauches avant les prix. Une baisse de la part
+      des profits a précédé la plupart des récessions. Profit unitaire = prix moins coûts salariaux unitaires moins coûts
+      non salariaux unitaires (la décomposition BEA du prix de la production des sociétés non financières).
+    mechanics: |
+      - Indice de Lerner : $\frac{P - MC}{P} = \frac{1}{|\varepsilon|}$ (marge optimale avec une élasticité de la demande $\varepsilon$).
+      - Décomposition du prix (sociétés non financières) : $P = CSU + CNSU + \text{profit unitaire}$.
+      - Part des profits $= CP / PIB$ (cette page).
+    reading: |
+      - De Loecker, J., Eeckhout, J. et Unger, G. (2020), « The Rise of Market Power and the Macroeconomic Implications », Quarterly Journal of Economics.
+      - Weber, I. et Wasner, E. (2023), « Sellers' inflation, profits and conflict », Review of Keynesian Economics.
+      - Glover, A., Mustre-del-Río, J. et von Ende-Becker, A. (2023), « How Much Have Record Corporate Profits Contributed to Recent Inflation? », Fed de Kansas City.
+quiz:
+  beginner:
+    - en:
+        q: A café's costs rise 10%, but it raises its prices 15% and keeps its customers. Its margin...
+        options: [Shrinks, Grows, Stays the same]
+        answer: 1
+        why: Prices rose faster than costs, so more is left from each sale.
+      fr:
+        q: Les coûts d'un café montent de 10 %, mais il monte ses prix de 15 % et garde ses clients. Sa marge...
+        options: [Diminue, Augmente, Reste la même]
+        answer: 1
+        why: Les prix ont monté plus vite que les coûts, donc il reste plus de chaque vente.
+  pro:
+    - en:
+        q: A firm faces a demand elasticity of 4. Its profit-maximising Lerner index is...
+        options: ["0.25", "0.4", "4"]
+        answer: 0
+        why: "(P - MC) / P = 1 / |elasticity| = 1/4."
+      fr:
+        q: Une entreprise fait face à une élasticité de la demande de 4. Son indice de Lerner optimal est...
+        options: ["0,25", "0,4", "4"]
+        answer: 0
+        why: "(P - MC) / P = 1 / |élasticité| = 1/4."

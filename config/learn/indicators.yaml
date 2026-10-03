@@ -1,0 +1,102 @@
+# Learn pages (docs/LEARN.md): the US series behind the "Where the US is today" boxes and the Fed odds.
+# Display only: none of these feeds the regime model, its settings fingerprint or the track record.
+#
+# Every source here may be shown to users. FRED redistributes them; the owners are public agencies
+# (Federal Reserve Board, BLS, BEA, Census, Treasury, CBO, EIA), whose data is public domain, except:
+#   VIXCLS  Cboe, "citation required" (already used by the model, cited on the page)
+# Licensed series are deliberately absent: CME fed funds futures (FedWatch), ICE BofA spreads,
+# Moody's yields, S&P indices, University of Michigan sentiment, Freddie Mac mortgage rates.
+#
+# series: FRED id -> frequency (daily | weekly | monthly | quarterly) and owner (shown as the source).
+# indicators: what the page shows, built from the series with one transform:
+#   level      the series itself                    yoy     12-month % change
+#   ann3m      3-month % change, annualised         diff    change over `periods` observations
+#   avg_diff3  average monthly change over 3 months spread  a - b      gap_pct  100 * (a / b - 1)
+#   ratio_pct  100 * a / b                          policy  Fed target: DFEDTAR, then the middle of DFEDTARL-DFEDTARU
+# scale multiplies the result (units), ref is a reference level drawn and described on the page.
+
+series:
+  DFF: {freq: daily, owner: Federal Reserve Board}
+  DFEDTAR: {freq: daily, owner: Federal Reserve Board}
+  DFEDTARU: {freq: daily, owner: Federal Reserve Board}
+  DFEDTARL: {freq: daily, owner: Federal Reserve Board}
+  DGS1MO: {freq: daily, owner: Federal Reserve Board (H.15)}
+  DGS3MO: {freq: daily, owner: Federal Reserve Board (H.15)}
+  DGS6MO: {freq: daily, owner: Federal Reserve Board (H.15)}
+  DGS2: {freq: daily, owner: Federal Reserve Board (H.15)}
+  DGS10: {freq: daily, owner: Federal Reserve Board (H.15)}
+  DFII10: {freq: daily, owner: Federal Reserve Board (H.15)}
+  T10YIE: {freq: daily, owner: Federal Reserve Bank of St. Louis (from H.15)}
+  T5YIFR: {freq: daily, owner: Federal Reserve Bank of St. Louis (from H.15)}
+  CPIAUCSL: {freq: monthly, owner: BLS}
+  CPILFESL: {freq: monthly, owner: BLS}
+  PCEPI: {freq: monthly, owner: BEA}
+  PCEPILFE: {freq: monthly, owner: BEA}
+  UNRATE: {freq: monthly, owner: BLS}
+  NROU: {freq: quarterly, owner: CBO}
+  PAYEMS: {freq: monthly, owner: BLS}
+  ICSA: {freq: weekly, owner: U.S. Employment and Training Administration}
+  JTSJOL: {freq: monthly, owner: BLS}
+  CES0500000003: {freq: monthly, owner: BLS}
+  OPHNFB: {freq: quarterly, owner: BLS}
+  GDPC1: {freq: quarterly, owner: BEA}
+  GDPPOT: {freq: quarterly, owner: CBO}
+  GDP: {freq: quarterly, owner: BEA}
+  CP: {freq: quarterly, owner: BEA}
+  INDPRO: {freq: monthly, owner: Federal Reserve Board}
+  RSAFS: {freq: monthly, owner: Census Bureau}
+  SAHMREALTIME: {freq: monthly, owner: Federal Reserve Bank of St. Louis (from BLS)}
+  USREC: {freq: monthly, owner: Federal Reserve Bank of St. Louis (NBER dates)}
+  PSAVERT: {freq: monthly, owner: BEA}
+  TDSP: {freq: quarterly, owner: Federal Reserve Board}
+  DRCCLACBS: {freq: quarterly, owner: Federal Reserve Board}
+  HOUST: {freq: monthly, owner: Census Bureau}
+  DCOILWTICO: {freq: daily, owner: EIA}
+  DTWEXBGS: {freq: daily, owner: Federal Reserve Board (H.10)}
+  WALCL: {freq: weekly, owner: Federal Reserve Board (H.4.1)}
+  M2SL: {freq: monthly, owner: Federal Reserve Board (H.6)}
+  GFDEGDQ188S: {freq: quarterly, owner: U.S. Office of Management and Budget / FRED}
+  VIXCLS: {freq: daily, owner: Cboe}
+
+indicators:
+  policy_rate:   {transform: policy, unit: pct, ref: null}
+  effr:          {series: DFF, unit: pct}
+  bill_3m:       {series: DGS3MO, unit: pct}
+  bill_6m:       {series: DGS6MO, unit: pct}
+  us2y:          {series: DGS2, unit: pct}
+  us10y:         {series: DGS10, unit: pct}
+  curve_10y_2y:  {transform: spread, series: [DGS10, DGS2], unit: pt, ref: 0}
+  curve_10y_3m:  {transform: spread, series: [DGS10, DGS3MO], unit: pt, ref: 0}
+  real_10y:      {series: DFII10, unit: pct, ref: 0}
+  breakeven_10y: {series: T10YIE, unit: pct, ref: 2.0}
+  fwd_5y5y:      {series: T5YIFR, unit: pct, ref: 2.0}
+  cpi_yoy:       {transform: yoy, series: CPIAUCSL, unit: pct, ref: 2.0}
+  core_cpi_yoy:  {transform: yoy, series: CPILFESL, unit: pct, ref: 2.0}
+  pce_yoy:       {transform: yoy, series: PCEPI, unit: pct, ref: 2.0}
+  core_pce_yoy:  {transform: yoy, series: PCEPILFE, unit: pct, ref: 2.0}
+  core_pce_3m:   {transform: ann3m, series: PCEPILFE, unit: pct, ref: 2.0}
+  unrate:        {series: UNRATE, unit: pct}
+  nrou:          {series: NROU, unit: pct}
+  unemp_gap:     {transform: spread, series: [UNRATE, NROU], unit: pt, ref: 0}
+  payrolls_3m:   {transform: avg_diff3, series: PAYEMS, unit: k}
+  claims:        {series: ICSA, unit: k, scale: 0.001}
+  openings:      {series: JTSJOL, unit: m, scale: 0.001}
+  wages_yoy:     {transform: yoy, series: CES0500000003, unit: pct}
+  productivity_yoy: {transform: yoy, series: OPHNFB, unit: pct}
+  real_gdp_yoy:  {transform: yoy, series: GDPC1, unit: pct, ref: 2.0}
+  output_gap:    {transform: gap_pct, series: [GDPC1, GDPPOT], unit: pct, ref: 0}
+  indpro_yoy:    {transform: yoy, series: INDPRO, unit: pct, ref: 0}
+  retail_yoy:    {transform: yoy, series: RSAFS, unit: pct}
+  sahm:          {series: SAHMREALTIME, unit: pt, ref: 0.5}
+  profit_share:  {transform: ratio_pct, series: [CP, GDP], unit: pct}
+  saving_rate:   {series: PSAVERT, unit: pct}
+  debt_service:  {series: TDSP, unit: pct}
+  card_delinq:   {series: DRCCLACBS, unit: pct}
+  housing_starts: {series: HOUST, unit: m, scale: 0.001}
+  oil:           {series: DCOILWTICO, unit: usd}
+  oil_yoy:       {transform: yoy, series: DCOILWTICO, unit: pct}
+  dollar_yoy:    {transform: yoy, series: DTWEXBGS, unit: pct, ref: 0}
+  fed_assets:    {series: WALCL, unit: tn, scale: 0.000001}
+  m2_yoy:        {transform: yoy, series: M2SL, unit: pct}
+  debt_gdp:      {series: GFDEGDQ188S, unit: pct}
+  vix:           {series: VIXCLS, unit: pts, ref: 20}

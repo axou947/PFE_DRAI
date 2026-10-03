@@ -1,0 +1,133 @@
+id: yield_curve
+theme: macro
+icon: "📈"
+title: {en: The yield curve, fr: La courbe des taux}
+indicators: [curve_10y_3m, curve_10y_2y, us10y, us2y]
+chart: [curve_10y_3m, curve_10y_2y]
+leads_to:
+  - {card: recession, en: "an inversion has preceded every US recession since the late 1960s", fr: "une inversion a précédé chaque récession américaine depuis la fin des années 1960"}
+  - {card: credit, en: "squeezes bank lending margins", fr: "comprime les marges de prêt des banques"}
+facts:
+  en:
+    - The yield curve plots Treasury yields from short to long maturities; normally long rates are higher than short rates.
+    - An inverted curve (short rates above long rates) has preceded every US recession since the late 1960s, usually by 6 to 24 months.
+    - Inversion is a warning, not a timer; the recession often starts after the curve has turned positive again.
+  fr:
+    - La courbe des taux relie les rendements du Trésor du plus court au plus long terme ; normalement, les taux longs sont plus hauts que les courts.
+    - Une courbe inversée (taux courts au-dessus des longs) a précédé chaque récession américaine depuis la fin des années 1960, en général de 6 à 24 mois.
+    - L'inversion est un avertissement, pas un compte à rebours ; la récession commence souvent quand la courbe est redevenue positive.
+beginner:
+  en:
+    summary: Short-term versus long-term interest rates, and what their gap tells us.
+    what: >-
+      The US government borrows for a few months or for many years. Usually lending for 10 years pays more than
+      lending for 3 months, because you tie your money up longer. Draw all these rates on a line from short to long:
+      that is the yield curve.
+    good: >-
+      A curve that slopes up, with long rates above short ones, is normal. It often means investors expect steady
+      growth, and banks earn money by borrowing short and lending long.
+    bad: >-
+      When short rates rise above long rates, the curve is "inverted". It usually means the Fed has raised rates a lot
+      and investors expect it will have to cut later because the economy will weaken.
+    next: >-
+      Every US recession since the late 1960s was preceded by an inverted curve, usually 6 months to 2 years earlier.
+      But it is a warning light, not a clock: in 2022-2024 the curve stayed inverted for a long time without a recession.
+  fr:
+    summary: Taux courts contre taux longs, et ce que leur écart nous dit.
+    what: >-
+      L'État américain emprunte pour quelques mois ou pour de nombreuses années. En général, prêter pour 10 ans
+      rapporte plus que pour 3 mois, parce qu'on immobilise son argent plus longtemps. Placez tous ces taux sur une
+      ligne du plus court au plus long : c'est la courbe des taux.
+    good: >-
+      Une courbe qui monte, avec des taux longs au-dessus des courts, est normale. Elle signale souvent une croissance
+      attendue régulière, et les banques gagnent de l'argent en empruntant court pour prêter long.
+    bad: >-
+      Quand les taux courts passent au-dessus des longs, la courbe est « inversée ». Cela veut en général dire que la
+      Fed a beaucoup monté ses taux et que les investisseurs pensent qu'elle devra les baisser plus tard, car
+      l'économie va faiblir.
+    next: >-
+      Chaque récession américaine depuis la fin des années 1960 a été précédée d'une courbe inversée, en général de
+      6 mois à 2 ans. Mais c'est un voyant, pas une horloge : en 2022-2024 la courbe est restée longtemps inversée sans
+      récession.
+pro:
+  en:
+    summary: Term structure, expectations versus term premium, and the curve as a recession predictor.
+    what: >-
+      Long yields equal the average expected short rate over the bond's life plus a term premium (compensation for
+      duration risk). The 10y-3m spread, favoured by the New York Fed's recession model (Estrella and Mishkin), and
+      the 10y-2y spread, followed by markets, both summarise the stance of policy relative to expected growth. The
+      near-term forward spread (Engstrom and Sharpe 2018) isolates expected policy over the next 18 months.
+    good: >-
+      Bull steepening (short rates falling faster) typically accompanies easing; bear steepening on growth optimism
+      with stable inflation expectations is healthy. A positive slope supports bank net interest margins and credit
+      supply.
+    bad: >-
+      Inversion signals restrictive policy and expected cuts; it compresses bank margins and can tighten credit.
+      Bear steepening driven by term premium and fiscal supply (2023) tightens conditions without a growth story. A
+      structurally low term premium (QE, safe-asset demand) can make the curve invert "earlier", weakening the signal.
+    next: >-
+      Historically the lead from first inversion to recession ranged from about 6 to 24 months, and the
+      "un-inversion" (re-steepening as the Fed starts cutting) often came just before or at the start of recession.
+      The 2022-24 inversion, the longest on record, was followed by a soft landing so far: a reminder that a lower
+      term premium and pandemic distortions change the mapping.
+    mechanics: |
+      - Expectations hypothesis plus premium: $y_n = \frac{1}{n}\sum_{k=0}^{n-1} E_t[r_{t+k}] + TP_n$.
+      - NY Fed probit: $P(\text{recession in 12m}) = \Phi(\alpha + \beta \cdot \text{spread}_{10y-3m})$.
+      - Bull/bear = yields falling/rising; steepening/flattening = spread widening/narrowing.
+    reading: |
+      - Estrella, A. and Mishkin, F. (1998), "Predicting U.S. Recessions: Financial Variables as Leading Indicators", Review of Economics and Statistics.
+      - Engstrom, E. and Sharpe, S. (2018), "The Near-Term Forward Yield Spread as a Leading Indicator", FEDS Notes.
+      - Adrian, T., Crump, R. and Moench, E. (2013), "Pricing the Term Structure with Linear Regressions", Journal of Financial Economics.
+  fr:
+    summary: Structure par terme, anticipations contre prime de terme, et la courbe comme indicateur de récession.
+    what: >-
+      Un taux long égale la moyenne des taux courts attendus sur la vie de l'obligation plus une prime de terme
+      (rémunération du risque de duration). L'écart 10 ans - 3 mois, retenu par le modèle de récession de la Fed de
+      New York (Estrella et Mishkin), et l'écart 10 ans - 2 ans, suivi par les marchés, résument l'orientation de la
+      politique monétaire face à la croissance attendue. L'écart à terme proche (Engstrom et Sharpe 2018) isole la
+      politique attendue sur les 18 prochains mois.
+    good: >-
+      Une pentification « bull » (taux courts qui baissent plus vite) accompagne en général un assouplissement ; une
+      pentification « bear » sur optimisme de croissance avec des anticipations d'inflation stables est saine. Une pente
+      positive soutient les marges d'intérêt des banques et l'offre de crédit.
+    bad: >-
+      L'inversion signale une politique restrictive et des baisses attendues ; elle comprime les marges bancaires et
+      peut resserrer le crédit. Une pentification « bear » portée par la prime de terme et l'offre de titres publics
+      (2023) resserre les conditions sans histoire de croissance. Une prime de terme structurellement basse (QE,
+      demande d'actifs sûrs) peut faire inverser la courbe « plus tôt » et affaiblir le signal.
+    next: >-
+      Historiquement, le délai entre la première inversion et la récession allait d'environ 6 à 24 mois, et la
+      « désinversion » (pentification quand la Fed commence à baisser) arrivait souvent juste avant ou au début de la
+      récession. L'inversion de 2022-24, la plus longue jamais vue, a été suivie jusqu'ici d'un atterrissage en douceur :
+      une prime de terme plus basse et les distorsions de la pandémie changent la lecture.
+    mechanics: |
+      - Anticipations plus prime : $y_n = \frac{1}{n}\sum_{k=0}^{n-1} E_t[r_{t+k}] + TP_n$.
+      - Probit de la Fed de New York : $P(\text{récession à 12 mois}) = \Phi(\alpha + \beta \cdot \text{écart}_{10a-3m})$.
+      - Bull/bear = taux en baisse/en hausse ; pentification/aplatissement = écart qui s'élargit/se resserre.
+    reading: |
+      - Estrella, A. et Mishkin, F. (1998), « Predicting U.S. Recessions: Financial Variables as Leading Indicators », Review of Economics and Statistics.
+      - Engstrom, E. et Sharpe, S. (2018), « The Near-Term Forward Yield Spread as a Leading Indicator », FEDS Notes.
+      - Adrian, T., Crump, R. et Moench, E. (2013), « Pricing the Term Structure with Linear Regressions », Journal of Financial Economics.
+quiz:
+  beginner:
+    - en:
+        q: The 3-month rate is 5% and the 10-year rate is 4%. The curve is...
+        options: [Normal, Inverted, Flat]
+        answer: 1
+        why: Short rates above long rates is an inverted curve, a classic warning sign.
+      fr:
+        q: Le taux à 3 mois est à 5 % et le taux à 10 ans à 4 %. La courbe est...
+        options: [Normale, Inversée, Plate]
+        answer: 1
+        why: Des taux courts au-dessus des longs, c'est une courbe inversée, un signal d'alerte classique.
+  pro:
+    - en:
+        q: Which spread does the New York Fed's recession probability model use?
+        options: [10-year minus 2-year, 10-year minus 3-month, 30-year minus 10-year]
+        answer: 1
+        why: Estrella and Mishkin found the 10y-3m spread the most reliable leading indicator; the NY Fed model uses it.
+      fr:
+        q: Quel écart utilise le modèle de probabilité de récession de la Fed de New York ?
+        options: [10 ans moins 2 ans, 10 ans moins 3 mois, 30 ans moins 10 ans]
+        answer: 1
+        why: Estrella et Mishkin ont trouvé l'écart 10 ans - 3 mois le plus fiable ; le modèle de la Fed de New York l'utilise.

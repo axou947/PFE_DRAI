@@ -1,0 +1,127 @@
+id: consumer
+theme: micro
+icon: "🛒"
+title: {en: Consumers - spending and saving, fr: Les ménages - consommation et épargne}
+indicators: [retail_yoy, saving_rate, debt_service, card_delinq]
+chart: [saving_rate, retail_yoy]
+leads_to:
+  - {card: growth, en: "consumption is about two thirds of GDP", fr: "la consommation fait environ deux tiers du PIB"}
+  - {card: pricing_power, en: "strong demand lets firms raise prices", fr: "une demande forte permet de monter les prix"}
+  - {card: recession, en: "a consumer pull-back deepens slowdowns", fr: "un repli des ménages aggrave le ralentissement"}
+facts:
+  en:
+    - Household consumption is about two thirds of US GDP, so the consumer drives the cycle.
+    - Spending depends on income (jobs and wages), wealth (homes, stocks), credit conditions and confidence.
+    - Households save more when they are worried and spend more of their income when they feel secure.
+  fr:
+    - La consommation des ménages représente environ deux tiers du PIB américain : le consommateur fait le cycle.
+    - Les dépenses dépendent du revenu (emploi et salaires), du patrimoine (logement, actions), du crédit et de la confiance.
+    - Les ménages épargnent plus quand ils sont inquiets et dépensent plus de leur revenu quand ils se sentent en sécurité.
+beginner:
+  en:
+    summary: How much households spend and put aside.
+    what: >-
+      Every purchase, from coffee to cars, adds to the economy. American households' spending is about two thirds of
+      everything the US produces. What is not spent is saved: the saving rate is the share of income put aside.
+    good: >-
+      Confident households with jobs spend steadily, which keeps firms busy and hiring. Some saving is healthy: it
+      protects families against bad surprises and funds investment.
+    bad: >-
+      Spending financed by too much debt can end badly when rates rise. If everyone suddenly saves more out of fear,
+      shops sell less and the economy slows (the "paradox of thrift").
+    next: >-
+      When jobs are lost or rates go up, spending slows, starting with big items like cars and furniture. Rising late
+      payments on credit cards are an early sign that some households are stretched.
+  fr:
+    summary: Combien les ménages dépensent et mettent de côté.
+    what: >-
+      Chaque achat, du café à la voiture, compte dans l'économie. Les dépenses des ménages américains représentent
+      environ deux tiers de tout ce que produit le pays. Ce qui n'est pas dépensé est épargné : le taux d'épargne est la
+      part du revenu mise de côté.
+    good: >-
+      Des ménages confiants et qui ont un emploi dépensent régulièrement, ce qui fait travailler et embaucher les
+      entreprises. Un peu d'épargne est sain : elle protège des mauvaises surprises et finance l'investissement.
+    bad: >-
+      Des dépenses financées par trop de dette peuvent mal finir quand les taux montent. Si tout le monde épargne
+      soudain plus par peur, les magasins vendent moins et l'économie ralentit (le « paradoxe de l'épargne »).
+    next: >-
+      Quand des emplois disparaissent ou que les taux montent, la consommation ralentit, d'abord pour les gros achats
+      comme les voitures et les meubles. Une hausse des retards de paiement sur les cartes de crédit est un signe précoce
+      que certains ménages sont à la peine.
+pro:
+  en:
+    summary: Income, wealth and credit channels; precautionary saving; household balance sheets.
+    what: >-
+      Permanent income and life-cycle theories predict smoothing; in practice a large share of households are
+      liquidity-constrained ("hand-to-mouth", Kaplan and Violante), so consumption reacts strongly to current income and
+      transfers. Wealth effects run about 2 to 5 cents per dollar of housing or equity wealth. The personal saving rate
+      (BEA) and the debt service ratio (Fed) summarise buffers; delinquency rates show stress at the margin.
+    good: >-
+      Strong household balance sheets (low debt service, excess savings in 2021-22) make consumption resilient to rate
+      hikes; rising real incomes support spending without credit growth.
+    bad: >-
+      Precautionary saving rises with unemployment risk, amplifying downturns (Carroll). Rate-sensitive durables and
+      housing respond first to tightening; when buffers are drawn down, delinquency rises among younger and lower-income
+      borrowers first.
+    next: >-
+      Watch real disposable income, the saving rate relative to its pre-shock trend, credit card and auto delinquencies
+      and lending standards. Consumption usually slows after job growth does, and falls in recessions mainly through
+      durables.
+    mechanics: |
+      - Consumption function: $C = c_0 + mpc \times (Y - T) + \omega W$, with $mpc$ high for constrained households.
+      - Saving rate $= 1 - C / Y_{disposable}$.
+      - Debt service ratio (TDSP) = required principal and interest payments / disposable income.
+    reading: |
+      - Kaplan, G. and Violante, G. (2014), "A Model of the Consumption Response to Fiscal Stimulus Payments", Econometrica.
+      - Carroll, C. (1997), "Buffer-Stock Saving and the Life Cycle/Permanent Income Hypothesis", Quarterly Journal of Economics.
+      - Mian, A. and Sufi, A. (2014), "House of Debt", University of Chicago Press.
+  fr:
+    summary: Canaux du revenu, du patrimoine et du crédit ; épargne de précaution ; bilans des ménages.
+    what: >-
+      Les théories du revenu permanent et du cycle de vie prévoient un lissage ; en pratique, une grande part des ménages
+      est contrainte en liquidité (« hand-to-mouth », Kaplan et Violante), donc la consommation réagit fortement au revenu
+      courant et aux transferts. Les effets de richesse sont d'environ 2 à 5 centimes par dollar de patrimoine immobilier
+      ou boursier. Le taux d'épargne (BEA) et le ratio de service de la dette (Fed) résument les coussins ; les taux
+      d'impayés montrent le stress à la marge.
+    good: >-
+      Des bilans des ménages solides (service de la dette bas, épargne excédentaire en 2021-22) rendent la consommation
+      résistante aux hausses de taux ; des revenus réels en hausse soutiennent la dépense sans hausse du crédit.
+    bad: >-
+      L'épargne de précaution monte avec le risque de chômage, ce qui amplifie les baisses (Carroll). Les biens durables
+      et le logement, sensibles aux taux, réagissent en premier au resserrement ; quand les coussins s'épuisent, les
+      impayés montent d'abord chez les emprunteurs jeunes et modestes.
+    next: >-
+      Suivre le revenu disponible réel, le taux d'épargne par rapport à sa tendance d'avant-choc, les impayés sur cartes
+      et crédits auto et les conditions de prêt. La consommation ralentit en général après l'emploi, et baisse en
+      récession surtout via les biens durables.
+    mechanics: |
+      - Fonction de consommation : $C = c_0 + pmc \times (Y - T) + \omega W$, avec une $pmc$ élevée pour les ménages contraints.
+      - Taux d'épargne $= 1 - C / Y_{disponible}$.
+      - Ratio de service de la dette (TDSP) = remboursements dus en capital et intérêts / revenu disponible.
+    reading: |
+      - Kaplan, G. et Violante, G. (2014), « A Model of the Consumption Response to Fiscal Stimulus Payments », Econometrica.
+      - Carroll, C. (1997), « Buffer-Stock Saving and the Life Cycle/Permanent Income Hypothesis », Quarterly Journal of Economics.
+      - Mian, A. et Sufi, A. (2014), « House of Debt », University of Chicago Press.
+quiz:
+  beginner:
+    - en:
+        q: What share of the US economy is household spending?
+        options: [About one tenth, About one third, About two thirds]
+        answer: 2
+        why: Consumption is roughly 68% of US GDP.
+      fr:
+        q: Quelle part de l'économie américaine représentent les dépenses des ménages ?
+        options: [Environ un dixième, Environ un tiers, Environ deux tiers]
+        answer: 2
+        why: La consommation représente environ 68 % du PIB américain.
+  pro:
+    - en:
+        q: Why does a stimulus check raise spending more than the permanent income hypothesis predicts?
+        options: [Because of the wealth effect, Because many households are liquidity-constrained, Because of Ricardian equivalence]
+        answer: 1
+        why: Hand-to-mouth households spend a large share of any extra cash at once.
+      fr:
+        q: Pourquoi un chèque de relance augmente-t-il la consommation plus que ne le prévoit le revenu permanent ?
+        options: [À cause de l'effet de richesse, Parce que beaucoup de ménages sont contraints en liquidité, À cause de l'équivalence ricardienne]
+        answer: 1
+        why: Les ménages « hand-to-mouth » dépensent tout de suite une grande partie de tout argent en plus.

@@ -1,0 +1,157 @@
+id: inflation
+theme: macro
+icon: "🔥"
+title: {en: Inflation, fr: Inflation}
+indicators: [core_pce_yoy, cpi_yoy, core_pce_3m, breakeven_10y]
+chart: [core_pce_yoy, cpi_yoy]
+leads_to:
+  - {card: fed_policy, en: "too high: the Fed raises rates", fr: "trop haute : la Fed monte ses taux"}
+  - {card: real_rates, en: "lowers real rates at a given nominal rate", fr: "baisse les taux réels à taux nominal donné"}
+  - {card: wages, en: "workers ask for catch-up raises", fr: "les salariés demandent un rattrapage"}
+  - {card: consumer, en: "erodes purchasing power", fr: "rogne le pouvoir d'achat"}
+facts:
+  en:
+    - Inflation is the rise of the general price level, measured by the CPI and the PCE index.
+    - "The Fed targets 2% a year on the PCE index: a little inflation is healthy, too much or too little is costly."
+    - When inflation runs well above target, the Fed usually raises rates, which slows growth with a lag of about one to two years.
+  fr:
+    - L'inflation est la hausse du niveau général des prix, mesurée par le CPI et l'indice PCE.
+    - "La Fed vise 2 % par an sur l'indice PCE : un peu d'inflation est sain, trop ou trop peu coûte cher."
+    - Quand l'inflation dépasse nettement la cible, la Fed monte en général ses taux, ce qui freine la croissance avec un décalage d'environ un à deux ans.
+beginner:
+  en:
+    summary: Prices going up across the economy, little by little.
+    what: >-
+      Inflation means that, on average, things cost more than a year ago: groceries, rent, petrol, a haircut.
+      If inflation is 3%, a basket that cost 100 dollars last year costs 103 today. The Fed (the US central bank)
+      tries to keep it around 2% a year.
+    good: >-
+      A little inflation is a sign of a healthy economy: people are buying, firms can raise pay, and it is easier
+      to repay a loan because your salary grows while your debt stays the same. It also keeps people from
+      waiting forever for prices to fall before they buy.
+    bad: >-
+      Too much inflation hurts. If prices rise faster than your salary, you can afford less. Savings left in
+      cash lose value. Firms struggle to plan, and people on fixed incomes (pensions, students) suffer most.
+    next: >-
+      When inflation is too high, the Fed usually raises interest rates, like easing off the accelerator.
+      Borrowing gets more expensive, people and firms spend a bit less, and inflation cools down, but only after
+      a year or two. If the Fed brakes too hard, the economy can slow a lot.
+  fr:
+    summary: Les prix qui montent un peu partout dans l'économie.
+    what: >-
+      L'inflation, c'est quand les choses coûtent en moyenne plus cher qu'il y a un an : les courses, le loyer,
+      l'essence, le coiffeur. Avec 3 % d'inflation, un panier qui coûtait 100 dollars l'an dernier en coûte 103
+      aujourd'hui. La Fed (la banque centrale américaine) cherche à la garder autour de 2 % par an.
+    good: >-
+      Un peu d'inflation est le signe d'une économie en bonne santé : les gens achètent, les entreprises peuvent
+      augmenter les salaires, et il est plus facile de rembourser un prêt car le salaire progresse alors que la
+      dette reste la même. Elle évite aussi d'attendre indéfiniment une baisse des prix avant d'acheter.
+    bad: >-
+      Trop d'inflation fait mal. Si les prix montent plus vite que votre salaire, vous pouvez acheter moins.
+      L'épargne laissée en liquide perd de sa valeur. Les entreprises ont du mal à prévoir, et ceux qui ont un
+      revenu fixe (retraités, étudiants) souffrent le plus.
+    next: >-
+      Quand l'inflation est trop haute, la Fed monte en général ses taux, comme on lève le pied de l'accélérateur.
+      Emprunter coûte plus cher, ménages et entreprises dépensent un peu moins, et l'inflation ralentit, mais
+      seulement au bout d'un ou deux ans. Si la Fed freine trop fort, l'économie peut beaucoup ralentir.
+pro:
+  en:
+    summary: The trend in the general price level, and the Fed's main mandate variable alongside employment.
+    what: >-
+      Headline CPI (BLS) covers urban consumers' out-of-pocket spending; the Fed's 2% target since 2012 is set on
+      the PCE price index (BEA), which has broader coverage, chain weights that capture substitution and runs
+      about 0.3 to 0.5 pt below CPI over time. "Core" measures exclude food and energy to separate the persistent
+      component from supply-driven noise. Annualised 3- and 6-month changes show momentum before the 12-month rate
+      turns; shelter (about a third of core CPI) lags market rents by roughly a year.
+    good: >-
+      Moderate, stable and expected inflation lubricates the labour market (real wages can adjust without nominal
+      cuts, which are rigid), keeps policy rates away from the effective lower bound so the Fed keeps room to cut,
+      and erodes real debt burdens. Demand-pull inflation with rising productivity and real wages is the benign
+      case: firms have pricing power, margins hold and employment is high.
+    bad: >-
+      High or volatile inflation raises uncertainty and the inflation risk premium in long yields, distorts relative
+      prices and redistributes from creditors and fixed-income earners to debtors. The main risk is de-anchored
+      expectations: once firms and workers build higher inflation into prices and wage contracts, a wage-price
+      dynamic makes disinflation costly (sacrifice ratio). Cost-push inflation from supply shocks combines higher
+      prices with weaker activity, the policy dilemma of stagflation.
+    next: >-
+      The Fed's reaction function is roughly a Taylor rule: the policy rate rises by more than one-for-one with
+      inflation (the Taylor principle) so that real rates increase. Transmission works through financial
+      conditions (yields, credit spreads, the dollar, equity prices) to demand, then to the labour market and
+      prices with "long and variable lags" (Friedman), typically 12 to 24 months. Historical disinflations
+      (1980-82, 1994, 2022-23) differ by how anchored expectations were: the more anchored, the cheaper the soft
+      landing.
+    mechanics: |
+      - Fisher: $i \approx r + \pi^e$. A rise in expected inflation $\pi^e$ at an unchanged nominal rate $i$ lowers the real rate $r$, which is stimulative.
+      - Expectations-augmented Phillips curve: $\pi_t = \pi^e_t - \beta (u_t - u^*) + \varepsilon_t$ (supply shocks in $\varepsilon$).
+      - Taylor (1993): $i = r^* + \pi + 0.5(\pi - 2) + 0.5\,\text{gap}$. The coefficient on $\pi$ is 1.5 > 1.
+      - Market expectations: 10-year breakeven = nominal Treasury minus TIPS yield (includes risk and liquidity premia).
+    reading: |
+      - Friedman, M. (1968), "The Role of Monetary Policy", American Economic Review.
+      - Taylor, J. (1993), "Discretion versus policy rules in practice", Carnegie-Rochester Conference Series.
+      - Federal Reserve, "Statement on Longer-Run Goals and Monetary Policy Strategy" (2012, revised 2020 and 2025).
+  fr:
+    summary: La tendance du niveau général des prix, et la variable centrale du mandat de la Fed avec l'emploi.
+    what: >-
+      Le CPI (BLS) couvre les dépenses directes des ménages urbains ; la cible de 2 % de la Fed, depuis 2012, porte
+      sur l'indice des prix PCE (BEA), plus large, à pondérations chaînées qui captent les substitutions, et en
+      moyenne 0,3 à 0,5 pt sous le CPI. Les mesures « core » excluent alimentation et énergie pour isoler la
+      composante persistante du bruit d'offre. Les variations sur 3 et 6 mois annualisées montrent l'élan avant le
+      glissement annuel ; le logement (environ un tiers du core CPI) suit les loyers de marché avec environ un an de
+      retard.
+    good: >-
+      Une inflation modérée, stable et anticipée fluidifie le marché du travail (les salaires réels s'ajustent sans
+      baisse nominale, rigide), éloigne le taux directeur de sa borne basse, ce qui laisse à la Fed de la marge pour
+      baisser, et allège le poids réel des dettes. L'inflation par la demande avec gains de productivité et salaires
+      réels en hausse est le cas favorable : pouvoir de prix des entreprises, marges tenues, emploi élevé.
+    bad: >-
+      Une inflation forte ou volatile accroît l'incertitude et la prime de risque d'inflation des taux longs, fausse
+      les prix relatifs et redistribue des créanciers et revenus fixes vers les débiteurs. Le risque majeur est le
+      désancrage des anticipations : quand entreprises et salariés intègrent une inflation plus haute dans prix et
+      contrats, la boucle prix-salaires rend la désinflation coûteuse (ratio de sacrifice). L'inflation par les coûts
+      (choc d'offre) combine prix en hausse et activité en baisse : le dilemme de la stagflation.
+    next: >-
+      La fonction de réaction de la Fed ressemble à une règle de Taylor : le taux directeur monte plus qu'un pour un
+      avec l'inflation (principe de Taylor) afin que les taux réels augmentent. La transmission passe par les
+      conditions financières (taux, spreads de crédit, dollar, actions) vers la demande, puis l'emploi et les prix,
+      avec des « délais longs et variables » (Friedman), typiquement 12 à 24 mois. Les désinflations passées
+      (1980-82, 1994, 2022-23) diffèrent par l'ancrage des anticipations : plus il est solide, plus l'atterrissage
+      en douceur est bon marché.
+    mechanics: |
+      - Fisher : $i \approx r + \pi^e$. Une hausse de l'inflation anticipée $\pi^e$ à taux nominal $i$ inchangé baisse le taux réel $r$ : c'est expansif.
+      - Courbe de Phillips augmentée des anticipations : $\pi_t = \pi^e_t - \beta (u_t - u^*) + \varepsilon_t$ (chocs d'offre dans $\varepsilon$).
+      - Taylor (1993) : $i = r^* + \pi + 0.5(\pi - 2) + 0.5\,\text{écart}$. Le coefficient sur $\pi$ vaut 1,5 > 1.
+      - Anticipations de marché : point mort 10 ans = taux du Trésor nominal moins taux TIPS (inclut des primes de risque et de liquidité).
+    reading: |
+      - Friedman, M. (1968), « The Role of Monetary Policy », American Economic Review.
+      - Taylor, J. (1993), « Discretion versus policy rules in practice », Carnegie-Rochester Conference Series.
+      - Réserve fédérale, « Statement on Longer-Run Goals and Monetary Policy Strategy » (2012, révisé en 2020 et 2025).
+quiz:
+  beginner:
+    - en:
+        q: Inflation is 4% and your salary rose 2% this year. What happened to your purchasing power?
+        options: [It rose, It fell, It did not change]
+        answer: 1
+        why: Prices rose faster than your pay, so the same salary buys a little less.
+      fr:
+        q: L'inflation est de 4 % et votre salaire a augmenté de 2 % cette année. Votre pouvoir d'achat a...
+        options: [Augmenté, Baissé, Pas changé]
+        answer: 1
+        why: Les prix ont monté plus vite que votre salaire, donc il achète un peu moins.
+  pro:
+    - en:
+        q: Why does the Taylor principle require the policy rate to rise by more than one-for-one with inflation?
+        options:
+          - To keep the nominal rate positive
+          - So that the real policy rate rises and actually tightens conditions
+          - Because the PCE index runs below CPI
+        answer: 1
+        why: With a coefficient above 1, higher inflation raises the real rate; below 1 the real rate falls and inflation can feed on itself.
+      fr:
+        q: Pourquoi le principe de Taylor exige-t-il une hausse du taux directeur supérieure à celle de l'inflation ?
+        options:
+          - Pour garder le taux nominal positif
+          - Pour que le taux réel monte et resserre vraiment les conditions
+          - Parce que l'indice PCE est sous le CPI
+        answer: 1
+        why: Avec un coefficient supérieur à 1, plus d'inflation fait monter le taux réel ; en dessous de 1 le taux réel baisse et l'inflation peut s'auto-entretenir.

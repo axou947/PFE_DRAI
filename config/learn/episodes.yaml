@@ -1,0 +1,187 @@
+# History lessons of the Learn pages (docs/LEARN.md). Facts are well documented history; the charts use
+# today's FRED vintages. start/end bound the highlighted window on the chart.
+episodes:
+  - id: oil_1973
+    start: "1973-01-01"
+    end: "1975-12-31"
+    title: {en: "1973-75: the first oil shock", fr: "1973-75 : le premier choc pétrolier"}
+    cards: [oil, stagflation, inflation]
+    beginner:
+      en:
+        happened: "The oil embargo quadrupled the price of a barrel. Prices jumped while the economy fell into a deep recession."
+        fed: "The Fed raised rates, then cut them quickly when unemployment rose, before inflation was beaten."
+        lesson: "A supply shock can bring high prices and job losses at the same time, and easing too early lets inflation come back."
+      fr:
+        happened: "L'embargo pétrolier a quadruplé le prix du baril. Les prix ont bondi pendant que l'économie tombait dans une récession profonde."
+        fed: "La Fed a monté ses taux, puis les a vite baissés quand le chômage a monté, avant d'avoir vaincu l'inflation."
+        lesson: "Un choc d'offre peut amener en même temps des prix hauts et des pertes d'emplois, et relâcher trop tôt laisse revenir l'inflation."
+    pro:
+      en:
+        happened: "OPEC embargo (Oct 1973) took WTI from about 3 to 12 dollars; CPI inflation passed 12% in 1974 while unemployment rose to 9% in 1975 (NBER recession Nov 1973 to Mar 1975)."
+        fed: "Under Burns the funds rate peaked above 12% in mid-1974, then fell to about 5% by 1975 with core inflation still near 7%, real rates turning negative."
+        lesson: "Accommodating second-round effects de-anchored expectations; it set up the second wave of 1979-80 (Blinder and Rudd on supply shocks; Orphanides on real-time gap mismeasurement)."
+      fr:
+        happened: "L'embargo de l'OPEP (octobre 1973) a fait passer le WTI d'environ 3 à 12 dollars ; l'inflation CPI a dépassé 12 % en 1974 pendant que le chômage montait à 9 % en 1975 (récession NBER de novembre 1973 à mars 1975)."
+        fed: "Sous Burns, le taux des fonds fédéraux a culminé au-dessus de 12 % mi-1974, puis est revenu vers 5 % en 1975 avec une inflation core encore proche de 7 %, des taux réels négatifs."
+        lesson: "Accommoder les effets de second tour a désancré les anticipations et préparé la deuxième vague de 1979-80 (Blinder et Rudd sur les chocs d'offre ; Orphanides sur l'erreur de mesure de l'écart en temps réel)."
+  - id: volcker
+    start: "1979-08-01"
+    end: "1983-06-30"
+    title: {en: "1979-82: Volcker breaks inflation", fr: "1979-82 : Volcker brise l'inflation"}
+    cards: [fed_policy, inflation, recession, real_rates]
+    beginner:
+      en:
+        happened: "Inflation reached about 14%. The new Fed chair, Paul Volcker, decided to stop it whatever the cost."
+        fed: "He pushed rates to around 20%. Two recessions followed and unemployment passed 10%."
+        lesson: "High rates can beat entrenched inflation, but the cost in jobs is very high when people expect prices to keep rising."
+      fr:
+        happened: "L'inflation a atteint environ 14 %. Le nouveau président de la Fed, Paul Volcker, a décidé de l'arrêter coûte que coûte."
+        fed: "Il a poussé les taux vers 20 %. Deux récessions ont suivi et le chômage a dépassé 10 %."
+        lesson: "Des taux très hauts peuvent vaincre une inflation installée, mais le coût en emplois est très élevé quand chacun s'attend à des prix toujours en hausse."
+    pro:
+      en:
+        happened: "CPI inflation peaked at 14.8% (March 1980); the 1979 oil shock and de-anchored expectations kept wages and prices rising together."
+        fed: "October 1979 switch to targeting non-borrowed reserves let the funds rate swing to 19-20%; back-to-back recessions (1980, 1981-82), unemployment 10.8% (Nov 1982)."
+        lesson: "Restoring credibility required a large sacrifice ratio; anchored expectations afterwards made later disinflations cheaper (Goodfriend and King 2005)."
+      fr:
+        happened: "L'inflation CPI a culminé à 14,8 % (mars 1980) ; le choc pétrolier de 1979 et des anticipations désancrées faisaient monter ensemble salaires et prix."
+        fed: "Le passage en octobre 1979 au ciblage des réserves non empruntées a laissé le taux des fonds fédéraux monter à 19-20 % ; deux récessions coup sur coup (1980, 1981-82), chômage à 10,8 % (novembre 1982)."
+        lesson: "Restaurer la crédibilité a exigé un ratio de sacrifice élevé ; des anticipations ancrées ont ensuite rendu les désinflations moins coûteuses (Goodfriend et King 2005)."
+  - id: soft_1994
+    start: "1994-01-01"
+    end: "1995-12-31"
+    title: {en: "1994-95: pre-emptive hikes and a soft landing", fr: "1994-95 : hausses préventives et atterrissage en douceur"}
+    cards: [fed_policy, yield_curve, real_rates]
+    beginner:
+      en:
+        happened: "The economy was growing well and the Fed worried inflation would come back."
+        fed: "It doubled its rate in one year, from 3% to 6%, before inflation had risen. Bond prices fell sharply."
+        lesson: "Acting early can cool the economy without a recession. Growth slowed, then picked up again into the late-1990s boom."
+      fr:
+        happened: "L'économie croissait bien et la Fed craignait un retour de l'inflation."
+        fed: "Elle a doublé son taux en un an, de 3 % à 6 %, avant que l'inflation ne monte. Les obligations ont fortement baissé."
+        lesson: "Agir tôt peut refroidir l'économie sans récession. La croissance a ralenti, puis est repartie vers le boom de la fin des années 1990."
+    pro:
+      en:
+        happened: "With unemployment falling below estimates of the NAIRU, Greenspan's FOMC began tightening in February 1994 with core inflation near 3%."
+        fed: "300 bp in 12 months (including a 75 bp move in November 1994); the \"bond massacre\" lifted 10-year yields by about 2.5 pt, then three cuts in 1995 (\"insurance\")."
+        lesson: "The textbook soft landing; pre-emption works when expectations are anchored, but fast hikes expose leverage (Orange County, Mexico's tequila crisis)."
+      fr:
+        happened: "Avec un chômage passé sous les estimations du NAIRU, le FOMC de Greenspan a commencé à resserrer en février 1994, l'inflation core autour de 3 %."
+        fed: "300 pb en 12 mois (dont 75 pb en novembre 1994) ; le « massacre obligataire » a monté le 10 ans d'environ 2,5 pt, puis trois baisses en 1995 (« d'assurance »)."
+        lesson: "L'atterrissage en douceur de manuel ; la préemption marche quand les anticipations sont ancrées, mais des hausses rapides révèlent le levier (Orange County, crise tequila au Mexique)."
+  - id: dotcom
+    start: "2000-01-01"
+    end: "2003-06-30"
+    title: {en: "2000-02: the dot-com bust", fr: "2000-02 : l'éclatement de la bulle internet"}
+    cards: [volatility, firm_investment, recession]
+    beginner:
+      en:
+        happened: "Prices of internet stocks had soared far beyond their profits. In 2000 they crashed, and companies cut investment."
+        fed: "The Fed cut rates from 6.5% to 1.75% in 2001, then to 1% by 2003."
+        lesson: "When a bubble bursts, investment falls first. The recession was mild, but stocks took years to recover."
+      fr:
+        happened: "Les actions internet avaient grimpé bien au-delà de leurs profits. En 2000 elles se sont effondrées, et les entreprises ont réduit leurs investissements."
+        fed: "La Fed a baissé ses taux de 6,5 % à 1,75 % en 2001, puis à 1 % en 2003."
+        lesson: "Quand une bulle éclate, l'investissement baisse en premier. La récession a été légère, mais la Bourse a mis des années à revenir."
+    pro:
+      en:
+        happened: "The Nasdaq fell about 78% from March 2000 to October 2002; business investment in technology collapsed; 9/11 deepened the shock. NBER recession March to November 2001."
+        fed: "475 bp of cuts in 2001, then to 1% in 2003 amid deflation worries; the curve steepened sharply."
+        lesson: "An equity-led bust with healthy household and bank balance sheets produced a mild recession but a \"jobless recovery\"; low rates afterwards fed the housing boom."
+      fr:
+        happened: "Le Nasdaq a perdu environ 78 % de mars 2000 à octobre 2002 ; l'investissement technologique s'est effondré ; le 11 septembre a aggravé le choc. Récession NBER de mars à novembre 2001."
+        fed: "475 pb de baisses en 2001, puis 1 % en 2003 sur fond de crainte de déflation ; la courbe s'est fortement pentifiée."
+        lesson: "Une crise partie des actions, avec des bilans de ménages et de banques sains, a donné une récession légère mais une « reprise sans emplois » ; les taux bas ont ensuite nourri le boom immobilier."
+  - id: gfc
+    start: "2007-08-01"
+    end: "2009-12-31"
+    title: {en: "2007-09: the global financial crisis", fr: "2007-09 : la grande crise financière"}
+    cards: [credit, housing, liquidity, qe_qt, recession]
+    beginner:
+      en:
+        happened: "Too many risky home loans went bad. Banks that held them lost huge sums, and in 2008 Lehman Brothers collapsed."
+        fed: "The Fed cut rates to almost zero and created money to buy bonds (QE) to keep the system running."
+        lesson: "When banks get into trouble, credit stops flowing and the whole economy suffers. It was the worst recession since the 1930s."
+      fr:
+        happened: "Trop de prêts immobiliers risqués n'ont pas été remboursés. Les banques qui les détenaient ont perdu des sommes énormes, et en 2008 Lehman Brothers s'est effondrée."
+        fed: "La Fed a baissé ses taux presque à zéro et créé de la monnaie pour acheter des obligations (QE) afin de faire tourner le système."
+        lesson: "Quand les banques vont mal, le crédit s'arrête et toute l'économie souffre. Ce fut la pire récession depuis les années 1930."
+    pro:
+      en:
+        happened: "Subprime losses spread through securitisation and short-term wholesale funding (ABCP, repo, money funds); Lehman's failure (Sept 2008) froze markets; VIX above 80, unemployment 10% (Oct 2009). NBER recession Dec 2007 to June 2009."
+        fed: "Funds rate to 0-0.25% (Dec 2008), emergency lending facilities, swap lines, QE1 (Nov 2008), plus TARP and fiscal stimulus."
+        lesson: "Financial recessions are deep and slow to heal (Reinhart and Rogoff); lender-of-last-resort and balance sheet tools became permanent parts of the toolkit."
+      fr:
+        happened: "Les pertes sur le subprime se sont propagées via la titrisation et le financement de gros à court terme (ABCP, repo, fonds monétaires) ; la faillite de Lehman (septembre 2008) a gelé les marchés ; VIX au-dessus de 80, chômage à 10 % (octobre 2009). Récession NBER de décembre 2007 à juin 2009."
+        fed: "Taux des fonds fédéraux à 0-0,25 % (décembre 2008), facilités de prêt d'urgence, lignes de swap, QE1 (novembre 2008), plus le TARP et la relance budgétaire."
+        lesson: "Les récessions financières sont profondes et lentes à guérir (Reinhart et Rogoff) ; prêteur en dernier ressort et outils de bilan sont devenus des pièces permanentes de la boîte à outils."
+  - id: insurance_2019
+    start: "2018-10-01"
+    end: "2019-12-31"
+    title: {en: "2019: insurance cuts", fr: "2019 : baisses d'assurance"}
+    cards: [yield_curve, fed_policy, qe_qt]
+    beginner:
+      en:
+        happened: "After rate hikes in 2018, trade tensions and a slowing world economy worried markets, and the yield curve inverted."
+        fed: "The Fed stopped hiking and cut rates three times in 2019 as a precaution."
+        lesson: "A central bank can ease a little to protect an expansion without waiting for a recession."
+      fr:
+        happened: "Après les hausses de 2018, les tensions commerciales et le ralentissement mondial ont inquiété les marchés, et la courbe des taux s'est inversée."
+        fed: "La Fed a cessé de monter ses taux et les a baissés trois fois en 2019, par précaution."
+        lesson: "Une banque centrale peut assouplir un peu pour protéger l'expansion sans attendre une récession."
+    pro:
+      en:
+        happened: "Q4 2018 equity sell-off, trade war, global manufacturing slowdown; 10y-3m inverted from May 2019; repo spike in September 2019 as QT drained reserves."
+        fed: "Pivot in January 2019, 75 bp of \"mid-cycle adjustment\" cuts (Jul to Oct), end of QT, then bill purchases to restore ample reserves."
+        lesson: "Insurance cuts mirror 1995 and 1998; reserve scarcity showed QT's floor, an input to the 2022-25 QT design."
+      fr:
+        happened: "Chute des actions au 4e trimestre 2018, guerre commerciale, ralentissement industriel mondial ; écart 10 ans - 3 mois inversé à partir de mai 2019 ; pic du repo en septembre 2019 quand le QT a vidé les réserves."
+        fed: "Virage en janvier 2019, 75 pb de baisses d'« ajustement de mi-cycle » (juillet à octobre), fin du QT, puis achats de bons pour rétablir des réserves abondantes."
+        lesson: "Les baisses d'assurance rappellent 1995 et 1998 ; la rareté des réserves a montré le plancher du QT, utile pour concevoir le QT de 2022-25."
+  - id: covid
+    start: "2020-01-01"
+    end: "2020-12-31"
+    title: {en: "2020: the pandemic shock", fr: "2020 : le choc de la pandémie"}
+    cards: [volatility, liquidity, labour_market, fiscal, qe_qt]
+    beginner:
+      en:
+        happened: "Lockdowns shut large parts of the economy in weeks. Unemployment jumped from 3.5% to almost 15% in two months."
+        fed: "The Fed cut rates to zero in March and bought huge amounts of bonds; the government sent cheques and extended benefits."
+        lesson: "The fastest crash in history was followed by a very fast recovery, because policy acted massively and quickly."
+      fr:
+        happened: "Les confinements ont fermé de grands pans de l'économie en quelques semaines. Le chômage est passé de 3,5 % à presque 15 % en deux mois."
+        fed: "La Fed a baissé ses taux à zéro en mars et acheté des quantités énormes d'obligations ; l'État a envoyé des chèques et prolongé les allocations."
+        lesson: "Le krach le plus rapide de l'histoire a été suivi d'une reprise très rapide, parce que les politiques ont agi massivement et vite."
+    pro:
+      en:
+        happened: "S&P 500 -34% in 23 trading days, VIX above 80, a \"dash for cash\" disrupted even the Treasury market; NBER recession Feb to Apr 2020, the shortest on record."
+        fed: "150 bp of cuts in two emergency meetings, unlimited QE, corporate credit and municipal facilities, swap lines; CARES Act fiscal support about 10% of GDP."
+        lesson: "A pure exogenous shock with healthy balance sheets and overwhelming policy support allowed a V-shaped recovery; the scale of support fed the 2021-22 demand surge."
+      fr:
+        happened: "S&P 500 à -34 % en 23 séances, VIX au-dessus de 80, une « ruée vers le cash » a perturbé même le marché du Trésor ; récession NBER de février à avril 2020, la plus courte jamais datée."
+        fed: "150 pb de baisses en deux réunions d'urgence, QE illimité, facilités de crédit aux entreprises et aux collectivités, lignes de swap ; soutien budgétaire du CARES Act d'environ 10 % du PIB."
+        lesson: "Un choc purement extérieur, avec des bilans sains et un soutien massif, a permis une reprise en V ; l'ampleur du soutien a nourri la poussée de demande de 2021-22."
+  - id: inflation_2022
+    start: "2021-03-01"
+    end: "2024-12-31"
+    title: {en: "2021-24: the inflation surge and the fastest hikes in 40 years", fr: "2021-24 : la poussée d'inflation et les hausses les plus rapides en 40 ans"}
+    cards: [inflation, supply_demand, fed_policy, yield_curve, labour_market]
+    beginner:
+      en:
+        happened: "Reopening demand, broken supply chains and the war in Ukraine pushed inflation to 9%, the highest in 40 years."
+        fed: "The Fed first called it temporary, then raised rates from zero to above 5% in about 16 months."
+        lesson: "Inflation came down a lot without a recession so far: a soft landing, helped by supply recovering and expectations staying anchored."
+      fr:
+        happened: "La demande de réouverture, des chaînes d'approvisionnement cassées et la guerre en Ukraine ont poussé l'inflation à 9 %, du jamais vu depuis 40 ans."
+        fed: "La Fed l'a d'abord jugée temporaire, puis a monté ses taux de zéro à plus de 5 % en environ 16 mois."
+        lesson: "L'inflation a beaucoup baissé sans récession jusqu'ici : un atterrissage en douceur, aidé par le retour de l'offre et des anticipations restées ancrées."
+    pro:
+      en:
+        happened: "CPI peaked at 9.1% y/y (June 2022); core PCE above 5%; vacancies near 2 per unemployed; the curve inverted from mid-2022 for a record stretch."
+        fed: "525 bp from March 2022 to July 2023 (four 75 bp moves), QT from June 2022; held 5.25-5.5% until September 2024, then cut."
+        lesson: "Mixed supply and demand shocks; disinflation through a steep Beveridge curve (openings fell, layoffs did not) and anchored 5y5y breakevens. The inverted curve did not deliver a recession on its usual lag."
+      fr:
+        happened: "Le CPI a culminé à 9,1 % sur un an (juin 2022) ; PCE core au-dessus de 5 % ; près de 2 offres d'emploi par chômeur ; courbe inversée dès mi-2022 pour une durée record."
+        fed: "525 pb de mars 2022 à juillet 2023 (quatre hausses de 75 pb), QT dès juin 2022 ; maintien à 5,25-5,5 % jusqu'en septembre 2024, puis baisses."
+        lesson: "Chocs d'offre et de demande mélangés ; désinflation via une courbe de Beveridge pentue (les offres ont baissé, pas les emplois) et des points morts 5y5y ancrés. La courbe inversée n'a pas amené de récession dans son délai habituel."
