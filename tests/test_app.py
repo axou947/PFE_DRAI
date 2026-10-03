@@ -77,3 +77,23 @@ def test_dashboard_shows_the_outlook_from_history_with_its_caveat():
     assert not at.exception
     assert any(h.value == "Outlook from history" for h in at.subheader)
     assert any("not a forecast and not advice" in c.value for c in at.caption)
+
+
+def test_scenarios_with_your_own_portfolio_in_memory():
+    at = AppTest.from_file(str(APP), default_timeout=900)
+    at.run()
+    at.sidebar.radio[0].set_value("English").run()
+    source = next(c for c in at.segmented_control if c.key == "portfolio_source")
+    source.set_value("own").run()
+    assert not at.exception
+    assert any("Paste or upload your weights" in i.value for i in at.info)
+    assert any("nothing is saved on disk" in c.value for c in at.caption)
+    box = next(a for a in at.text_area if a.key == "portfolio_text")
+    box.input("asset,weight\nbitcoin,100\n").run()
+    assert not at.exception
+    assert any('unknown asset class "bitcoin"' in e.value for e in at.error)
+    box.input("holding,asset_class,weight\nMSCI World ETF,equity_world,60\nBund,gov_bonds,40\n").run()
+    assert not at.exception
+    assert not at.error
+    assert any(h.value == "Impact of the selected scenarios on your portfolio" for h in at.subheader)
+    assert any("2 holdings read" in c.value for c in at.caption)

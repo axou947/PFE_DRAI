@@ -6,12 +6,14 @@ from typing import Literal
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
+from pydantic import BaseModel, Field
 
 from pfe_drai.i18n import t
 from pfe_drai.models import available_models
 from pfe_drai.pipeline import Pipeline
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf
 from pfe_drai.scenarios import impact_table, load_funds, load_library, rank_scenarios
+from pfe_drai.scenarios.portfolio import MAX_BYTES, PortfolioError, holdings_impact, messages, parse_portfolio
 
 app = FastAPI(title="PFE DRAI", description="Market regime detection API", version="0.1.0")
 Lang = Literal["fr", "en"]
@@ -309,6 +311,50 @@ def scenarios(fund: str = "balanced", model: str | None = None, lang: Lang = "fr
         {**row, "name": names[row["id"]], "fund_impact": float(impacts.loc[row["id"], "total"])}
         for row in ranking.to_dict("records")
     ]
+
+
+class PortfolioIn(BaseModel):
+    csv: str = Field(
+        max_length=MAX_BYTES,
+        description="One row per holding: holding (optional), asset_class, weight (percent summing to 100, or fractions to 1).",
+        examples=["holding,asset_class,weight\nMSCI World ETF,equity_world,60\nEuro govies,gov_bonds,40\n"],
+    )
+
+
+@app.post("/scenarios/portfolio")
+def scenarios_portfolio(body: PortfolioIn, model: str | None = None, lang: Lang = "fr"):
+    """Your own portfolio under every historical scenario, ranked by relevance today.
+
+    Read in memory for this request only: the weights are not logged, stored or published.
+    Invalid input returns 422 with every problem found, worded in `lang`.
+    """
+    p = pipeline()
+    assets, library = load_library(p.settings)
+    try:
+        portfolio = parse_portfolio(body.csv, assets)
+    except PortfolioError as err:
+        raise HTTPException(422, {"errors": err.errors, "messages": messages(err.errors, lang)}) from None
+    state = p.state(_model(model))
+    ranking = rank_scenarios(library, pd.Series(state.scores), pd.Series(state.probabilities))
+    ids = list(ranking["id"])
+    impacts = impact_table(portfolio.weights, library, ids).set_index("id")
+    per_holding = holdings_impact(portfolio, library, ids)
+    names = {s.id: s.name[lang] for s in library}
+    return {
+        "weights": portfolio.weights,
+        "holdings": [{"line": h.line, "name": h.name, "asset_class": h.asset, "weight": h.weight} for h in portfolio.holdings],
+        "warnings": messages(portfolio.warnings, lang),
+        "scenarios": [
+            {
+                **row,
+                "name": names[row["id"]],
+                "impact": float(impacts.loc[row["id"], "total"]),
+                "by_holding": [float(v) for v in per_holding[row["id"]]],
+            }
+            for row in ranking.to_dict("records")
+        ],
+        "note": t("scen.indicative", lang),
+    }
 
 
 @app.get("/report")
