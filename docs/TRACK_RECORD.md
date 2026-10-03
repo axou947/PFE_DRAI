@@ -110,3 +110,18 @@ Candidate models (v2.2 with one change) are published every market day next to i
 `track_record/challengers/<name>/`, with their own hash chain and timestamps, and compared in
 `track_record/challengers/scorecard.md`. They never change what is published for v2.2. See
 [CHALLENGERS.md](CHALLENGERS.md).
+
+## Global board
+
+The page opens with every published region side by side (US, then UK, Japan and emerging markets, the
+regions that passed their pre-registered rule, docs/REGIONS.md): latest published day, regime and its
+probability, P(stress), its change since the entry's `previous` week, the alarm, the published days in the
+current regime, and the region's chain. The challenger scorecard (`track_record/challengers/scorecard.json`)
+follows the US live record. Everything is read from the published files (`pfe_drai/publish/board.py`), never
+recomputed, so the board needs no data download: `python -m pfe_drai board`, `GET /board`, `GET /challengers`
+and the app's "Global board" tab show the same numbers.
+
+"In this regime since" counts published days only. While the current regime goes back to a region's first
+published day the board says "since the record began" instead of guessing an earlier start. A region whose
+latest day is 3 or more business days behind the newest is flagged late. The daily job builds the page after
+the regions and the challengers, so the board shows that evening's entries.

@@ -40,15 +40,6 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
-      - name: Build the track-record page
-        # Writes the backtest record once per configuration, then the page. Its failure must
-        # not cost the day's entry: the entry is committed anyway and the run fails at the end.
-        id: page
-        continue-on-error: true
-        run: python -m pfe_drai --provider fred track-record
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
       - name: Publish the regions
         # UK, Japan and emerging markets each passed their pre-registered rule (docs/REGIONS.md). Each has
         # its own folder and hash chain in track_record/<region>/. A regional failure never costs the US
@@ -71,6 +62,16 @@ jobs:
         id: challengers
         continue-on-error: true
         run: python -m pfe_drai --provider fred challengers
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+      - name: Build the track-record page
+        # After the regions and the challengers, so the global board and the scorecard on the page show tonight's
+        # entries. Writes the backtest record once per configuration, then the page. Its failure must
+        # not cost the day's entry: the entry is committed anyway and the run fails at the end.
+        id: page
+        continue-on-error: true
+        run: python -m pfe_drai --provider fred track-record
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
