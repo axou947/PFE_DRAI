@@ -114,7 +114,8 @@ Not available: a labour series covering China, India and Brazil (`jobless_claims
 
 **Composites.** Each month (each day for policy rates), the weighted average of the reporting economies' changes: log changes
 for price and production indices, differences for rates. Weights are renormalised over the economies that report; a period
-counts only when they carry at least half of the composite's weight, so the latest months do not move on one small economy.
+counts only when they carry at least half of the composite's weight (a quarter for the long-term yield, set after Phase A, see
+Results), so the latest months do not move on one small economy.
 The changes are chained into one series. Its level is arbitrary, which changes nothing: every feature reads changes or expanding
 z-scores, and a constant offset does not move a z-score (tested). One query per series serves all six economies (the OECD
 allows 60 queries an hour).
@@ -180,9 +181,37 @@ euro cause.
 
 ## Results
 
-### Phase A: coverage
+### Phase A: coverage, run by Henry on 2026-10-03 (no model, before any real run)
 
-Not run yet.
+Every code in the overlays answered on the first run.
+
+| Region | Series | First | Last | Read from |
+|---|---|---|---|---|
+| UK | equity (EWU in pounds), vix | 1996-04-01 | 2026-09-25 | Tiingo EWU, FRED DEXUSUK |
+| UK | us10y, us2y, breakeven10 | 1996-04-02 | 2026-10-01 | BoE IUDMNZC, IUDSNZC, IUDMNZC - IUDMRZC |
+| UK | cpi | 1996-04-14 | 2026-10-15 | BIS M.GB.628, last period 2026-08 |
+| UK | indpro, claims | 1996-04-29 | 2026-09-29, 2026-08-29 | OECD KEI GBR, last periods 2026-07, 2026-06 |
+| Japan | equity (EWJ in yen), vix | 1996-04-01 | 2026-09-25 | Tiingo EWJ, FRED DEXJPUS |
+| Japan | us10y, us2y | 1996-04-02 | 2026-10-02 | MoF JGB 10Y, 2Y |
+| Japan | cpi | 1996-04-14 | 2026-09-14 | BIS M.JP.628, last period 2026-07 |
+| Japan | indpro, claims | 1996-04-29 | 2026-09-29, 2026-10-30 | OECD KEI JPN, last periods 2026-07, 2026-08 |
+| EM | equity (EEM), vix, treasury (IEF) | 2003-04-14 | 2026-10-02 | Tiingo |
+| EM | hy_bond (EMB) | 2007-12-19 | 2026-10-02 | Tiingo |
+| EM | us2y (policy rates) | 2003-04-14 | 2026-09-30 | BIS WS_CBPOL, last days CN, BR, MX 2026-09-29, ZA 09-28, KR 08-28, IN 07-23 |
+| EM | cpi | 2003-04-14 | 2026-10-15 | BIS, last periods 2026-07 or 2026-08 |
+| EM | indpro | 2003-04-29 | 2026-09-29 | OECD KEI IND, KOR, BRA, MEX, last period 2026-07 |
+| EM | us10y (long-term yields) | 2012-02-04 | 2026-11-04 | OECD KEI IRLT, first periods BRA, KOR, MEX, ZAF 2002-01, IND 2011-12, CHN 2014-01 |
+
+UK and Japan: features from 1998-05-04, out-of-sample from 2003-05-21. The equity series end a week early: the FRED H.10
+rate is published weekly (expected, Weaknesses 7).
+
+**One change after Phase A, before any model run.** At half the composite's weight, the emerging-market long-term yield only
+started in February 2012 (India's series starts in 2011-12, China's in 2014-01), which put the features in 2013 and the
+out-of-sample period in 2018, without the 2013, 2015 and 2016 emerging-market episodes. The long-term yield composite now counts
+a month when a quarter of its weight reports (`min_weight: 0.25` in the overlay): Korea, Brazil, South Africa and Mexico carry it
+from 2002, India and China join when their series start. Only coverage was seen, no episode, alarm or score. The other
+composites keep half. The EM coverage after this change is to be re-run with `data` before the backtest; EMB (December 2007) then
+binds, so features should start around 2009 and the out-of-sample period around 2014.
 
 ### Real backtests
 

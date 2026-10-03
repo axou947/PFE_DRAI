@@ -43,6 +43,10 @@ data:
         key: "{area}.M.IRLT.PA._Z._Z._Z"   # long-term government bond yields, monthly average
         areas: {CHN: 30, IND: 17, KOR: 11, BRA: 4, ZAF: 3, MEX: 2}
         kind: rate
+        # Set after Phase A (coverage only, before any model run, docs/REGIONS.md): India's series starts in
+        # 2011-12 and China's in 2014-01, so at half the weight the composite started in 2012. A quarter lets
+        # Korea, Brazil, South Africa and Mexico (20 of 67) carry it from 2002; the others join when they start.
+        min_weight: 0.25
         frequency: monthly
         lag_days: 35
         licence: OECD data (CC BY 4.0)
