@@ -67,12 +67,15 @@ def raw_features(prices: pd.DataFrame) -> pd.DataFrame:
         # Euro area (docs/EURO.md): no credit ETF, a daily spread of the all-issuer government curve over
         # the AAA curve. A widening spread (positive change over a quarter) reads as stress.
         f["credit_stress"] = prices["credit_spread"].diff(63)
-    else:
+    elif "hy_bond" in prices:
         f["credit_stress"] = credit_stress(prices["hy_bond"], prices["treasury"])
+    else:
+        # No free daily credit series (UK, Japan: docs/REGIONS.md): the region drops it (features.drop).
+        f["credit_stress"] = np.nan
     f["drawdown"] = -(eq / eq.rolling(252, min_periods=21).max() - 1)
     f = f.join(growth_features(prices))
     f["cpi_inflation"] = np.log(prices["cpi"]).diff(252)
-    # No daily euro breakeven exists for free: the euro region drops these two (features.drop).
+    # No free daily breakeven in the euro area, Japan or emerging markets: those regions drop these two (features.drop).
     breakeven = prices["breakeven10"] if "breakeven10" in prices else pd.Series(np.nan, index=prices.index)
     f["breakeven_level"] = breakeven
     f["breakeven_change"] = breakeven.diff(63)
@@ -86,7 +89,9 @@ def growth_features(prices: pd.DataFrame) -> pd.DataFrame:
     f["equity_momentum"] = np.log(prices["equity"]).diff(126)
     f["curve_slope"] = prices["us10y"] - prices["us2y"]
     f["industrial_production"] = np.log(prices["indpro"]).diff(252)
-    f["jobless_claims"] = -np.log(prices["claims"]).diff(63)
+    # No emerging-market labour series (docs/REGIONS.md): that region drops it (features.drop).
+    claims = prices["claims"] if "claims" in prices else pd.Series(np.nan, index=prices.index)
+    f["jobless_claims"] = -np.log(claims).diff(63)
     return f
 
 

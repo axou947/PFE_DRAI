@@ -1,0 +1,6 @@
+FREQ,REF_AREA,UNIT_MEASURE,UNIT_MULT,TIME_FORMAT,BREAKS,COVERAGE,DECIMALS,TITLE_TS,TIME_PERIOD,OBS_VALUE,OBS_CONF,OBS_PRE_BREAK,OBS_STATUS
+M,GB,628,0,P1M,,,4,United Kingdom - Consumer prices,2024-01,131.5,F,,A
+M,GB,628,0,P1M,,,4,United Kingdom - Consumer prices,2024-02,132.3,F,,A
+M,JP,628,0,P1M,,,4,Japan - Consumer prices,2024-01,107.2,F,,A
+M,JP,628,0,P1M,,,4,Japan - Consumer prices,2024-02,NaN,F,,M
+M,NA,628,0,P1M,,,4,Namibia - Consumer prices,2024-01,150.0,F,,A

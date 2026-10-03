@@ -1,0 +1,99 @@
+# United Kingdom region (docs/REGIONS.md): deep-merged over settings.yaml by `--region uk`. The US model
+# (settings.yaml alone) is not touched. Everything below was fixed before any real UK run.
+
+data:
+  provider: regional
+  start: "1996-04-01"       # EWU trades from March 1996
+  # What each series is, where it comes from, when it is public (docs/REGIONS.md, "United Kingdom").
+  # lag_days: conservative release lag (no source exposes first releases: not fully point-in-time).
+  regional:
+    series:
+      equity:
+        source: tiingo
+        ticker: EWU             # iShares MSCI United Kingdom ETF: stands in for the licensed index levels
+        # In pounds (the euro lesson, docs/EURO.md): the dollar price divided by dollars per pound.
+        fx: {fred: DEXUSUK, quote: usd_per_local}
+        licence: tiingo (as the US ETFs); FRED H.10 exchange rate
+        vintage: "n/a (market price)"
+        meaning: UK equity ETF in pounds
+      vix:
+        source: realised_vol
+        licence: derived from the ETF price (no free UK implied volatility index)
+        vintage: "n/a"
+        meaning: 21-day realised volatility of the UK equity series, annualised, in %
+      us10y:
+        source: boe
+        code: IUDMNZC           # 10-year nominal zero-coupon gilt yield, daily
+        lag_days: 1
+        licence: Bank of England open data (source acknowledged)
+        vintage: "no (end-of-day curve, not revised)"
+        meaning: 10-year gilt yield
+      us2y:
+        source: boe
+        code: IUDSNZC           # 5-year nominal zero-coupon gilt yield: the IADB has no 2-year series
+        lag_days: 1
+        licence: Bank of England open data (source acknowledged)
+        vintage: "no (end-of-day curve, not revised)"
+        meaning: 5-year gilt yield (the shortest daily gilt yield in the IADB)
+      breakeven10:
+        source: boe
+        code: IUDMNZC           # 10-year nominal minus 10-year real (index-linked, RPI) zero-coupon yield
+        minus: IUDMRZC
+        lag_days: 1
+        licence: Bank of England open data (source acknowledged)
+        vintage: "no (end-of-day curve, not revised)"
+        meaning: 10-year implied (RPI) inflation from gilts
+      cpi:
+        source: bis
+        flow: WS_LONG_CPI
+        key: "M.{area}.628"     # consumer prices, index 2010 = 100
+        areas: {GB: 1.0}
+        frequency: monthly
+        lag_days: 45            # ONS publishes mid M+1; the BIS copies it later
+        licence: BIS statistics (source acknowledged), from the ONS
+        vintage: "no public vintages; CPI is not revised"
+        meaning: consumer price index, UK
+      indpro:
+        source: oecd
+        flow: "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0"
+        key: "{area}.M.PRVM.IX.BTE.Y._Z"   # production volume, industry excluding construction, s.a. index
+        areas: {GBR: 1.0}
+        frequency: monthly
+        lag_days: 60            # ONS publishes about 40 days after the month; the OECD copies it later; revised
+        licence: OECD data (CC BY 4.0), from the ONS
+        vintage: "no public vintages; revised: backtest not fully point-in-time"
+        meaning: industrial production, UK
+      claims:
+        source: oecd
+        flow: "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0"
+        key: "{area}.M.UNEMP.PT_LF._T.Y._Z"   # unemployment rate, % of the labour force, s.a.
+        areas: {GBR: 1.0}
+        frequency: monthly
+        lag_days: 60            # the ONS rate is a 3-month average published about 45 days later
+        licence: OECD data (CC BY 4.0), from the ONS
+        vintage: "no public vintages; revised slightly: backtest not fully point-in-time"
+        meaning: unemployment rate, UK (stands in for jobless claims)
+
+features:
+  # No free daily UK credit spread (docs/REGIONS.md): the stress score reads volatility and drawdown.
+  drop: [credit_stress]
+
+models:
+  version: "uk-v1"          # a separate model on separate data; the US model is v2.2
+  # The US onset detector, unchanged (docs/REGIONS.md): no holdout selection, so no degree of freedom.
+  onset: {learner: gbm, inputs: market}
+
+validation:
+  episodes:
+    # The US rule's parameters, unchanged, on the UK equity series in pounds: same sha256 as the US one,
+    # frozen here on its own so the UK rule cannot change without a new hash, a date and a public reason.
+    frozen:
+      sha256: 6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a
+      date: "2026-10-03"
+  holdout: null             # no selection on real data: the onset detector is the US one
+  slowdown:
+    reference: null         # no outside reference series for UK growth is registered
+
+publish:
+  dir: track_record/uk      # its own folder and hash chain, never mixed into the US index.csv
+  enabled: false            # true only once the pre-registered decision rule is passed (docs/REGIONS.md)

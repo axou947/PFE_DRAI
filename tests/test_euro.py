@@ -32,7 +32,7 @@ def test_us_settings_untouched():
 
 
 def test_euro_overlay():
-    assert available_regions() == ["us", "euro"]
+    assert "euro" in available_regions()
     settings = load_settings(region="euro")
     assert settings["region"] == "euro" and settings["data"]["provider"] == "euro"
     assert settings["publish"]["dir"] == "track_record/euro" and settings["publish"]["enabled"] is False

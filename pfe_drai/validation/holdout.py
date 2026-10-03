@@ -53,6 +53,9 @@ def select(rows: pd.DataFrame, settings: dict) -> int | None:
 
 def run_holdout(settings: dict) -> HoldoutResult:
     cfg = settings["validation"]["holdout"]
+    if not cfg:
+        # UK, Japan, emerging markets (docs/REGIONS.md): the US onset detector is kept as it is, no selection.
+        raise ValueError(f"No holdout for region '{settings.get('region')}': its onset detector is fixed in models.onset")
     start, end = pd.Timestamp(cfg["start"]), pd.Timestamp(cfg["end"])
     provider = get_provider(settings)
     raw = provider.fetch_subset(NEEDED["market_credit"], start, end)
