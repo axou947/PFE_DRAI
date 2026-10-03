@@ -93,3 +93,12 @@ def test_regime_explain(client):
     assert fr["text"]["rule"].startswith("La règle donne")
     assert client.get("/regime/explain", params={"model": "nope"}).status_code == 400
     assert client.get("/regime/explain", params={"date": "1990-01-01"}).status_code == 404
+
+
+def test_regime_outlook(client):
+    body = client.get("/regime/outlook", params={"model": "combined", "date": "2020-03-20", "lang": "en"}).json()
+    assert body["date"] == "2020-03-20"
+    assert "not a forecast" in body["text"]["caveat"]
+    assert set(body["next"]) == {"expansion", "overheating", "slowdown", "stress"}
+    assert client.get("/regime/outlook", params={"model": "nope"}).status_code == 400
+    assert client.get("/regime/outlook", params={"date": "1990-01-01"}).status_code == 404

@@ -21,6 +21,8 @@ from pfe_drai.features.build import active_features  # noqa: E402
 from pfe_drai.i18n import fmt_date, fmt_num, fmt_pct, t  # noqa: E402
 from pfe_drai.learn.cards import REGIME_CARD  # noqa: E402
 from pfe_drai.models import available_models  # noqa: E402
+from pfe_drai.outlook import outlook as regime_outlook  # noqa: E402
+from pfe_drai.outlook import sentences as outlook_sentences  # noqa: E402
 from pfe_drai.pipeline import Pipeline  # noqa: E402
 from pfe_drai.publish import board as global_board  # noqa: E402
 from pfe_drai.publish.page import page_html  # noqa: E402
@@ -65,6 +67,11 @@ def get_probs(provider: str, model: str, zone: str = "us") -> pd.DataFrame:
 def get_explanation(provider: str, model: str, zone: str, date: str, threshold: float) -> dict:
     # `threshold` is part of the key: the sidebar slider changes the alarm the explanation reads.
     return explain(get_pipeline(provider, zone), model, date)
+
+
+@st.cache_data(show_spinner=False)
+def get_outlook(provider: str, model: str, zone: str, date: str) -> dict:
+    return regime_outlook(get_pipeline(provider, zone), model, date)
 
 
 @st.cache_data(show_spinner=False, ttl=3600)
@@ -398,6 +405,96 @@ with tab_dash:
         st.caption(why["occlusion"])
         for line in why["occlusion_items"]:
             st.markdown(f"- {line}")
+
+    # Outlook from history (pfe_drai/outlook.py, docs/OUTLOOK.md): base rates of the displayed path, never a forecast.
+    view = get_outlook(provider, model, zone, as_of.date().isoformat())
+    said = outlook_sentences(view, lang)
+    st.subheader(t("outlook.title", lang))
+    st.markdown(f"**{said['so_far']}**")
+    for key in ("usual", "reached", "next"):
+        if said[key]:
+            st.markdown(f"- {said[key]}")
+    for note in said["notes"]:
+        st.warning(note, icon="⚠️")
+    c1, c2 = st.columns(2)
+    past = [s for s in view["spells"] if s["complete"] and s["regime"] == view["regime"]]
+    age = view["current"]["market_days"]
+    with c1:
+        if past:
+            fig = go.Figure(
+                go.Scatter(
+                    x=[s["market_days"] for s in past],
+                    y=[0] * len(past),
+                    mode="markers",
+                    marker=dict(size=14, color=colors[view["regime"]], opacity=0.75, line=dict(color=TEXT, width=1)),
+                    customdata=[[fmt_date(s["start"], lang), fmt_date(s["end"], lang)] for s in past],
+                    hovertemplate="%{customdata[0]} → %{customdata[1]}: %{x}<extra></extra>",
+                )
+            )
+            fig.add_vline(x=age, line_color=TEXT, line_dash="dash", line_width=2)
+            fig.add_annotation(
+                x=age, y=0.8, text=t("outlook.today", lang, days=age), showarrow=False, yanchor="bottom", xanchor="left", xshift=6
+            )
+            fig.update_yaxes(visible=False, range=[-1, 1.4])
+            fig.update_xaxes(title=t("outlook.lengths", lang), rangemode="tozero")
+            st.plotly_chart(base_layout(fig, 200, showlegend=False), width="stretch")
+    with c2:
+        info = view["next"][view["regime"]]
+        if info["ended"]:
+            others = [r for r in regimes if r != view["regime"]]
+            shares = [info["to"][r]["share"] for r in others]
+            fig = go.Figure(
+                go.Bar(
+                    x=shares,
+                    y=[reg(r) for r in others],
+                    orientation="h",
+                    marker_color=[colors[r] for r in others],
+                    text=[f"{fmt_pct(v, lang)} ({info['to'][r]['count']})" for r, v in zip(others, shares, strict=True)],
+                    textposition="outside",
+                    cliponaxis=False,
+                    hovertemplate="%{y}: %{x:.0%}<extra></extra>",
+                )
+            )
+            fig.update_xaxes(range=[0, 1.2], tickformat=".0%", title=t("outlook.next_chart", lang))
+            fig.update_yaxes(autorange="reversed")
+            st.plotly_chart(base_layout(fig, 200, showlegend=False), width="stretch")
+    st.caption(said["caveat"])
+    with st.expander(t("outlook.all", lang)):
+        rows = []
+        for r in regimes:
+            d, n = view["duration"][r], view["next"][r]
+            row = {
+                t("outlook.col.regime", lang): reg(r),
+                t("outlook.col.spells", lang): d["spells"],
+                t("outlook.col.median", lang): "–" if d["median"] is None else f"{d['median']:.0f}",
+                t("outlook.col.range", lang): "–" if d["median"] is None else f"{d['q25']:.0f}–{d['q75']:.0f}",
+                t("outlook.col.ended", lang): n["ended"],
+            }
+            for o in regimes:
+                share = n["to"].get(o, {}).get("share")
+                row[t("outlook.col.to", lang, regime=reg(o))] = "" if o == r else ("–" if share is None else fmt_pct(share, lang))
+            rows.append(row)
+        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+        st.markdown(f"**{t('outlook.spell_list', lang)}**")
+        first_cut = f" {t('outlook.cut', lang)}"
+        cut_note = lambda s: "" if s["complete"] or s["next"] is None else first_cut  # noqa: E731
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        t("outlook.col.regime", lang): reg(s["regime"]),
+                        t("outlook.col.start", lang): fmt_date(s["start"], lang) + cut_note(s),
+                        t("outlook.col.end", lang): t("outlook.running", lang) if s["next"] is None else fmt_date(s["end"], lang),
+                        t("outlook.col.days", lang): s["market_days"],
+                        t("outlook.col.next", lang): "" if s["next"] is None else reg(s["next"]),
+                    }
+                    for s in reversed(view["spells"])
+                ]
+            ),
+            hide_index=True,
+            width="stretch",
+            height=320,
+        )
 
     st.subheader(t("dash.timeline", lang))
     equity = pipeline.prices["equity"].loc[probs.index[0] : as_of]

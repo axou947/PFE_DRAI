@@ -11,6 +11,7 @@ track-record  build the public track-record page (track_record/index.html, fr.ht
 episodes   list the stress episodes dated by the frozen rule
 states     how the model's states map to the regimes, at every walk-forward refit
 explain    why the regime: contributions to each score, what would flip the rule, alarm drivers (docs/EXPLAIN.md)
+outlook    how long this regime's spells lasted before, how long this one has run, what came next (base rates, docs/OUTLOOK.md)
 holdout    pre-registered holdout of the onset detector, before the out-of-sample period
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
 slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
@@ -344,6 +345,36 @@ def cmd_explain(args):
     print(f"\n{t('explain.alarm_title', args.lang)}\n{text['alarm']}\n{text['occlusion']}")
     for line in text["occlusion_items"]:
         print(f"- {line}")
+
+
+def cmd_outlook(args):
+    from .outlook import outlook, sentences
+
+    p = _pipeline(args)
+    out = outlook(p, args.model, args.date)
+    if args.json:
+        print(json.dumps(out, indent=2, ensure_ascii=False))
+        return
+    lang = args.lang
+    text = sentences(out, lang)
+    model = t(f"model.{out['model']}", lang)
+    print(f"{t('outlook.title', lang)} ({out['date']}, {model})\n")
+    for line in (text["so_far"], text["usual"], text["reached"], text["next"], *text["notes"]):
+        if line:
+            print(line)
+    print(f"\n{t('outlook.all', lang)}")
+    order = p.settings["regimes"]["order"]
+    head = "".join(f"{'-> ' + r[:11]:>15}" for r in order)
+    print(f"{'':<12} {'spells':>6} {'median':>7} {'middle half':>12} {'ended':>6}{head}")
+    for r in order:
+        d, n = out["duration"][r], out["next"][r]
+        mid = "–" if d["median"] is None else f"{d['q25']:.0f}-{d['q75']:.0f}"
+        med = "–" if d["median"] is None else f"{d['median']:.0f}"
+        shares = "".join(
+            f"{'':>15}" if o == r else f"{fmt_pct(n['to'][o]['share'], lang) if n['ended'] else '–':>15}" for o in order
+        )
+        print(f"{r:<12} {d['spells']:>6} {med:>7} {mid:>12} {n['ended']:>6}{shares}")
+    print(f"\n{text['caveat']}")
 
 
 def cmd_states(args):
@@ -866,6 +897,7 @@ def main(argv=None):
         ("episodes", cmd_episodes),
         ("states", cmd_states),
         ("explain", cmd_explain),
+        ("outlook", cmd_outlook),
         ("holdout", cmd_holdout),
         ("calibration", cmd_calibration),
         ("slowdown", cmd_slowdown),
@@ -930,6 +962,9 @@ def main(argv=None):
         if name == "explain":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest)")
             sp.add_argument("--json", action="store_true", help="the full explanation as JSON")
+        if name == "outlook":
+            sp.add_argument("--date", help="YYYY-MM-DD (default: latest); only the history up to that day is used")
+            sp.add_argument("--json", action="store_true", help="the full outlook as JSON, every spell included")
         if name == "world":
             sp.add_argument("--date", help="YYYY-MM-DD (default: latest close)")
             sp.add_argument("--horizon", default="1M", choices=["1D", "1W", "1M", "3M", "YTD", "1Y"])
