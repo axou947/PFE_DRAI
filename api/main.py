@@ -198,6 +198,24 @@ def regime_explain(model: str | None = None, date: str | None = None, lang: Lang
     return body
 
 
+@app.get("/regime/outlook")
+def regime_outlook(model: str | None = None, date: str | None = None, lang: Lang = "fr"):
+    """Base rates for the regime on `date` (default: latest), from the displayed history up to that day (docs/OUTLOOK.md).
+
+    How long past spells of the regime lasted, how long this one has run, and which regime followed when a
+    spell ended. Base rates only, never a forecast. `text` holds the same in plain sentences.
+    """
+    from pfe_drai.outlook import outlook, sentences
+
+    p = pipeline()
+    probs = p.probabilities(_model(model))
+    if date and pd.Timestamp(date) < probs.index[0]:
+        raise HTTPException(404, t("api.not_found", lang))
+    body = outlook(p, _model(model), date)
+    body["text"] = sentences(body, lang)
+    return body
+
+
 @app.get("/board")
 def global_board(lang: Lang = "fr"):
     """Every published region's latest day side by side, as published (no data download, nothing recomputed).

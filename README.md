@@ -24,7 +24,7 @@ puis le résultat est mis en cache dans `data_cache/`.
 
 | Écran | Contenu |
 |---|---|
-| **Tableau de bord** | régime actuel et probabilités (probabilité de stress calibrée), alarme de stress (active ou non, depuis quand), les 3 dimensions (stress, croissance, inflation), « Pourquoi ce régime » (contribution de chaque indicateur à chaque score, ce qui ferait basculer la règle et de combien chaque indicateur devrait bouger seul, ce qui a fait bouger l'alarme de stress depuis une semaine : docs/EXPLAIN.md), ce qui a changé en une semaine, historique des régimes sur l'indice actions |
+| **Tableau de bord** | régime actuel et probabilités (probabilité de stress calibrée), alarme de stress (active ou non, depuis quand), les 3 dimensions (stress, croissance, inflation), « Pourquoi ce régime » (contribution de chaque indicateur à chaque score, ce qui ferait basculer la règle et de combien chaque indicateur devrait bouger seul, ce qui a fait bouger l'alarme de stress depuis une semaine : docs/EXPLAIN.md), « Ce que dit l'historique » (durée habituelle du régime, jours écoulés, régime suivant observé par le passé : fréquences, jamais une prévision, docs/OUTLOOK.md), ce qui a changé en une semaine, historique des régimes sur l'indice actions |
 | **Apprendre (débutant)** et **Apprendre (pro)** | deux onglets pédagogiques, même contenu à deux niveaux : l'économie américaine du jour (indicateurs, voyants de récession), probabilités de baisse, statu quo ou hausse de la Fed selon trois méthodes (bons du Trésor, règles de Taylor, précédents historiques), 26 fiches concepts macro et micro (pourquoi c'est bon, mauvais, ce qui vient ensuite), carte des liens de cause à effet, leçons d'histoire, laboratoire (calculateurs), glossaire, quiz ; le tuteur IA GAMA est affiché mais « bientôt disponible » (docs/LEARN.md) |
 | **Marchés mondiaux** | carte de 20 marchés actions (ETF pays cotés aux États-Unis à la place des indices sous licence) : performance de 1 jour à 1 an, ou état de stress de marché propre à chaque pays (calme, tendu, stress) ; zoom par zone, date libre et épisodes passés à revoir, détail d'un pays au clic, part des marchés en stress comparée au régime US, tableau exportable (docs/WORLD.md) |
 | **Historique** | latence de détection par épisode, fausses alertes par an, fiabilité de la probabilité de stress (courbe de calibration, Brier, ECE, avant et après calibration), comparaison des modèles, track record publié |
@@ -44,6 +44,7 @@ python -m pfe_drai report --format pdf        # note de comité (md, html ou pdf
 python -m pfe_drai --provider fred episodes   # épisodes de stress datés par la règle gelée
 python -m pfe_drai --provider fred states     # comment les états du modèle sont nommés (docs/REGIMES.md)
 python -m pfe_drai --provider fred explain --date 2020-03-16  # pourquoi ce régime, ce qui le ferait basculer (docs/EXPLAIN.md)
+python -m pfe_drai --provider fred outlook                    # durée habituelle du régime et suite observée (fréquences, docs/OUTLOOK.md)
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
 python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix des indicateurs de croissance, 1999-2009 (docs/SLOWDOWN.md)
@@ -63,7 +64,7 @@ python -m pfe_drai thesis --check             # les résultats imprimés dans do
 python -m pfe_drai api                        # API REST sur http://localhost:8000/docs
 ```
 
-API : `GET /regime`, `/regime/explain`, `/board`, `/challengers`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
+API : `GET /regime`, `/regime/explain`, `/regime/outlook`, `/board`, `/challengers`, `/regime/history`, `/regime/states`, `/metrics`, `/calibration`, `/scenarios`, `/report` (paramètres `lang`, `model`, `date`…).
 
 ## Méthode
 

@@ -68,3 +68,12 @@ def test_global_board_tab_reads_the_published_record():
     assert not at.exception
     assert {"Vue mondiale", "Tableau des challengers"} <= {h.value for h in at.subheader}
     assert any(m.label == "États-Unis" for m in at.metric)
+
+
+def test_dashboard_shows_the_outlook_from_history_with_its_caveat():
+    at = AppTest.from_file(str(APP), default_timeout=900)
+    at.run()
+    at.sidebar.radio[0].set_value("English").run()
+    assert not at.exception
+    assert any(h.value == "Outlook from history" for h in at.subheader)
+    assert any("not a forecast and not advice" in c.value for c in at.caption)
