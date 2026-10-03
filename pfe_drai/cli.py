@@ -14,6 +14,7 @@ holdout    pre-registered holdout of the onset detector, before the out-of-sampl
 calibration  is P(stress) a probability? v2 against the calibrated version (docs/CALIBRATION.md)
 slowdown   is Slowdown a real regime? growth score before/after against an outside reference (docs/SLOWDOWN.md)
 overheating  inflation score, one vote per input against one vote per source, against core PCE (docs/INFLATION.md)
+challengers  publish the challenger models next to the published one and update their scorecard (docs/CHALLENGERS.md)
 sahm       Sahm rule test, step 1: growth score with and without the Sahm gap on 1999-2009 (docs/SAHM_HY.md)
 data       history covered by each series and where the backtest starts
 world      country equity markets: return and market stress state on a date (docs/WORLD.md)
@@ -465,6 +466,41 @@ def cmd_overheating(args):
     print(f"Decision: {verdict}.")
 
 
+def cmd_challengers(args):
+    """Challengers (docs/CHALLENGERS.md): publish each one's latest day, then rebuild the scorecard."""
+    from . import challengers
+
+    p = _pipeline(args)
+    if args.backtest:
+        table = challengers.backtest_table(p, args.model)
+        data = "real" if p.provider.is_live else "SIMULATED"
+        print(
+            f"Challengers on the past out-of-sample period ({data} data). These episodes were already seen: "
+            "informative only, this decides nothing (docs/CHALLENGERS.md).\n"
+        )
+        print(table.round(3).to_string(index=False))
+        return
+    out = Path(args.folder) if args.folder else None
+    if not args.scorecard_only:
+        failed = []
+        for name, result in challengers.publish_challengers(p, out).items():
+            if isinstance(result, Exception):
+                failed.append(name)
+                print(f"{name}: FAILED: {type(result).__name__}: {result}", file=sys.stderr)
+            else:
+                print(f"{name}: {result or 'already published for the latest market day'}")
+    card = challengers.scorecard(p, challengers_dir=out)
+    base = out or challengers.folder(p.settings)
+    base.mkdir(parents=True, exist_ok=True)
+    (base / "scorecard.json").write_text(
+        json.dumps(challengers.slim(card), indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    (base / "scorecard.md").write_text(challengers.scorecard_markdown(card), encoding="utf-8")
+    print(challengers.scorecard_markdown(card))
+    if not args.scorecard_only and failed:
+        sys.exit(1)
+
+
 def cmd_sahm(args):
     """Step 1 of the pre-registered Sahm rule test (docs/SAHM_HY.md): growth score holdout, no model fitted."""
     from .validation.slowdown import sahm_holdout
@@ -748,6 +784,7 @@ def main(argv=None):
         ("slowdown", cmd_slowdown),
         ("overheating", cmd_overheating),
         ("sahm", cmd_sahm),
+        ("challengers", cmd_challengers),
         ("data", cmd_data),
         ("world", cmd_world),
         ("thesis", cmd_thesis),
@@ -784,6 +821,10 @@ def main(argv=None):
             sp.add_argument(
                 "--tested", action="store_true", help="run the pre-registered v2.2 (the holdout's choice) as the 'after'"
             )
+        if name == "challengers":
+            sp.add_argument("--backtest", action="store_true", help="each challenger on the past (seen) period, decides nothing")
+            sp.add_argument("--scorecard-only", action="store_true", help="rebuild the scorecard without publishing")
+            sp.add_argument("--folder", help="challengers folder (default: challengers.dir)")
         if name == "thesis":
             sp.add_argument(
                 "--lang", dest="thesis_lang", choices=["fr", "en", "both"], help="language of the report (default: --lang)"

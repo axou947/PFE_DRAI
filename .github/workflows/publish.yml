@@ -1,6 +1,7 @@
 # Daily publication of the regime to track_record/, on real data only, and of the public
 # track-record page built from it (track_record/index.html and fr.html, docs/TRACK_RECORD.md).
-# The UK, Japan and emerging markets are published next to it in track_record/<region>/ (docs/REGIONS.md).
+# The UK, Japan and emerging markets are published next to it in track_record/<region>/ (docs/REGIONS.md),
+# and the challenger models in track_record/challengers/<name>/ (docs/CHALLENGERS.md).
 # Needs two repository secrets: FRED_API_KEY and TIINGO_API_KEY
 # (Settings > Secrets and variables > Actions). Without them the run fails
 # instead of publishing simulated data.
@@ -64,6 +65,15 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+      - name: Publish the challengers
+        # Candidate models published next to the US model, each in track_record/challengers/<name>/ with its own hash
+        # chain, then the scorecard (docs/CHALLENGERS.md). Never touches the US entry; a failure only warns.
+        id: challengers
+        continue-on-error: true
+        run: python -m pfe_drai --provider fred challengers
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
       - name: Commit
         id: commit
         run: |
@@ -107,6 +117,9 @@ jobs:
       - name: Report a region failure
         if: steps.regions.outcome == 'failure'
         run: echo "::warning::Regional publication failed for ${{ steps.regions.outputs.failed }} (log of 'Publish the regions'). The US entry is committed."
+      - name: Report a challenger failure
+        if: steps.challengers.outcome == 'failure'
+        run: echo "::warning::A challenger was not published (log of 'Publish the challengers'). The US entry is committed."
       - name: Report a page failure
         if: steps.page.outcome == 'failure'
         run: |

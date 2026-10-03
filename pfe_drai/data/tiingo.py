@@ -14,7 +14,7 @@ import httpx
 import pandas as pd
 
 from .base import DataProvider, register
-from .catalog import CATALOG
+from .catalog import CATALOG, TESTED
 
 URL = "https://api.tiingo.com/tiingo/daily/{ticker}/prices"
 FX_URL = "https://api.tiingo.com/tiingo/fx/{pair}/prices"
@@ -63,8 +63,9 @@ class TiingoProvider(DataProvider):
         key = os.environ.get(env)
         if not key:
             raise RuntimeError(f"Set {env} to use Tiingo (free key: https://www.tiingo.com/account/api/token)")
+        known = {**TESTED, **CATALOG}
         return {
-            name: fetch_tiingo(CATALOG[name].source_ids["tiingo"], key, start, end)
+            name: fetch_tiingo(known[name].source_ids["tiingo"], key, start, end)
             for name in names
-            if "tiingo" in CATALOG[name].source_ids
+            if "tiingo" in known[name].source_ids
         }

@@ -146,6 +146,12 @@ def simulate(start: str, end: str, seed: int = 42) -> tuple[dict[str, pd.Series]
         "indpro": sample(ip_index, "ME"),
         "cpi": sample(cpi_index, "ME"),
         "unrate": sample(unrate, "ME"),
+        # Challengers (docs/CHALLENGERS.md), no random draw: the 3-month VIX is a smoother, slightly higher version of
+        # the VIX (it sits above it in calm markets and below it in a spike), and the two mutual funds read like the
+        # high-yield bond and Treasury series.
+        "vix3m": daily(0.4 * vix + 0.6 * pd.Series(vix).ewm(halflife=42).mean().to_numpy() + 1.5),
+        "hy_fund": daily(hy_bond),
+        "treasury_fund": daily(treasury),
     }
     return data, regimes.rename("truth")
 

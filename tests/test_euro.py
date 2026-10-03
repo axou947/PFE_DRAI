@@ -14,6 +14,7 @@ import pytest
 from pfe_drai.config import available_regions, load_settings
 from pfe_drai.data import euro, get_provider
 from pfe_drai.features.build import FEATURES, align
+from pfe_drai.features.market import EXTRA
 from pfe_drai.pipeline import Pipeline
 from pfe_drai.publish.snapshot import NotEnabledError, config_fingerprint, publish
 from pfe_drai.validation import find_episodes, rule_fingerprint
@@ -210,7 +211,7 @@ def test_euro_pipeline_runs_without_breakeven_and_credit_etf(patched_sources, eu
     assert p.scores.index[0] > pd.Timestamp("2005-01-01")
     state = p.state()
     assert state.regime in ("expansion", "overheating", "slowdown", "stress") and state.is_live_data
-    assert "credit_stress" in p.features.columns and p.market.shape[1] == 13
+    assert "credit_stress" in p.features.columns and p.market.shape[1] == 13 + len(EXTRA)
 
 
 def test_euro_publication_is_off(euro_settings):
