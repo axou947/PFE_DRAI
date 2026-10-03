@@ -47,6 +47,7 @@ python -m pfe_drai --provider fred explain --date 2020-03-16  # pourquoi ce rég
 python -m pfe_drai --provider fred holdout    # holdout pré-enregistré du détecteur v2 (docs/DETECTION_V2.md)
 python -m pfe_drai --provider fred calibration  # la probabilité de stress est-elle fiable ? (docs/CALIBRATION.md)
 python -m pfe_drai --provider fred slowdown --holdout  # Ralentissement : choix des indicateurs de croissance, 1999-2009 (docs/SLOWDOWN.md)
+python -m pfe_drai --provider fred slowdown --v23  # Ralentissement affiché v2.3 : sélection puis décision, une seule exécution (docs/SLOWDOWN_V23.md)
 python -m pfe_drai --provider fred slowdown     # Ralentissement : avant / après, contre l'indice d'activité de la Fed de Chicago
 python -m pfe_drai --provider fred overheating  # Surchauffe : un vote par indicateur ou par source, contre l'inflation PCE de base (docs/INFLATION.md)
 python -m pfe_drai --provider fred data       # historique couvert par chaque série, début du hors-échantillon

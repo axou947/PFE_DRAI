@@ -217,6 +217,19 @@ sahm:
         growth: {inputs: [equity_momentum, curve_slope, industrial_production, jobless_claims, unemployment_gap], scaling: robust, smooth_days: 21}
         rule: {growth_threshold: 0.0}
 
+# Displayed Slowdown v2.3 (docs/SLOWDOWN_V23.md): the pre-registered test, not the model. Fixed on 2026-10-03 before any
+# real run. Kept outside features/models/validation on purpose: the published model's settings fingerprint does not
+# change. If adopted, models.combined.calm is set to the selected display and models.version to v2.3.
+slowdown_v23:
+  baseline: jump                  # v2.2: the calm share split in the jump model's proportions
+  candidates: [rule, rule_named, gbm]   # in this order: ties go to the earlier one (pfe_drai/display.py)
+  split: "2018-01-01"             # selection before this day, decision from it (out-of-sample period halves)
+  guards: {max_switches_per_year: 4.0, min_median_spell: 15}
+  select: {min_gain: 0.02, tie: 0.01}
+  decide: {min_ba: 0.55, min_gain: 0.02}
+  # Second reference, never used to score any version: real GDP grew slower than CBO potential GDP that quarter.
+  second_reference: {actual: GDPC1, potential: GDPPOT}
+
 # Challenger track record (docs/CHALLENGERS.md): candidate models published live every market day next to the
 # published model, each in its own hash-chained folder, scored only on what happens after its first day.
 # Outside features/models/validation: the published model's fingerprint and entries never change because of it.
