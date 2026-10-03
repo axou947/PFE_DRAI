@@ -560,6 +560,9 @@ def cmd_slowdown(args):
 
     p = _pipeline(args)
     model = args.model or p.settings["models"]["default"]
+    if args.v23:
+        cmd_slowdown_v23(p, model)
+        return
 
     def variant(name):
         cfg = p.settings["validation"]["slowdown"][name]
@@ -612,6 +615,52 @@ def cmd_slowdown(args):
     for label, ok in decision["checks"].items():
         print(f"  [{'x' if ok else ' '}] {label}")
     verdict = "ADOPT the new growth score" if decision["adopt"] else "KEEP the growth score as it was"
+    print(f"Decision: {verdict}.")
+
+
+def cmd_slowdown_v23(p, model: str) -> None:
+    """Displayed Slowdown v2.3: selection on the first part, decision on the second (docs/SLOWDOWN_V23.md)."""
+    from .validation.display_v23 import run_v23
+
+    res = run_v23(p, model)
+    data = "real" if p.provider.is_live else "SIMULATED"
+    print(
+        f"Displayed Slowdown v2.3 ({data} data, provider {p.provider.name}, model {model}), out-of-sample "
+        f"{res['first_day'].date()} to {res['last_day'].date()}; selection before {res['split'].date()}, decision from it. "
+        f"Reference: {res['reference'] or 'none'}. See docs/SLOWDOWN_V23.md."
+    )
+    print(f"P(stress) identical in every display: {'yes' if res['same_stress'] else 'NO'}")
+    parts = [("selection", "first part (selection)"), ("decision", "second part (decision)"), ("whole", "whole period")]
+    if res["second_reference"]:
+        parts.append(("second", "whole period, GDP below potential"))
+    cols = [
+        ("ba", "bal. acc.", "{:.3f}"),
+        ("recall", "found", "{:.1%}"),
+        ("precision", "right", "{:.1%}"),
+        ("base_rate", "ref. days", "{:.1%}"),
+        ("shown_share", "shown", "{:.1%}"),
+        ("switches_per_year", "switch/yr", "{:.2f}"),
+        ("median_spell", "spell", "{:.0f}"),
+    ]
+    for part, title in parts:
+        print(f"\n{title}:\n  {'display':<12}" + "".join(f"{c[1]:>11}" for c in cols))
+        for name in res["names"]:
+            row = res["table"][(name, part)]
+            label = f"{name} (v2.2)" if name == res["names"][0] else name
+            print(f"  {label:<12}" + "".join(f"{'-' if row[k] != row[k] else f.format(row[k]):>11}" for k, _, f in cols))
+    print(
+        "(bal. acc. = displayed Slowdown vs the reference's slowdown days; found = share of those days shown as Slowdown; "
+        "right = share of shown Slowdown days that are reference slowdown days; ref. days = their share of all days; "
+        "switch/yr = regime switches; spell = median displayed Slowdown spell in days)"
+    )
+    if "decision" not in res:
+        print("\nNo reference series for this provider: the decision needs --provider fred.")
+        return
+    print(f"\nSelected on the first part: {res['chosen'] or 'none (no candidate beats v2.2 by the margin within the guards)'}")
+    print("\nPre-registered decision (docs/SLOWDOWN_V23.md):")
+    for label, ok in res["decision"]["checks"].items():
+        print(f"  [{'x' if ok else ' '}] {label}")
+    verdict = f"ADOPT v2.3 (models.combined.calm: {res['chosen']})" if res["decision"]["adopt"] else "KEEP v2.2"
     print(f"Decision: {verdict}.")
 
 
@@ -820,6 +869,9 @@ def main(argv=None):
             sp.add_argument("--holdout", action="store_true", help="growth score candidates on 1999-2009 (no model fitted)")
             sp.add_argument(
                 "--tested", action="store_true", help="run the pre-registered v2.2 (the holdout's choice) as the 'after'"
+            )
+            sp.add_argument(
+                "--v23", action="store_true", help="displayed Slowdown v2.3: select and decide, one run (docs/SLOWDOWN_V23.md)"
             )
         if name == "challengers":
             sp.add_argument("--backtest", action="store_true", help="each challenger on the past (seen) period, decides nothing")
