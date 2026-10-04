@@ -97,3 +97,42 @@ def test_scenarios_with_your_own_portfolio_in_memory():
     assert not at.error
     assert any(h.value == "Impact of the selected scenarios on your portfolio" for h in at.subheader)
     assert any("2 holdings read" in c.value for c in at.caption)
+
+
+def test_single_stock_on_simulated_data_says_it_needs_real_prices():
+    at = AppTest.from_file(str(APP), default_timeout=900)
+    at.run()
+    at.sidebar.radio[0].set_value("English").run()
+    next(c for c in at.segmented_control if c.key == "portfolio_source").set_value("own").run()
+    next(a for a in at.text_area if a.key == "portfolio_text").input(
+        "holding,asset_class,ticker,weight\nApple,stock,AAPL,20\nWorld,equity_world,,80\n"
+    ).run()
+    assert not at.exception
+    assert any("Single stocks need real prices" in e.value for e in at.error)
+    assert any("Apple" in str(df.value) for df in at.dataframe)  # the holdings read are still shown
+
+
+def test_single_stock_impact_with_prices(monkeypatch):
+    # Real prices need Tiingo: stand in a price feed (SPY-like for 1993 on, a young stock from 2015).
+    import numpy as np
+    import pandas as pd
+
+    import pfe_drai.scenarios.stocks as stocks
+
+    idx = pd.bdate_range("1993-01-29", "2026-10-02")
+    spy = pd.Series(100 * np.cumprod(1 + np.random.default_rng(3).normal(0.0003, 0.01, len(idx))), index=idx)
+    feed = {"SPY": spy, "OLDCO": spy * 2, "NEWCO": spy.loc["2015":] * 3}
+    monkeypatch.setattr(stocks, "tiingo_fetcher", lambda settings: lambda tk: feed[tk])
+
+    at = AppTest.from_file(str(APP), default_timeout=900)
+    at.run()
+    at.sidebar.radio[0].set_value("English").run()
+    next(c for c in at.segmented_control if c.key == "portfolio_source").set_value("own").run()
+    next(a for a in at.text_area if a.key == "portfolio_text").input(
+        "holding,asset_class,ticker,weight\nOld Co,stock,OLDCO,20\nNew Co,stock,NEWCO,20\nWorld,equity_world,,60\n"
+    ).run()
+    assert not at.exception
+    assert not at.error
+    assert any(h.value == "Impact of the selected scenarios on your portfolio" for h in at.subheader)
+    assert any("estimated from beta" in c.value for c in at.caption)
+    assert any("NEWCO" in str(df.value) for df in at.dataframe)
