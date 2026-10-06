@@ -31,6 +31,7 @@ from pfe_drai.scenarios import Fund, impact_table, load_funds, load_library, ran
 from pfe_drai.scenarios.portfolio import PortfolioError, holdings_impact, parse_portfolio  # noqa: E402
 from pfe_drai.scenarios.portfolio import messages as portfolio_messages  # noqa: E402
 from pfe_drai.scenarios.portfolio import template as portfolio_template  # noqa: E402
+from pfe_drai.scenarios.stocks import StockDataError, stock_moves, tiingo_fetcher, with_stocks  # noqa: E402
 from pfe_drai.theme import css, get_theme, regime_colors, style_figure  # noqa: E402
 from pfe_drai.validation import evaluate  # noqa: E402
 from pfe_drai.validation.calibration import calibration_report  # noqa: E402
@@ -1357,6 +1358,19 @@ with tab_scen:
     assets, scenarios = load_library(settings)
     funds = load_funds(settings)
     portfolio = None  # your own portfolio: read in memory on each run, never written or cached
+    moves = {}  # its single stocks' move in each scenario (scenarios/stocks.py)
+
+    def session_fetcher(fetch):
+        """Stock prices kept for this browser session only (st.session_state), never on disk."""
+        store = st.session_state.setdefault("stock_prices", {})
+
+        def cached(ticker):
+            if ticker not in store:
+                store[ticker] = fetch(ticker)
+            return store[ticker]
+
+        return cached
+
     c1, c2 = st.columns([1, 1])
     with c1:
         source = (
@@ -1409,10 +1423,14 @@ with tab_scen:
             if raw and raw.strip():
                 try:
                     portfolio = parse_portfolio(raw, assets)
-                    fund = portfolio.fund()
                     for line in portfolio_messages(portfolio.warnings, lang):
                         st.warning(line)
-                except PortfolioError as err:
+                    if portfolio.tickers:
+                        with st.spinner(t("portfolio.stocks.loading", lang)):
+                            fetch = session_fetcher(tiingo_fetcher(pipeline.settings))
+                            moves = stock_moves(portfolio.tickers, scenarios, fetch)
+                    fund = portfolio.fund()
+                except (PortfolioError, StockDataError) as err:
                     st.error(
                         t("portfolio.invalid", lang) + "\n\n" + "\n".join(f"- {m}" for m in portfolio_messages(err.errors, lang))
                     )
@@ -1423,18 +1441,26 @@ with tab_scen:
                 "text/csv",
             )
             st.caption(t("portfolio.classes", lang, values=", ".join(f"{a} ({t(f'asset.{a}', lang)})" for a in assets)))
+            st.caption(t("portfolio.stocks.hint", lang))
             st.caption(f"🔒 {t('portfolio.memory', lang)}")
     with c2:
         top_k = st.slider(t("scen.selected", lang), 1, len(scenarios), settings["scenarios"]["top_k"])
         if portfolio is not None:
+            n_classes = sum(1 for k, w in portfolio.weights.items() if w > 0 and not k.startswith("stock:"))
+            n, n_stocks = len(portfolio.holdings), len(portfolio.tickers)
             st.caption(
-                t("portfolio.read", lang, n=len(portfolio.holdings), k=sum(1 for w in portfolio.weights.values() if w > 0))
+                t("portfolio.read_stocks", lang, n=n, k=n_classes, s=n_stocks)
+                if n_stocks
+                else t("portfolio.read", lang, n=n, k=n_classes)
             )
             st.dataframe(
                 pd.DataFrame(
                     {
                         t("portfolio.col.holding", lang): [h.name for h in portfolio.holdings],
-                        t("portfolio.col.class", lang): [t(f"asset.{h.asset}", lang) for h in portfolio.holdings],
+                        t("portfolio.col.class", lang): [
+                            t("portfolio.stock_label", lang, ticker=h.ticker) if h.ticker else t(f"asset.{h.asset}", lang)
+                            for h in portfolio.holdings
+                        ],
                         t("portfolio.col.weight", lang): [fmt_pct(h.weight, lang, 1) for h in portfolio.holdings],
                     }
                 ),
@@ -1446,6 +1472,7 @@ with tab_scen:
     if fund is None:
         st.info(t("portfolio.waiting", lang))
     else:
+        scenarios = with_stocks(scenarios, moves) if moves else scenarios
         st.subheader(t("scen.title", lang))
         st.caption(t("scen.help", lang))
         ranking = rank_scenarios(scenarios, pd.Series(state.scores), pd.Series(state.probabilities))
@@ -1491,21 +1518,52 @@ with tab_scen:
         fig.add_hline(y=0, line_color=MUTED, line_width=1)
         st.plotly_chart(base_layout(fig, 320, showlegend=False), width="stretch")
         with st.expander(t("scen.by_asset", lang)):
-            contrib = sel[assets].T
-            contrib.index = [t(f"asset.{a}", lang) for a in assets]
+            stock_keys = [k for k in fund.weights if k.startswith("stock:")]
+            contrib = sel[assets + stock_keys].T
+            contrib.index = [t(f"asset.{a}", lang) for a in assets] + [
+                t("portfolio.stock_label", lang, ticker=k.split(":", 1)[1]) for k in stock_keys
+            ]
             contrib.columns = [by_id[i].name[lang] for i in chosen_ids]
             st.dataframe(contrib.map(lambda v: fmt_pct(v, lang, 2)), width="stretch")
         if portfolio is not None:
             with st.expander(t("portfolio.by_holding", lang)):
-                per_holding = holdings_impact(portfolio, scenarios, chosen_ids)
+                per_holding = holdings_impact(portfolio, scenarios, chosen_ids).map(lambda v: fmt_pct(v, lang, 2))
+                for row, h in enumerate(portfolio.holdings):
+                    for col, sid in enumerate(chosen_ids):
+                        if h.ticker and moves[h.ticker].sources[sid] == "estimated":
+                            per_holding.iloc[row, col] = f"≈ {per_holding.iloc[row, col]}"
                 per_holding.columns = [by_id[i].name[lang] for i in chosen_ids]
-                st.dataframe(per_holding.map(lambda v: fmt_pct(v, lang, 2)), width="stretch")
+                st.dataframe(per_holding, width="stretch")
                 st.caption(t("portfolio.mapping", lang))
+                if moves:
+                    st.caption(t("portfolio.stocks.marker", lang))
+            if moves:
+                with st.expander(t("portfolio.stocks.title", lang)):
+                    none = t("portfolio.stocks.none", lang)
+                    st.dataframe(
+                        pd.DataFrame(
+                            {
+                                t("portfolio.stocks.col.ticker", lang): list(moves),
+                                t("portfolio.stocks.col.since", lang): [fmt_date(m.first_date, lang) for m in moves.values()],
+                                t("portfolio.stocks.col.beta", lang): [
+                                    "–" if m.beta is None else f"{m.beta:.2f}".replace(".", "," if lang == "fr" else ".")
+                                    for m in moves.values()
+                                ],
+                                t("portfolio.stocks.col.estimated", lang): [
+                                    ", ".join(by_id[i].name[lang] for i in m.sources if m.sources[i] == "estimated") or none
+                                    for m in moves.values()
+                                ],
+                            }
+                        ),
+                        hide_index=True,
+                        width="stretch",
+                    )
+                    st.caption(t("portfolio.stocks.help", lang))
         st.caption(t("scen.indicative", lang))
 
         st.subheader(t("scen.note", lang))
         st.caption(t("scen.note_help", lang))
-        note = build_note(pipeline, lang, model, fund=fund, date=as_of, top_k=top_k)
+        note = build_note(pipeline, lang, model, fund=fund, date=as_of, top_k=top_k, scenarios=scenarios)
         markdown = to_markdown(note)
         stamp = state.date.date().isoformat()
         d1, d2, d3 = st.columns(3)

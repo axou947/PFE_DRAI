@@ -11,8 +11,10 @@ Read in memory only: nothing here writes a file, caches or publishes. One row pe
   English name ("Actions monde", "Government bonds") or a common alias (govies, high yield, or...).
 - `weight` in percent (summing to 100) or as fractions (summing to 1); "40 %" and "40,5" are read.
 - `holding` is optional: rows of the same class add up, and the per-holding contribution is shown.
+- Single stocks: class `stock` and a `ticker` column (US listing on Tiingo, e.g. AAPL, BRK-B). Their
+  move in each scenario comes from prices (pfe_drai/scenarios/stocks.py), not from a class shock.
 - Comma, semicolon (French Excel) or tab separated; header optional (2 columns = class, weight;
-  3 columns = holding, class, weight).
+  3 columns = holding, class, weight; 4 columns = holding, class, ticker, weight).
 
 Errors come back as codes with their line, so the app and the API can word them in FR or EN.
 """
@@ -32,7 +34,23 @@ MAX_ROWS = 500
 MAX_BYTES = 200_000
 TOLERANCE_PCT = 0.5  # weights must sum to 100 within ±0.5 point (rounding in a broker export)
 
-HOLDING_COLUMNS = {"holding", "name", "nom", "ligne", "titre", "security", "fund", "fonds", "ticker", "isin", "position"}
+HOLDING_COLUMNS = {"holding", "name", "nom", "ligne", "titre", "security", "fund", "fonds", "isin", "position"}
+TICKER_COLUMNS = {"ticker", "symbol", "symbole", "code", "mnemo", "mnemonique"}
+STOCK = "stock"  # a single stock: weights key "stock:<TICKER>", its move read from prices
+STOCK_ALIASES = {
+    "stock",
+    "stocks",
+    "single_stock",
+    "single_stocks",
+    "share",
+    "shares",
+    "action",
+    "action_en_direct",
+    "actions_en_direct",
+    "titre_vif",
+    "titres_vifs",
+}
+TICKER_RE = re.compile(r"^[A-Z0-9][A-Z0-9.\-]{0,11}$")
 ASSET_COLUMNS = {
     "asset",
     "asset_class",
@@ -109,16 +127,24 @@ ALIASES = {
 class Holding:
     line: int
     name: str
-    asset: str
+    asset: str  # a class id, or "stock:<TICKER>" for a single stock
     weight: float  # fraction of the portfolio
+
+    @property
+    def ticker(self) -> str | None:
+        return self.asset.split(":", 1)[1] if self.asset.startswith(f"{STOCK}:") else None
 
 
 @dataclass
 class Portfolio:
     holdings: list[Holding]
-    weights: dict[str, float]  # per asset class, fractions summing to 1
+    weights: dict[str, float]  # per asset class (and "stock:<TICKER>"), fractions summing to 1
     unit: str  # "percent" or "fraction", as read
     warnings: list[dict] = field(default_factory=list)
+
+    @property
+    def tickers(self) -> list[str]:
+        return list(dict.fromkeys(h.ticker for h in self.holdings if h.ticker))
 
     def fund(self) -> Fund:
         return Fund(id="own", name={"fr": t("portfolio.name", "fr"), "en": t("portfolio.name", "en")}, weights=self.weights)
@@ -189,12 +215,13 @@ def parse_portfolio(data: bytes | str, assets: list[str]) -> Portfolio:
     has_header = all(_number(c) is None for c in first)
     if has_header:
         numbered = numbered[1:]
-        col = {"holding": None, "asset": None, "weight": None}
+        col = {"holding": None, "asset": None, "ticker": None, "weight": None}
+        columns = (("holding", HOLDING_COLUMNS), ("asset", ASSET_COLUMNS), ("ticker", TICKER_COLUMNS), ("weight", WEIGHT_COLUMNS))
         for j, n in enumerate(names):
-            for key, accepted in (("holding", HOLDING_COLUMNS), ("asset", ASSET_COLUMNS), ("weight", WEIGHT_COLUMNS)):
+            for key, accepted in columns:
                 if n in accepted and col[key] is None:
                     col[key] = j
-        if col["weight"] is None and len(first) - 1 not in (col["asset"], col["holding"]):
+        if col["weight"] is None and len(first) - 1 not in (col["asset"], col["holding"], col["ticker"]):
             col["weight"] = len(first) - 1  # e.g. a "%" or "Montant (%)" header: the last column
         if col["asset"] is None:
             raise PortfolioError([{"code": "no_asset_column", "line": first_line, "columns": ", ".join(first)}])
@@ -202,7 +229,12 @@ def parse_portfolio(data: bytes | str, assets: list[str]) -> Portfolio:
             raise PortfolioError([{"code": "no_weight_column", "line": first_line, "columns": ", ".join(first)}])
     else:
         width = max(len(r) for _, r in numbered)
-        col = {"holding": 0, "asset": 1, "weight": 2} if width >= 3 else {"holding": None, "asset": 0, "weight": 1}
+        if width >= 4:
+            col = {"holding": 0, "asset": 1, "ticker": 2, "weight": 3}
+        elif width == 3:
+            col = {"holding": 0, "asset": 1, "ticker": None, "weight": 2}
+        else:
+            col = {"holding": None, "asset": 0, "ticker": None, "weight": 1}
     if not numbered:
         raise PortfolioError([{"code": "empty"}])
     if len(numbered) > MAX_ROWS:
@@ -221,6 +253,16 @@ def parse_portfolio(data: bytes | str, assets: list[str]) -> Portfolio:
         weight = _number(weight_text)
         if not label:
             errors.append({"code": "missing_asset", "line": line})
+        elif _norm(label) in STOCK_ALIASES:
+            # The ticker column, else a holding name that is itself a ticker ("AAPL").
+            given, name = cell(row, "ticker").strip(), cell(row, "holding").strip()
+            ticker = given.upper() if given else name  # a name as written: "AAPL" yes, "Apple" no
+            if not given and not TICKER_RE.match(ticker):
+                errors.append({"code": "missing_ticker", "line": line})
+            elif not TICKER_RE.match(ticker):
+                errors.append({"code": "bad_ticker", "line": line, "value": ticker})
+            else:
+                asset = f"{STOCK}:{ticker}"
         elif asset is None:
             errors.append({"code": "unknown_asset", "line": line, "value": label})
         if weight is None:
@@ -231,7 +273,7 @@ def parse_portfolio(data: bytes | str, assets: list[str]) -> Portfolio:
             rows.append((line, cell(row, "holding") or label, asset, weight))
     if errors:
         if any(e["code"] == "unknown_asset" for e in errors):
-            errors.append({"code": "accepted", "values": ", ".join(assets)})
+            errors.append({"code": "accepted", "values": ", ".join([*assets, STOCK])})
         if any(e["code"] == "unknown_asset" and _number(e["value"]) is not None for e in errors):
             errors.append({"code": "decimal_comma"})  # "Gold,2,5" read as three columns
         raise PortfolioError(errors)
@@ -249,7 +291,7 @@ def parse_portfolio(data: bytes | str, assets: list[str]) -> Portfolio:
     holdings = [Holding(h.line, h.name, h.asset, h.weight / s) for h in holdings]  # rounding gap spread pro rata
     weights = {a: 0.0 for a in assets}
     for h in holdings:
-        weights[h.asset] += h.weight
+        weights[h.asset] = weights.get(h.asset, 0.0) + h.weight
     warnings = []
     if abs(total - scale) > 1e-9:
         warnings.append({"code": "rescaled", "total": round(total, 2)})
@@ -267,7 +309,10 @@ def messages(problems: list[dict], lang: str) -> list[str]:
 
 
 def holdings_impact(portfolio: Portfolio, scenarios: list[Scenario], ids: list[str]) -> pd.DataFrame:
-    """Contribution of each holding (weight x its class shock) under each scenario: rows = holdings."""
+    """Contribution of each holding (weight x its class shock) under each scenario: rows = holdings.
+
+    Single stocks need the scenarios returned by stocks.with_stocks (their move as a "stock:<TICKER>" shock).
+    """
     by_id = {s.id: s for s in scenarios}
     return pd.DataFrame(
         {sid: [h.weight * by_id[sid].shocks.get(h.asset, 0.0) for h in portfolio.holdings] for sid in ids},
@@ -291,3 +336,16 @@ def template(assets: list[str], lang: str = "en") -> str:
     sep = "," if lang == "en" else ";"
     lines = [head] + [f"{t(f'asset.{a}', lang)}{sep}{a}{sep}{example.get(a, 0)}" for a in assets]
     return "\n".join(lines) + "\n"
+
+
+def stock_template(lang: str = "en") -> str:
+    """The same with two single stocks, priced from Tiingo (live data only)."""
+    if lang == "en":
+        return (
+            "holding,asset_class,ticker,weight\nMSCI World ETF,equity_world,,40\nApple,stock,AAPL,10\n"
+            "Microsoft,stock,MSFT,10\nEuro govies,gov_bonds,,30\nGold ETC,gold,,5\nMoney market,cash,,5\n"
+        )
+    return (
+        "ligne;classe_d_actif;ticker;poids\nMSCI World;Actions monde;;40\nApple;action;AAPL;10\n"
+        "Microsoft;action;MSFT;10\nEmprunts d'État;gov_bonds;;30\nOr;or;;5\nMonétaire;cash;;5\n"
+    )

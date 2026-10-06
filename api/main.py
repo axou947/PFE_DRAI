@@ -14,6 +14,7 @@ from pfe_drai.pipeline import Pipeline
 from pfe_drai.reporting import build_note, to_html, to_markdown, to_pdf
 from pfe_drai.scenarios import impact_table, load_funds, load_library, rank_scenarios
 from pfe_drai.scenarios.portfolio import MAX_BYTES, PortfolioError, holdings_impact, messages, parse_portfolio
+from pfe_drai.scenarios.stocks import StockDataError, stock_moves, tiingo_fetcher, with_stocks
 
 app = FastAPI(title="PFE DRAI", description="Market regime detection API", version="0.1.0")
 Lang = Literal["fr", "en"]
@@ -332,8 +333,10 @@ def scenarios_portfolio(body: PortfolioIn, model: str | None = None, lang: Lang 
     assets, library = load_library(p.settings)
     try:
         portfolio = parse_portfolio(body.csv, assets)
-    except PortfolioError as err:
+        moves = stock_moves(portfolio.tickers, library, tiingo_fetcher(p.settings)) if portfolio.tickers else {}
+    except (PortfolioError, StockDataError) as err:
         raise HTTPException(422, {"errors": err.errors, "messages": messages(err.errors, lang)}) from None
+    library = with_stocks(library, moves) if moves else library
     state = p.state(_model(model))
     ranking = rank_scenarios(library, pd.Series(state.scores), pd.Series(state.probabilities))
     ids = list(ranking["id"])
@@ -342,7 +345,19 @@ def scenarios_portfolio(body: PortfolioIn, model: str | None = None, lang: Lang 
     names = {s.id: s.name[lang] for s in library}
     return {
         "weights": portfolio.weights,
-        "holdings": [{"line": h.line, "name": h.name, "asset_class": h.asset, "weight": h.weight} for h in portfolio.holdings],
+        "holdings": [
+            {
+                "line": h.line,
+                "name": h.name,
+                "asset_class": "stock" if h.ticker else h.asset,
+                "ticker": h.ticker,
+                "weight": h.weight,
+            }
+            for h in portfolio.holdings
+        ],
+        "stocks": {
+            tk: {"prices_from": m.first_date, "beta": m.beta, "source": m.sources, "move": m.moves} for tk, m in moves.items()
+        },
         "warnings": messages(portfolio.warnings, lang),
         "scenarios": [
             {
