@@ -1,10 +1,10 @@
 {
  "since": "2026-10-05",
- "last_market_day": "2026-10-05",
+ "last_market_day": "2026-10-06",
  "models": {
   "v2.2 (published)": {
    "name": "v2.2 (published)",
-   "days": 1,
+   "days": 2,
    "first_day": "2026-10-05",
    "chain_ok": true,
    "alarm_days": 0,
@@ -17,7 +17,7 @@
   },
   "vix_term": {
    "name": "vix_term",
-   "days": 1,
+   "days": 2,
    "first_day": "2026-10-05",
    "chain_ok": true,
    "alarm_days": 0,
@@ -30,7 +30,7 @@
   },
   "hy_credit": {
    "name": "hy_credit",
-   "days": 1,
+   "days": 2,
    "first_day": "2026-10-05",
    "chain_ok": true,
    "alarm_days": 0,
