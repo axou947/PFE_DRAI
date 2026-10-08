@@ -1,12 +1,12 @@
 # Challenger scorecard
 
-Live since 2026-10-05, last market day 2026-10-06. Every number is read from the published, hash-chained entries (docs/CHALLENGERS.md). Rebuilt every day.
+Live since 2026-10-05, last market day 2026-10-07. Every number is read from the published, hash-chained entries (docs/CHALLENGERS.md). Rebuilt every day.
 
 | model | days | chain | episodes scored | detected | median latency | false alarms (final) | pending |
 |---|---:|---|---:|---:|---:|---:|---:|
-| v2.2 (published) | 2 | ok | 0 | 0 | – | 0 | 0 |
-| vix_term | 2 | ok | 0 | 0 | – | 0 | 0 |
-| hy_credit | 2 | ok | 0 | 0 | – | 0 | 0 |
+| v2.2 (published) | 3 | ok | 0 | 0 | – | 0 | 0 |
+| vix_term | 3 | ok | 0 | 0 | – | 0 | 0 |
+| hy_credit | 3 | ok | 0 | 0 | – | 0 | 0 |
 
 ## Who called each stress episode first
 

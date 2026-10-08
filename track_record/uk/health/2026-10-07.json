@@ -1,0 +1,121 @@
+{
+ "checks": [
+  {
+   "details": {
+    "expected_day": "2026-10-07",
+    "series": [
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-10-07",
+      "name": "equity",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-10-07",
+      "name": "vix",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 1,
+      "frequency": "daily",
+      "last": "2026-10-06",
+      "name": "us10y",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 1,
+      "frequency": "daily",
+      "last": "2026-10-06",
+      "name": "us2y",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 1,
+      "frequency": "daily",
+      "last": "2026-10-06",
+      "name": "breakeven10",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "monthly",
+      "last": "2026-10-15",
+      "name": "cpi",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 9,
+      "frequency": "monthly",
+      "last": "2026-09-29",
+      "name": "indpro",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 40,
+      "frequency": "weekly",
+      "last": "2026-08-29",
+      "name": "claims",
+      "source": "regional",
+      "status": "failure",
+      "unit": "day(s) since release"
+     }
+    ]
+   },
+   "message": "stale: claims (last 2026-08-29, 40 day(s) since release)",
+   "name": "sources.freshness",
+   "status": "failure"
+  },
+  {
+   "details": {
+    "providers": [
+     "regional"
+    ],
+    "series_source": {
+     "breakeven10": "regional",
+     "claims": "regional",
+     "cpi": "regional",
+     "equity": "regional",
+     "indpro": "regional",
+     "us10y": "regional",
+     "us2y": "regional",
+     "vix": "regional"
+    }
+   },
+   "message": "live data from regional",
+   "name": "sources.path",
+   "status": "ok"
+  },
+  {
+   "details": {},
+   "message": "published 2026-10-07, the last market day",
+   "name": "run.entry",
+   "status": "ok"
+  }
+ ],
+ "entry": {
+  "date": "2026-10-07",
+  "sha256": "4c8c0333a02d80c378f126c5fed1eca29743031c83131dabeb43336c3628e095"
+ },
+ "expected_day": "2026-10-07",
+ "generated_at": "2026-10-08 02:14 UTC",
+ "kind": "health",
+ "latest_day": "2026-10-07",
+ "status": "failure"
+}
