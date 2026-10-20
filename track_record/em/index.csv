@@ -9,3 +9,4 @@ date,regime,p_regime,model,data_provider,sha256
 2026-10-14,expansion,0.5538,combined,regional,ed9798202427d75b0eeaac02a8c13b8168dd8eaf57af7925fd4d81d412c137aa
 2026-10-15,expansion,0.5917,combined,regional,e582b6542c12f138907bfe0f17f7e970a744d4e8749cb5b0112abe700aa9bb66
 2026-10-16,stress,0.4945,combined,regional,79385fbdb38e6701b21f70a83d0f4d7b518b11fd5ce728acd32aba66304027d8
+2026-10-19,stress,0.4945,combined,regional,4f32230f0941709bbab86d9677713160d92745f56ea118d8b75753ad7347a888
