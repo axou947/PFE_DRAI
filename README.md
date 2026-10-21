@@ -30,7 +30,7 @@ puis le résultat est mis en cache dans `data_cache/`.
 | **Historique** | latence de détection par épisode, fausses alertes par an, fiabilité de la probabilité de stress (courbe de calibration, Brier, ECE, avant et après calibration), comparaison des modèles, track record publié |
 | **Track record** | la page publique du track record : chaque jour publié (régime, probabilité de stress, alarme, empreinte SHA-256, horodatage Bitcoin), chaque épisode de stress et son délai de détection, chaque alarme, fausses alarmes comprises ; le backtest 2009-2026 à part, clairement séparé du réel (docs/TRACK_RECORD.md) |
 | **Alertes** | changement de régime, alarme de stress, alerte précoce à 1 semaine, mouvements brusques ; filtres par type et période |
-| **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables) ou sur votre propre portefeuille (CSV collé ou déposé, lu en mémoire seulement, jamais enregistré : docs/PORTFOLIO.md), contribution par position, note de comité des risques en PDF / HTML / Markdown |
+| **Scénarios et comité** | scénarios de stress historiques classés selon le régime actuel, impact sur un fonds type (pondérations modifiables) ou sur votre propre portefeuille (CSV collé ou déposé, lu en mémoire seulement, jamais enregistré : docs/PORTFOLIO.md), actions en direct par leur ticker (variation réelle de l'action, ou estimation par son bêta au S&P 500 si elle n'était pas encore cotée), contribution par position, note de comité des risques en PDF / HTML / Markdown |
 
 Dans la barre latérale : langue FR/EN, source de données, modèle, date d'analyse (pour revoir
 n'importe quel jour passé) et seuil d'alarme (score du détecteur).

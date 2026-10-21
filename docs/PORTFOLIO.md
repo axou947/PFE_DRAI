@@ -61,6 +61,7 @@ and said in a warning; anything further is an error.
 Every problem is listed at once, with its line, in French or English:
 
 - unknown asset class (the accepted list follows), empty class;
+- stock without a ticker, malformed ticker, ticker Tiingo does not know, too short a history;
 - weight that is not a number, negative weight (short positions are not handled);
 - weights not summing to 100 or 1;
 - no asset-class or weight column in the header;
@@ -68,9 +69,40 @@ Every problem is listed at once, with its line, in French or English:
   use semicolons;
 - empty file, more than 500 rows, larger than 200 KB.
 
+## Single stocks
+
+A row with class `stock` (or `action`, `shares`, `titre vif`) and a ticker is priced from its own
+history instead of a class shock:
+
+```csv
+holding,asset_class,ticker,weight
+MSCI World ETF,equity_world,,40
+Apple,stock,AAPL,10
+Tesla,stock,TSLA,10
+Euro government bonds,gov_bonds,,30
+Gold ETC,gold,,5
+Money market,cash,,5
+```
+
+- The ticker comes from a `ticker` (or `symbol`) column; without one, a holding name written as a
+  ticker (`AAPL`) is taken as the ticker. Headerless 4 columns = holding, class, ticker, weight.
+- **Listed before the scenario**: the actual total return over the window, from Tiingo adjusted
+  closes (dividends and splits included), close before the start to close on the end date.
+- **Listed later** (Tesla in 2000 or 2008): an estimate, beta to the S&P 500 (SPY) from daily
+  returns over the last two years x the SPY return over the window. Marked ≈ in the per-holding
+  table and listed in the "Single stocks" table. It keeps only the market part of the move: what was
+  specific to the company, its sector or its size then is not in it.
+- Real data only (`--provider fred` or `tiingo`) and the Tiingo key (TIINGO_API_KEY). On simulated
+  data, or without the key, the app says so.
+- Tiingo covers US listings and ADRs. A non-US stock goes through its US listing or ADR (LVMUY for
+  LVMH, TTE for TotalEnergies); an unknown ticker is reported by name.
+- A stock with less than six months of prices cannot be estimated and is reported.
+- Only the tickers go to Tiingo, never the weights. Prices are kept for the browser session in
+  memory (st.session_state), never on disk.
+
 ## What the number means
 
 Impact = sum over holdings of weight x the indicative shock of the holding's asset class over the
-scenario window. A fund or a stock is treated as its whole asset class, not as itself: a tech
-stock gets the world-equity shock. The shocks are indicative (see config/scenarios.yaml) and the
+scenario window. A fund is treated as its whole asset class, not as itself; a single stock given
+with class `stock` takes its own move (above). The shocks are indicative (see config/scenarios.yaml) and the
 result describes what those past episodes did to such a mix; it is not a forecast or advice.
