@@ -12,3 +12,4 @@ date,regime,p_regime,model,data_provider,sha256
 2026-10-20,overheating,0.7468,combined,regional,3210aac696733b82ac0308cc91be27f60b88036ad556ad877711c7444597b5b2
 2026-10-22,overheating,0.7167,combined,regional,e7c9de4e073b53de4584ff3be375fbf5ce5a2537d30eb34858137f91c92dd1ef
 2026-10-23,overheating,0.6509,combined,regional,939706e037045fe7c722fd7b2fba9a1edac5bc5cf2e0b30fe58d3d0b6317b753
+2026-10-26,overheating,0.6517,combined,regional,269dfc90d0240910fa538cf00a64d89ab530fc7932d209b294849741facfe974
