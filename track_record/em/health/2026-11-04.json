@@ -1,0 +1,121 @@
+{
+ "checks": [
+  {
+   "details": {
+    "expected_day": "2026-11-04",
+    "series": [
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-04",
+      "name": "equity",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-04",
+      "name": "vix",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-04",
+      "name": "hy_bond",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-04",
+      "name": "treasury",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-04",
+      "name": "us10y",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 11,
+      "frequency": "daily",
+      "last": "2026-10-20",
+      "name": "us2y",
+      "source": "regional",
+      "status": "failure",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "monthly",
+      "last": "2026-11-14",
+      "name": "cpi",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 6,
+      "frequency": "monthly",
+      "last": "2026-10-30",
+      "name": "indpro",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     }
+    ]
+   },
+   "message": "stale: us2y (last 2026-10-20, 11 session(s) behind)",
+   "name": "sources.freshness",
+   "status": "failure"
+  },
+  {
+   "details": {
+    "providers": [
+     "regional"
+    ],
+    "series_source": {
+     "cpi": "regional",
+     "equity": "regional",
+     "hy_bond": "regional",
+     "indpro": "regional",
+     "treasury": "regional",
+     "us10y": "regional",
+     "us2y": "regional",
+     "vix": "regional"
+    }
+   },
+   "message": "live data from regional",
+   "name": "sources.path",
+   "status": "ok"
+  },
+  {
+   "details": {},
+   "message": "published 2026-11-04, the last market day",
+   "name": "run.entry",
+   "status": "ok"
+  }
+ ],
+ "entry": {
+  "date": "2026-11-04",
+  "sha256": "2cb70e1469d404a435e2acebdd8a2b11d52fead1574722264c877c501123d200"
+ },
+ "expected_day": "2026-11-04",
+ "generated_at": "2026-11-05 02:43 UTC",
+ "kind": "health",
+ "latest_day": "2026-11-04",
+ "status": "failure"
+}
