@@ -21,3 +21,4 @@ date,regime,p_regime,model,data_provider,sha256
 2026-11-02,stress,0.5968,combined,regional,c0440b1f3cf0ff132780a1af207ff33494e10a1872afa69bedef2de6e4946346
 2026-11-03,stress,0.5968,combined,regional,f4c2266fab3a1703e334dfbe0636b5ef544a2cf4481d289f043606eca815fe2f
 2026-11-04,stress,0.6528,combined,regional,2cb70e1469d404a435e2acebdd8a2b11d52fead1574722264c877c501123d200
+2026-11-05,stress,0.6528,combined,regional,de70e6ea776baadbacc9525412cb5d726765ea1a72a316120681985d9ad585f5
