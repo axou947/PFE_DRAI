@@ -22,3 +22,4 @@ date,regime,p_regime,model,data_provider,sha256
 2026-11-03,expansion,0.6852,combined,fred,cc2d5d5a7a4d42dbccc88c7c9451b99dcb98207b1c05effe30f7a8b4c7c36663
 2026-11-04,expansion,0.6770,combined,fred,d34b434a792c8cd43ca9a7163548dbc7e5633a4df7199e2f0798ff0c8f499bcc
 2026-11-05,expansion,0.5862,combined,fred,98f2759a8440dac5cbdf7a7900c91462ad635fa34c144b61a6052c769241d531
+2026-11-06,expansion,0.5793,combined,fred,c251f2e7f16d4c250ada89dbbaed0bd4b718c44980d811158e843369febca3b8
