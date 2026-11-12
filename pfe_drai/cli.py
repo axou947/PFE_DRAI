@@ -383,14 +383,19 @@ def cmd_scenarios(args):
 
     from .scenarios import impact_table, load_funds, load_library, rank_scenarios
     from .scenarios.portfolio import PortfolioError, messages, parse_portfolio
+    from .scenarios.stocks import StockDataError, stock_moves, tiingo_fetcher, with_stocks
 
     lang = args.lang
     p = _pipeline(args)
     assets, library = load_library(p.settings)
+    moves = {}
     if args.portfolio:
         try:  # read in memory; nothing is written
             portfolio = parse_portfolio(Path(args.portfolio).read_bytes(), assets)
-        except PortfolioError as err:
+            if portfolio.tickers:
+                moves = stock_moves(portfolio.tickers, library, tiingo_fetcher(p.settings))
+                library = with_stocks(library, moves)
+        except (PortfolioError, StockDataError) as err:
             print(t("portfolio.invalid", lang), file=sys.stderr)
             for line in messages(err.errors, lang):
                 print(f"  {line}", file=sys.stderr)
@@ -412,6 +417,11 @@ def cmd_scenarios(args):
     for a in assets:
         if fund.weights.get(a):
             print(f"  {t(f'asset.{a}', lang):<28} {fmt_pct(fund.weights[a], lang, 1):>8}")
+    for tk, m in moves.items():
+        beta = "–" if m.beta is None else f"{m.beta:.2f}"
+        estimated = [names_id for names_id, src in m.sources.items() if src == "estimated"]
+        label = t("portfolio.stock_label", lang, ticker=tk)
+        print(f"  {label:<28} {fmt_pct(fund.weights[f'stock:{tk}'], lang, 1):>8}   beta {beta}, ≈ {', '.join(estimated) or '-'}")
     print(f"\n{t('scen.col.scenario', lang):<48} {t('scen.col.relevance', lang):>10} {t(impact_key, lang):>30}")
     for row in ranking.to_dict("records"):
         print(
@@ -419,6 +429,8 @@ def cmd_scenarios(args):
             f" {fmt_pct(impacts.loc[row['id'], 'total'], lang, 1):>30}"
         )
     print(f"\n{t('scen.indicative', lang)}")
+    if moves:
+        print(t("portfolio.stocks.help", lang))
 
 
 def cmd_states(args):

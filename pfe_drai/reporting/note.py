@@ -10,13 +10,23 @@ from ..scenarios import Fund, impact_table, load_funds, load_library, rank_scena
 
 
 def build_note(
-    pipeline, lang: str = "fr", model: str | None = None, fund: Fund | None = None, date=None, top_k: int | None = None
+    pipeline,
+    lang: str = "fr",
+    model: str | None = None,
+    fund: Fund | None = None,
+    date=None,
+    top_k: int | None = None,
+    scenarios: list | None = None,
 ) -> dict:
-    """Collect everything the note shows, as plain data (easy to test and to render)."""
+    """Collect everything the note shows, as plain data (easy to test and to render).
+
+    `scenarios` replaces the library, e.g. with your own stocks' moves added (scenarios/stocks.py).
+    """
     settings = pipeline.settings
     state = pipeline.state(model, date)
     top_k = top_k or settings["scenarios"]["top_k"]
-    assets, scenarios = load_library(settings)
+    assets, library = load_library(settings)
+    scenarios = scenarios or library
     fund = fund or load_funds(settings)[1]
     ranking = rank_scenarios(scenarios, pd.Series(state.scores), pd.Series(state.probabilities)).head(top_k)
     impacts = impact_table(fund, scenarios, list(ranking["id"]))
@@ -107,7 +117,12 @@ def build_note(
         "why": note_lines(explain(pipeline, state.model, state.date), lang),
         "changes": changes,
         "scenarios": scen_rows,
-        "impact_assets": [{"name": t(f"asset.{a}", lang), "weight": fmt_pct(fund.weights.get(a, 0.0), lang)} for a in assets],
+        "impact_assets": [{"name": t(f"asset.{a}", lang), "weight": fmt_pct(fund.weights.get(a, 0.0), lang)} for a in assets]
+        + [
+            {"name": t("portfolio.stock_label", lang, ticker=k.split(":", 1)[1]), "weight": fmt_pct(w, lang)}
+            for k, w in fund.weights.items()
+            if k.startswith("stock:")
+        ],
         "method": t(
             "note.method",
             lang,

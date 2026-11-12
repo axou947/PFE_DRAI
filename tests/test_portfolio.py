@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
@@ -5,6 +7,7 @@ import api.main as api_main
 from pfe_drai.reporting import build_note, to_markdown
 from pfe_drai.scenarios import fund_impact, load_library
 from pfe_drai.scenarios.portfolio import PortfolioError, holdings_impact, messages, parse_portfolio, template
+from pfe_drai.scenarios.stocks import StockDataError, beta, stock_moves, tiingo_fetcher, window_return, with_stocks
 
 
 @pytest.fixture(scope="module")
@@ -116,3 +119,86 @@ def test_api_portfolio(pipeline, monkeypatch):
     bad = client.post("/scenarios/portfolio", params={"lang": "fr"}, json={"csv": "bitcoin,100\n"})
     assert bad.status_code == 422
     assert bad.json()["detail"]["messages"][0] == "Ligne 1 : classe d'actif inconnue « bitcoin »."
+
+
+# ---------------------------------------------------------------- single stocks
+def _prices(start, daily, days=None, end="2026-10-02", seed=0):
+    idx = pd.bdate_range(start, end)
+    noise = np.random.default_rng(seed).normal(0, 0.01, len(idx)) if days is None else days(idx)
+    return pd.Series(100 * np.cumprod(1 + daily + noise), index=idx)
+
+
+def test_stock_rows_are_read_with_their_ticker(library):
+    assets, _ = library
+    p = parse_portfolio(
+        "holding,asset_class,ticker,weight\nApple,stock,aapl,10\nBerkshire,action,BRK-B,10\nWorld,equity_world,,80\n", assets
+    )
+    assert p.tickers == ["AAPL", "BRK-B"]
+    assert p.weights["stock:AAPL"] == pytest.approx(0.1) and p.weights["equity_world"] == pytest.approx(0.8)
+    assert [h.ticker for h in p.holdings] == ["AAPL", "BRK-B", None]
+    # Headerless: a 4th column is the ticker; or the holding name when written as a ticker.
+    assert parse_portfolio("Apple;stock;AAPL;50\nWorld;equity_world;;50\n", assets).tickers == ["AAPL"]
+    assert parse_portfolio("MSFT,stock,100\n", assets).tickers == ["MSFT"]
+    assert codes("Apple,stock,100\n", assets) == ["missing_ticker"]
+    assert codes("holding,asset_class,ticker,weight\nX,stock,AA PL!,100\n", assets) == ["bad_ticker"]
+
+
+def test_actual_move_when_listed_and_beta_estimate_otherwise(library):
+    _, scenarios = library
+    spy = _prices("1993-01-29", 0.0003, seed=1)
+    old = spy * 1.0  # an old stock: identical to SPY, listed since 1993
+    young = _prices("2015-01-02", 0.0, days=lambda idx: 2 * spy.pct_change().reindex(idx).fillna(0).values)  # beta 2
+    feed = {"SPY": spy, "OLD": old, "YOUNG": young}
+
+    def fetch(tk):
+        if tk not in feed:
+            raise LookupError(tk)
+        return feed[tk]
+
+    moves = stock_moves(["OLD", "YOUNG"], scenarios, fetch)
+    gfc = next(s for s in scenarios if s.id == "gfc_2008")
+    spy_gfc = window_return(spy, gfc.start, gfc.end)
+    assert moves["OLD"].sources["gfc_2008"] == "actual" and moves["OLD"].moves["gfc_2008"] == pytest.approx(spy_gfc)
+    assert moves["YOUNG"].beta == pytest.approx(2, abs=1e-6)
+    assert moves["YOUNG"].sources["gfc_2008"] == "estimated"
+    assert moves["YOUNG"].moves["gfc_2008"] == pytest.approx(2 * spy_gfc)
+    assert moves["YOUNG"].sources["covid_2020"] == "actual"
+
+    with pytest.raises(StockDataError) as err:
+        stock_moves(["NOPE", "TINY"], scenarios, lambda tk: {**feed, "TINY": spy.tail(30)}[tk] if tk != "NOPE" else fetch(tk))
+    assert [e["code"] for e in err.value.errors] == ["unknown_ticker", "short_history"]
+    assert messages(err.value.errors, "en")[0].startswith("Tiingo does not know the ticker NOPE")
+
+
+def test_stock_impact_flows_into_tables_and_note(pipeline, library):
+    assets, scenarios = library
+    spy = _prices("1993-01-29", 0.0003, seed=2)
+    p = parse_portfolio("holding,asset_class,ticker,weight\nIndex twin,stock,TWIN,40\nBund,gov_bonds,,60\n", assets)
+    moves = stock_moves(p.tickers, scenarios, lambda tk: spy)
+    augmented = with_stocks(scenarios, moves)
+    gfc = next(s for s in augmented if s.id == "gfc_2008")
+    total = fund_impact(p.weights, gfc)["total"]
+    assert total == pytest.approx(0.4 * window_return(spy, gfc.start, gfc.end) + 0.6 * gfc.shocks["gov_bonds"])
+    assert holdings_impact(p, augmented, ["gfc_2008"])["gfc_2008"].sum() == pytest.approx(total)
+    note = build_note(pipeline, "en", "kmeans", fund=p.fund(), scenarios=augmented)
+    assert any(a["name"] == "Stock TWIN" for a in note["impact_assets"])
+
+
+def test_stocks_need_live_data_and_a_key(settings, monkeypatch):
+    with pytest.raises(StockDataError) as err:
+        tiingo_fetcher(settings)  # the test settings use simulated data
+    assert err.value.errors == [{"code": "needs_live"}]
+    live = {**settings, "data": {**settings["data"], "provider": "fred"}}
+    monkeypatch.delenv(settings["data"]["tiingo_api_key_env"], raising=False)
+    with pytest.raises(StockDataError) as err:
+        tiingo_fetcher(live)
+    assert err.value.errors[0]["code"] == "needs_key"
+    assert beta(pd.Series([1.0, 2.0]), pd.Series([1.0, 2.0])) is None
+
+
+def test_api_stock_portfolio_on_simulated_data_says_why(pipeline, monkeypatch):
+    monkeypatch.setattr(api_main, "pipeline", lambda: pipeline)
+    client = TestClient(api_main.app)
+    bad = client.post("/scenarios/portfolio", params={"lang": "en"}, json={"csv": "AAPL,stock,100\n"})
+    assert bad.status_code == 422
+    assert bad.json()["detail"]["messages"][0].startswith("Single stocks need real prices")
