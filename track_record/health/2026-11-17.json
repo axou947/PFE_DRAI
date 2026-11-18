@@ -1,0 +1,153 @@
+{
+ "checks": [
+  {
+   "details": {
+    "expected_day": "2026-11-17",
+    "series": [
+     {
+      "age": 1,
+      "frequency": "daily",
+      "last": "2026-11-16",
+      "name": "vix",
+      "source": "fred",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 1,
+      "frequency": "daily",
+      "last": "2026-11-16",
+      "name": "us10y",
+      "source": "fred",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 1,
+      "frequency": "daily",
+      "last": "2026-11-16",
+      "name": "us2y",
+      "source": "fred",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-17",
+      "name": "breakeven10",
+      "source": "fred",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 6,
+      "frequency": "weekly",
+      "last": "2026-11-12",
+      "name": "claims",
+      "source": "alfred",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 1,
+      "frequency": "monthly",
+      "last": "2026-11-17",
+      "name": "indpro",
+      "source": "alfred",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 8,
+      "frequency": "monthly",
+      "last": "2026-11-10",
+      "name": "cpi",
+      "source": "alfred",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-17",
+      "name": "equity",
+      "source": "tiingo",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-17",
+      "name": "hy_bond",
+      "source": "tiingo",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-17",
+      "name": "ig_bond",
+      "source": "tiingo",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-17",
+      "name": "treasury",
+      "source": "tiingo",
+      "status": "ok",
+      "unit": "session(s) behind"
+     }
+    ]
+   },
+   "message": "all 11 series are fresh",
+   "name": "sources.freshness",
+   "status": "ok"
+  },
+  {
+   "details": {
+    "providers": [
+     "alfred",
+     "fred",
+     "tiingo"
+    ],
+    "series_source": {
+     "breakeven10": "fred",
+     "claims": "alfred",
+     "cpi": "alfred",
+     "equity": "tiingo",
+     "hy_bond": "tiingo",
+     "ig_bond": "tiingo",
+     "indpro": "alfred",
+     "treasury": "tiingo",
+     "us10y": "fred",
+     "us2y": "fred",
+     "vix": "fred"
+    }
+   },
+   "message": "live data from alfred, fred, tiingo",
+   "name": "sources.path",
+   "status": "ok"
+  },
+  {
+   "details": {},
+   "message": "published 2026-11-17, the last market day",
+   "name": "run.entry",
+   "status": "ok"
+  }
+ ],
+ "entry": {
+  "date": "2026-11-17",
+  "sha256": "3e247f5d90ea3e403ed19a462638ad010325322f2263b43861f4cf806324ac68"
+ },
+ "expected_day": "2026-11-17",
+ "generated_at": "2026-11-18 03:49 UTC",
+ "kind": "health",
+ "latest_day": "2026-11-17",
+ "status": "ok"
+}
