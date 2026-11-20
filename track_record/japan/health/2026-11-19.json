@@ -1,0 +1,111 @@
+{
+ "checks": [
+  {
+   "details": {
+    "expected_day": "2026-11-19",
+    "series": [
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-19",
+      "name": "equity",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-19",
+      "name": "vix",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-20",
+      "name": "us10y",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 0,
+      "frequency": "daily",
+      "last": "2026-11-20",
+      "name": "us2y",
+      "source": "regional",
+      "status": "ok",
+      "unit": "session(s) behind"
+     },
+     {
+      "age": 6,
+      "frequency": "monthly",
+      "last": "2026-11-14",
+      "name": "cpi",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 0,
+      "frequency": "monthly",
+      "last": "2026-11-29",
+      "name": "indpro",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     },
+     {
+      "age": 0,
+      "frequency": "weekly",
+      "last": "2026-11-29",
+      "name": "claims",
+      "source": "regional",
+      "status": "ok",
+      "unit": "day(s) since release"
+     }
+    ]
+   },
+   "message": "all 7 series are fresh",
+   "name": "sources.freshness",
+   "status": "ok"
+  },
+  {
+   "details": {
+    "providers": [
+     "regional"
+    ],
+    "series_source": {
+     "claims": "regional",
+     "cpi": "regional",
+     "equity": "regional",
+     "indpro": "regional",
+     "us10y": "regional",
+     "us2y": "regional",
+     "vix": "regional"
+    }
+   },
+   "message": "live data from regional",
+   "name": "sources.path",
+   "status": "ok"
+  },
+  {
+   "details": {},
+   "message": "published 2026-11-19, the last market day",
+   "name": "run.entry",
+   "status": "ok"
+  }
+ ],
+ "entry": {
+  "date": "2026-11-19",
+  "sha256": "83c4f9e6d689fc629cfc6db1a2bd9bb603a0cd4fbb209ad4132ef319b8923cfa"
+ },
+ "expected_day": "2026-11-19",
+ "generated_at": "2026-11-20 03:43 UTC",
+ "kind": "health",
+ "latest_day": "2026-11-19",
+ "status": "ok"
+}
