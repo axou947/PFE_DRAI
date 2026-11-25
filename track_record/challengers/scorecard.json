@@ -1,13 +1,13 @@
 {
  "since": "2026-10-05",
- "last_market_day": "2026-11-23",
+ "last_market_day": "2026-11-24",
  "models": {
   "v2.2 (published)": {
    "name": "v2.2 (published)",
-   "days": 35,
+   "days": 36,
    "first_day": "2026-10-05",
    "chain_ok": true,
-   "alarm_days": 3,
+   "alarm_days": 4,
    "episodes_scored": 1,
    "detected": 1,
    "pending": 0,
@@ -17,10 +17,10 @@
   },
   "vix_term": {
    "name": "vix_term",
-   "days": 35,
+   "days": 36,
    "first_day": "2026-10-05",
    "chain_ok": true,
-   "alarm_days": 3,
+   "alarm_days": 4,
    "episodes_scored": 1,
    "detected": 1,
    "pending": 0,
@@ -30,14 +30,14 @@
   },
   "hy_credit": {
    "name": "hy_credit",
-   "days": 35,
+   "days": 36,
    "first_day": "2026-10-05",
    "chain_ok": true,
-   "alarm_days": 0,
-   "episodes_scored": 0,
-   "detected": 0,
-   "pending": 1,
-   "median_latency": null,
+   "alarm_days": 1,
+   "episodes_scored": 1,
+   "detected": 1,
+   "pending": 0,
+   "median_latency": 2.0,
    "false_alarms": 0,
    "false_alarms_pending": 0
   }
@@ -55,8 +55,8 @@
      "latency_days": -1
     },
     "hy_credit": {
-     "status": "pending",
-     "latency_days": null
+     "status": "detected",
+     "latency_days": 2
     }
    },
    "first": [
@@ -72,12 +72,17 @@
     "v2.2 (published)": {
      "true_alarms": 1,
      "false_alarms": 0,
-     "alarm_days": 3
+     "alarm_days": 4
     },
     "vix_term": {
      "true_alarms": 1,
      "false_alarms": 0,
-     "alarm_days": 3
+     "alarm_days": 4
+    },
+    "hy_credit": {
+     "true_alarms": 1,
+     "false_alarms": 0,
+     "alarm_days": 1
     }
    }
   }
