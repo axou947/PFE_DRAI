@@ -1,13 +1,13 @@
 {
  "since": "2026-10-05",
- "last_market_day": "2026-11-25",
+ "last_market_day": "2026-11-27",
  "models": {
   "v2.2 (published)": {
    "name": "v2.2 (published)",
-   "days": 37,
+   "days": 38,
    "first_day": "2026-10-05",
    "chain_ok": true,
-   "alarm_days": 5,
+   "alarm_days": 6,
    "episodes_scored": 1,
    "detected": 1,
    "pending": 0,
@@ -17,10 +17,10 @@
   },
   "vix_term": {
    "name": "vix_term",
-   "days": 37,
+   "days": 38,
    "first_day": "2026-10-05",
    "chain_ok": true,
-   "alarm_days": 5,
+   "alarm_days": 6,
    "episodes_scored": 1,
    "detected": 1,
    "pending": 0,
@@ -30,10 +30,10 @@
   },
   "hy_credit": {
    "name": "hy_credit",
-   "days": 37,
+   "days": 38,
    "first_day": "2026-10-05",
    "chain_ok": true,
-   "alarm_days": 2,
+   "alarm_days": 3,
    "episodes_scored": 1,
    "detected": 1,
    "pending": 0,
@@ -72,17 +72,17 @@
     "v2.2 (published)": {
      "true_alarms": 1,
      "false_alarms": 0,
-     "alarm_days": 5
+     "alarm_days": 6
     },
     "vix_term": {
      "true_alarms": 1,
      "false_alarms": 0,
-     "alarm_days": 5
+     "alarm_days": 6
     },
     "hy_credit": {
      "true_alarms": 1,
      "false_alarms": 0,
-     "alarm_days": 2
+     "alarm_days": 3
     }
    }
   }

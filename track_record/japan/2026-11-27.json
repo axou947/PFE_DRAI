@@ -1,0 +1,195 @@
+{
+  "alarm": {
+    "confirm_days": 3,
+    "on": true,
+    "score": 0.9506,
+    "since": "2026-11-09",
+    "threshold": 0.5
+  },
+  "calibration": {
+    "base_rate": 0.2974,
+    "brier": 0.2023,
+    "brier_skill": 0.0316,
+    "calibrator": {
+      "calibrated": true,
+      "event_days": 1859,
+      "first_day": "2026-08-21",
+      "intercept": -0.426,
+      "train_days": 6547,
+      "weights": {
+        "max": 0.1794
+      }
+    },
+    "combination": "calibrated",
+    "ece": 0.04,
+    "log_loss": 0.5951,
+    "mean_p": 0.272,
+    "n_days": 5858,
+    "reliability": [
+      {
+        "days": 843,
+        "high": 0.2,
+        "low": 0.1,
+        "observed": 0.2835,
+        "predicted": 0.1761
+      },
+      {
+        "days": 3492,
+        "high": 0.3,
+        "low": 0.2,
+        "observed": 0.2383,
+        "predicted": 0.2506
+      },
+      {
+        "days": 1082,
+        "high": 0.4,
+        "low": 0.3,
+        "observed": 0.3974,
+        "predicted": 0.3372
+      },
+      {
+        "days": 327,
+        "high": 0.5,
+        "low": 0.4,
+        "observed": 0.5076,
+        "predicted": 0.4367
+      },
+      {
+        "days": 114,
+        "high": 0.6,
+        "low": 0.5,
+        "observed": 0.6579,
+        "predicted": 0.5477
+      }
+    ]
+  },
+  "code_version": "a761b99",
+  "config_sha256": "f44d756fe2f01a645e31ee179c26c526e2d30e36db415430f0e5874e5120bcbf",
+  "data_provider": "regional",
+  "date": "2026-11-27",
+  "drivers": {
+    "cpi_inflation": 1.1096100461998528,
+    "curve_slope": 0.22504017172646454,
+    "drawdown": -0.12835341460667085,
+    "equity_momentum": -0.4007073636996668,
+    "industrial_production": 0.3794370673141069,
+    "jobless_claims": 0.0,
+    "realised_vol": 1.4926198704118683,
+    "short_rate_change": 1.6721451099603462,
+    "vix_level": 1.4926198704118674
+  },
+  "early_warning": {
+    "expansion": 0.0019208761635824054,
+    "overheating": 0.9551049857794766,
+    "slowdown": 0.00038300208285715805,
+    "stress": 0.04259113597408393
+  },
+  "episode_rule_sha256": "6741b6747b53b7cf5c1f9de0c5fedd9caccd111d49c9dbf63fde3a2010b8397a",
+  "flip": {
+    "growth": 0.13768449275443376,
+    "inflation": -0.5908775780800994,
+    "stress": 0.04770455792764505
+  },
+  "is_live_data": true,
+  "model": "combined",
+  "model_version": "japan-v1",
+  "previous": {
+    "date": "2026-11-19",
+    "drivers": {
+      "cpi_inflation": 1.1104492404362432,
+      "curve_slope": 0.3686605392156861,
+      "drawdown": 0.05492806804626644,
+      "equity_momentum": -0.3738570535525979,
+      "industrial_production": 0.37776002771657774,
+      "jobless_claims": 0.0,
+      "realised_vol": 0.8149087598700148,
+      "short_rate_change": 2.2808323973309244,
+      "vix_level": 0.8149087598700143
+    },
+    "probabilities": {
+      "expansion": 0.0223694383981211,
+      "overheating": 0.46166271174739737,
+      "slowdown": 0.015783027482209003,
+      "stress": 0.5001848223722726
+    },
+    "regime": "stress",
+    "scores": {
+      "growth": 0.26393137678051054,
+      "inflation": 1.6956408188835836,
+      "stress": 0.5615818625954319
+    }
+  },
+  "previous_sha256": "c6a2d338505b258d6498d6bb836e08866bfdf71c868908101189a5b7431e25ce",
+  "probabilities": {
+    "expansion": 0.025019064402152968,
+    "overheating": 0.423344247839775,
+    "slowdown": 0.02551979996844856,
+    "stress": 0.5261168877896235
+  },
+  "published_at": "2026-11-28T04:10:38+00:00",
+  "regime": "stress",
+  "region": "japan",
+  "scores": {
+    "growth": 0.13768449275443376,
+    "inflation": 1.3908775780800995,
+    "stress": 0.952295442072355
+  },
+  "states": [
+    {
+      "days": 3389,
+      "distance": 0.3193,
+      "growth": 0.1139,
+      "inflation": 0.0586,
+      "name": "expansion",
+      "purity": 0.535,
+      "share_expansion": 0.535,
+      "share_overheating": 0.0035,
+      "share_slowdown": 0.4615,
+      "share_stress": 0.0,
+      "state": 0,
+      "stress": -0.6874
+    },
+    {
+      "days": 248,
+      "distance": 0.608,
+      "growth": -1.4688,
+      "inflation": -0.0129,
+      "name": "stress",
+      "purity": 0.996,
+      "share_expansion": 0.0,
+      "share_overheating": 0.0,
+      "share_slowdown": 0.004,
+      "share_stress": 0.996,
+      "state": 1,
+      "stress": 2.2711
+    },
+    {
+      "days": 1776,
+      "distance": 0.6067,
+      "growth": -0.837,
+      "inflation": -0.2864,
+      "name": "slowdown",
+      "purity": 0.8891,
+      "share_expansion": 0.0169,
+      "share_overheating": 0.0011,
+      "share_slowdown": 0.8891,
+      "share_stress": 0.0929,
+      "state": 2,
+      "stress": 0.1513
+    },
+    {
+      "days": 1643,
+      "distance": 0.056,
+      "growth": -0.0644,
+      "inflation": 1.428,
+      "name": "overheating",
+      "purity": 0.9464,
+      "share_expansion": 0.0067,
+      "share_overheating": 0.9464,
+      "share_slowdown": 0.0256,
+      "share_stress": 0.0213,
+      "state": 3,
+      "stress": -0.4393
+    }
+  ]
+}
